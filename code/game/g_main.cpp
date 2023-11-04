@@ -324,6 +324,8 @@ cvar_t* com_rend2;
 
 cvar_t* g_overpoweredsaberthrow;
 
+cvar_t* g_AllowWeather;
+
 extern char* G_GetLocationForEnt(const gentity_t* ent);
 extern void CP_FindCombatPointWaypoints();
 extern qboolean InFront(vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f);
@@ -903,7 +905,7 @@ void G_InitCvars()
 
 	g_AllowLedgeGrab = gi.cvar("g_allowledgegrab", "1", CVAR_ARCHIVE);
 
-	in_joystick = gi.cvar("in_joystick", "0", CVAR_ARCHIVE_ND | CVAR_LATCH);
+	in_joystick = gi.cvar("in_joystick", "1", CVAR_ARCHIVE_ND | CVAR_LATCH);
 
 	g_AllowReload = gi.cvar("g_AllowReload", "1", CVAR_ARCHIVE | CVAR_NORESTART);
 
@@ -962,6 +964,8 @@ void G_InitCvars()
 	com_rend2 = gi.cvar("com_rend2", "0", CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART);
 
 	g_overpoweredsaberthrow = gi.cvar("g_overpoweredsaberthrow", "0", CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART);
+
+	g_AllowWeather = gi.cvar("g_AllowWeather", "1", CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART);
 }
 
 /*
@@ -1703,9 +1707,9 @@ static int G_RagAnimForPositioning(gentity_t* ent)
 	return BOTH_DEADFLOP1;
 }
 
-static inline qboolean G_RagWantsHumanoidsOnly(CGhoul2Info* ghl_info)
+static inline qboolean G_RagWantsHumanoidsOnly(CGhoul2Info* ghlInfo)
 {
-	const char* GLAName = gi.G2API_GetGLAName(ghl_info);
+	const char* GLAName = gi.G2API_GetGLAName(ghlInfo);
 	assert(GLAName);
 
 	if (!Q_stricmp("models/players/_humanoid/_humanoid", GLAName))
@@ -2078,7 +2082,7 @@ qboolean G_RagDoll(gentity_t* ent, vec3_t forcedAngles)
 		tParms.start_frame = level.knownAnimFileSets[ent->client->clientInfo.animFileIndex].animations[ragAnim].
 			firstFrame;
 		tParms.end_frame = level.knownAnimFileSets[ent->client->clientInfo.animFileIndex].animations[ragAnim].firstFrame
-			+ level.knownAnimFileSets[ent->client->clientInfo.animFileIndex].animations[ragAnim].num_frames;
+			+ level.knownAnimFileSets[ent->client->clientInfo.animFileIndex].animations[ragAnim].numFrames;
 #if 1
 		{
 			float current_frame;

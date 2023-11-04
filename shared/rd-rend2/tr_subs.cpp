@@ -63,61 +63,62 @@ void QDECL Com_Error(int level, const char* error, ...)
 }
 
 // ZONE
-void* Z_Malloc(const int i_size, const memtag_t e_tag, const qboolean b_zeroit, const int iUnusedAlign)
+void* Z_Malloc(const int iSize, const memtag_t eTag, const qboolean bZeroit, const int iUnusedAlign)
 {
-	return ri.Malloc(i_size, e_tag, b_zeroit, iUnusedAlign);
+	return ri.Z_Malloc(iSize, eTag, bZeroit, iUnusedAlign);
 }
 
-void* R_Malloc(const int i_size, const memtag_t e_tag)
+void* R_Malloc(const int iSize, const memtag_t eTag)
 {
-	return ri.Malloc(i_size, e_tag, qtrue, 4);
+	return ri.Z_Malloc(iSize, eTag, qtrue, 4);
 }
 
-void* R_Malloc(const int i_size, const memtag_t e_tag, const qboolean b_zeroit)
+void* R_Malloc(const int iSize, const memtag_t eTag, const qboolean bZeroit)
 {
-	return ri.Malloc(i_size, e_tag, b_zeroit, 4);
+	return ri.Z_Malloc(iSize, eTag, bZeroit, 4);
 }
 
 #ifdef REND2_SP
-void* R_Malloc(const int i_size, const memtag_t e_tag, const qboolean b_zeroit, const int iAlign)
+void* R_Malloc(const int iSize, const memtag_t eTag, const qboolean bZeroit, const int iUnusedAlign)
 {
-	return ri.Malloc(i_size, e_tag, b_zeroit, iAlign);
+	return ri.Z_Malloc(iSize, eTag, bZeroit, iUnusedAlign);
 }
 
-int Z_Free(void* ptr) {
-	return ri.Z_Free(ptr);
+int Z_Free(void* pvAddress)
+{
+	return ri.Z_Free(pvAddress);
 }
 
-void R_Free(void* ptr)
+void R_Free(void* pvAddress)
 {
-	ri.Z_Free(ptr);
+	ri.Z_Free(pvAddress);
 }
 #else
-void Z_Free(void* ptr) {
+void Z_Free(void* ptr)
+{
 	ri.Z_Free(ptr);
 }
 #endif
 
-int Z_MemSize(memtag_t e_tag) {
-	return ri.Z_MemSize(e_tag);
+int Z_MemSize(const memtag_t eTag)
+{
+	return ri.Z_MemSize(eTag);
 }
 
-void Z_MorphMallocTag(void* pvBuffer, memtag_t eDesiredTag) {
-	ri.Z_MorphMallocTag(pvBuffer, eDesiredTag);
+void Z_MorphMallocTag(void* pvAddress, const memtag_t eDesiredTag)
+{
+	ri.Z_MorphMallocTag(pvAddress, eDesiredTag);
 }
 
 // HUNK
 #ifdef REND2_SP
-//void* Hunk_Alloc(int i_size, ha_pref preferences)
-//{
-//	return Hunk_Alloc(i_size, qtrue);
-//}
-
-void* Hunk_Alloc(int size, ha_pref preference) {
+void* Hunk_Alloc(const int size, const ha_pref preference)
+{
 	return R_Malloc(size, TAG_HUNKALLOC, qtrue);
 }
 
-void* Hunk_AllocateTempMemory(int size) {
+void* Hunk_AllocateTempMemory(const int size)
+{
 	// don't bother clearing, because we are going to load a file over it
 	return R_Malloc(size, TAG_TEMP_HUNKALLOC, qfalse);
 }
@@ -128,19 +129,23 @@ void Hunk_FreeTempMemory(void* buf)
 }
 #else
 
-void* Hunk_AllocateTempMemory(int size) {
+void* Hunk_AllocateTempMemory(const int size)
+{
 	return ri.Hunk_AllocateTempMemory(size);
 }
 
-void Hunk_FreeTempMemory(void* buf) {
+void Hunk_FreeTempMemory(void* buf)
+{
 	ri.Hunk_FreeTempMemory(buf);
 }
 
-void* Hunk_Alloc(int size, ha_pref preference) {
+void* Hunk_Alloc(const int size, const ha_pref preference)
+{
 	return ri.Hunk_Alloc(size, preference);
 }
 
-int Hunk_MemoryRemaining(void) {
+int Hunk_MemoryRemaining(void)
+{
 	return ri.Hunk_MemoryRemaining();
 }
 #endif

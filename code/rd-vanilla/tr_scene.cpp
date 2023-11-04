@@ -48,7 +48,7 @@ R_InitNextFrame
 
 ====================
 */
-void R_InitNextFrame() {
+void R_InitNextFrame(void) {
 	backEndData->commands.used = 0;
 
 	r_firstSceneDrawSurf = 0;
@@ -71,7 +71,7 @@ RE_ClearScene
 
 ====================
 */
-void RE_ClearScene() {
+void RE_ClearScene(void) {
 	r_firstSceneDlight = r_numdlights;
 	r_firstSceneEntity = r_numentities;
 	r_firstScenePoly = r_numpolys;
@@ -94,16 +94,17 @@ R_AddPolygonSurfaces
 Adds all the scene's polys into this view's drawsurf list
 =====================
 */
-void R_AddPolygonSurfaces() {
+void R_AddPolygonSurfaces(void) {
 	int			i;
+	shader_t* sh;
 	srfPoly_t* poly;
 
 	tr.currentEntityNum = REFENTITYNUM_WORLD;
 	tr.shiftedEntityNum = tr.currentEntityNum << QSORT_REFENTITYNUM_SHIFT;
 
 	for (i = 0, poly = tr.refdef.polys; i < tr.refdef.numPolys; i++, poly++) {
-		const shader_t* sh = R_GetShaderByHandle(poly->h_shader);
-		R_AddDrawSurf(reinterpret_cast<surfaceType_t*>(poly), sh, poly->fogIndex, qfalse);
+		sh = R_GetShaderByHandle(poly->hShader);
+		R_AddDrawSurf((surfaceType_t*)poly, sh, poly->fogIndex, qfalse);
 	}
 }
 
@@ -113,7 +114,7 @@ RE_AddPolyToScene
 
 =====================
 */
-void RE_AddPolyToScene(const qhandle_t h_shader, const int num_verts, const polyVert_t* verts, int numPolys)
+void RE_AddPolyToScene(const qhandle_t hShader, const int numVerts, const polyVert_t* verts, const int numPolys)
 {
 	srfPoly_t* poly;
 	int			i, j;
@@ -123,9 +124,9 @@ void RE_AddPolyToScene(const qhandle_t h_shader, const int num_verts, const poly
 
 	if (!tr.registered) {
 		return;
-}
+	}
 
-	if (!h_shader) {
+	if (!hShader) {
 #ifndef FINAL_BUILD
 		Com_DPrintf(S_COLOR_YELLOW"WARNING: RE_AddPolyToScene: NULL poly shader\n");
 #endif
@@ -133,7 +134,7 @@ void RE_AddPolyToScene(const qhandle_t h_shader, const int num_verts, const poly
 	}
 
 	for (j = 0; j < numPolys; j++) {
-		if (r_numpolyverts + num_verts >= MAX_POLYVERTS || r_numpolys >= MAX_POLYS) {
+		if (r_numpolyverts + numVerts >= MAX_POLYVERTS || r_numpolys >= MAX_POLYS) {
 			/*
 			NOTE TTimo this was initially a PRINT_WARNING
 			but it happens a lot with high fighting scenes and particles
@@ -146,13 +147,13 @@ void RE_AddPolyToScene(const qhandle_t h_shader, const int num_verts, const poly
 
 		poly = &backEndData->polys[r_numpolys];
 		poly->surfaceType = SF_POLY;
-		poly->h_shader = h_shader;
-		poly->num_verts = num_verts;
+		poly->hShader = hShader;
+		poly->numVerts = numVerts;
 		poly->verts = &backEndData->polyVerts[r_numpolyverts];
 
-		memcpy(poly->verts, &verts[num_verts * j], num_verts * sizeof(*verts));
+		memcpy(poly->verts, &verts[numVerts * j], numVerts * sizeof(*verts));
 		r_numpolys++;
-		r_numpolyverts += num_verts;
+		r_numpolyverts += numVerts;
 
 		// see if it is in a fog volume
 		if (!tr.world || tr.world->numfogs == 1) {
@@ -162,7 +163,7 @@ void RE_AddPolyToScene(const qhandle_t h_shader, const int num_verts, const poly
 			// find which fog volume the poly is in
 			VectorCopy(poly->verts[0].xyz, bounds[0]);
 			VectorCopy(poly->verts[0].xyz, bounds[1]);
-			for (i = 1; i < poly->num_verts; i++) {
+			for (i = 1; i < poly->numVerts; i++) {
 				AddPointToBounds(poly->verts[i].xyz, bounds[0], bounds[1]);
 			}
 			for (int fI = 1; fI < tr.world->numfogs; fI++) {
@@ -232,7 +233,9 @@ RE_AddLightToScene
 
 =====================
 */
-void RE_AddLightToScene(const vec3_t org, const float intensity, const float r, const float g, const float b) {
+void RE_AddLightToScene(const vec3_t org, float intensity, float r, float g, float b) {
+	dlight_t* dl;
+
 	if (!tr.registered) {
 		return;
 	}
@@ -242,7 +245,7 @@ void RE_AddLightToScene(const vec3_t org, const float intensity, const float r, 
 	if (intensity <= 0) {
 		return;
 	}
-	dlight_t* dl = &backEndData->dlights[r_numdlights++];
+	dl = &backEndData->dlights[r_numdlights++];
 	VectorCopy(org, dl->origin);
 	dl->radius = intensity;
 	dl->color[0] = r;
@@ -264,7 +267,8 @@ to handle mirrors,
 extern int	recursivePortalCount;
 void RE_RenderScene(const refdef_t* fd) {
 	viewParms_t		parms;
-	static int		last_time = 0;
+	int				startTime;
+	static int		lastTime = 0;
 
 	if (!tr.registered) {
 		return;
@@ -275,7 +279,7 @@ void RE_RenderScene(const refdef_t* fd) {
 		return;
 	}
 
-	const int startTime = ri.Milliseconds();
+	startTime = ri.Milliseconds();
 
 	if (!tr.world && !(fd->rdflags & RDF_NOWORLDMODEL)) {
 		Com_Error(ERR_DROP, "R_RenderScene: NULL worldmodel");
@@ -296,7 +300,7 @@ void RE_RenderScene(const refdef_t* fd) {
 	VectorCopy(fd->viewaxis[2], tr.refdef.viewaxis[2]);
 
 	tr.refdef.time = fd->time;
-	tr.refdef.frametime = fd->time - last_time;
+	tr.refdef.frametime = fd->time - lastTime;
 	tr.refdef.rdflags = fd->rdflags;
 	// Ignore my last there. This actually breaks the rest of the game as well, causing massive issues.
 	// We need to figure out what's going on in fd->rdflags first :S .. I'm half-tempted to just revert
@@ -309,7 +313,7 @@ void RE_RenderScene(const refdef_t* fd) {
 	else
 	{
 		// cdr - only change last time for the real render, not the portal
-		last_time = fd->time;
+		lastTime = fd->time;
 	}
 
 	if (fd->rdflags & RDF_DRAWSKYBOX)
@@ -325,14 +329,17 @@ void RE_RenderScene(const refdef_t* fd) {
 	// will force a reset of the visible leafs even if the view hasn't moved
 	tr.refdef.areamaskModified = qfalse;
 	if (!(tr.refdef.rdflags & RDF_NOWORLDMODEL)) {
+		int		areaDiff;
+		int		i;
+
 		// compare the area bits
-		int area_diff = 0;
-		for (int i = 0; i < MAX_MAP_AREA_BYTES / 4; i++) {
-			area_diff |= reinterpret_cast<int*>(tr.refdef.areamask)[i] ^ ((int*)fd->areamask)[i];
-			reinterpret_cast<int*>(tr.refdef.areamask)[i] = ((int*)fd->areamask)[i];
+		areaDiff = 0;
+		for (i = 0; i < MAX_MAP_AREA_BYTES / 4; i++) {
+			areaDiff |= ((int*)tr.refdef.areamask)[i] ^ ((int*)fd->areamask)[i];
+			((int*)tr.refdef.areamask)[i] = ((int*)fd->areamask)[i];
 		}
 
-		if (area_diff) {
+		if (areaDiff) {
 			// a door just opened or something
 			tr.refdef.areamaskModified = qtrue;
 		}
@@ -374,12 +381,12 @@ void RE_RenderScene(const refdef_t* fd) {
 	// The refdef takes 0-at-the-top y coordinates, so
 	// convert to GL's 0-at-the-bottom space
 	//
-	memset(&parms, 0, sizeof parms);
+	memset(&parms, 0, sizeof(parms));
 	parms.viewportX = tr.refdef.x;
 	parms.viewportY = glConfig.vidHeight - (tr.refdef.y + tr.refdef.height);
 	parms.viewportWidth = tr.refdef.width;
 	parms.viewportHeight = tr.refdef.height;
-	parms.is_portal = qfalse;
+	parms.isPortal = qfalse;
 
 	parms.fovX = tr.refdef.fov_x;
 	parms.fovY = tr.refdef.fov_y;

@@ -252,6 +252,7 @@ cvar_t* r_marksOnTriangleMeshes;
 cvar_t* r_aviMotionJpegQuality;
 cvar_t* r_screenshotJpegQuality;
 cvar_t* r_surfaceSprites;
+cvar_t* r_AdvancedsurfaceSprites;
 
 // the limits apply to the sum of all scenes in a frame --
 // the main view, all the 3D icons, etc
@@ -873,7 +874,7 @@ const void* RB_TakeScreenshotCmd(const void* data) {
 	cmd = (const screenshotCommand_t*)data;
 
 	// finish any 2D drawing if needed
-	if (tess.num_indexes)
+	if (tess.numIndexes)
 		RB_EndSurface();
 
 	const int frameNumber = backEndData->realFrameNumber;
@@ -1140,7 +1141,7 @@ const void* RB_TakeVideoFrameCmd(const void* data)
 	GLint packAlign;*/
 
 	// finish any 2D drawing if needed
-	if (tess.num_indexes)
+	if (tess.numIndexes)
 		RB_EndSurface();
 
 	cmd = (const videoFrameCommand_t*)data;
@@ -1660,6 +1661,7 @@ void R_Register(void)
 	r_aviMotionJpegQuality = ri_Cvar_Get_NoComm("r_aviMotionJpegQuality", "90", CVAR_ARCHIVE, "");
 	r_screenshotJpegQuality = ri_Cvar_Get_NoComm("r_screenshotJpegQuality", "90", CVAR_ARCHIVE, "");
 	r_surfaceSprites = ri_Cvar_Get_NoComm("r_surfaceSprites", "1", CVAR_ARCHIVE, "");
+	r_AdvancedsurfaceSprites = ri_Cvar_Get_NoComm("r_advancedlod", "1", CVAR_ARCHIVE, "");
 
 	r_aspectCorrectFonts = ri_Cvar_Get_NoComm("r_aspectCorrectFonts", "0", CVAR_ARCHIVE, "");
 	r_maxpolys = ri_Cvar_Get_NoComm("r_maxpolys", XSTRING(DEFAULT_MAX_POLYS), 0, "");
@@ -2258,7 +2260,7 @@ void C_LevelLoadEnd(void)
 #endif // REND2_SP
 }
 
-extern void RE_GetModelBounds(const refEntity_t* ref_ent, vec3_t bounds1, vec3_t bounds2);
+extern void RE_GetModelBounds(const refEntity_t* refEnt, vec3_t bounds1, vec3_t bounds2);
 extern void G2API_AnimateG2ModelsRag(CGhoul2Info_v& ghoul2, int acurrent_time, CRagDollUpdateParams* params);
 extern qboolean G2API_GetRagBonePos(CGhoul2Info_v& ghoul2, const char* bone_name, vec3_t pos, vec3_t ent_angles, vec3_t ent_pos, vec3_t ent_scale);
 extern qboolean G2API_RagEffectorKick(CGhoul2Info_v& ghoul2, const char* bone_name, vec3_t velocity);

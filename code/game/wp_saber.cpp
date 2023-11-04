@@ -4179,7 +4179,7 @@ qboolean WP_SaberDamageEffects(trace_t* tr, const float length, const float dmg,
 
 	for (auto& z : tr->G2CollisionMap)
 	{
-		if (z.mentity_num == -1)
+		if (z.mEntityNum == -1)
 		{
 			//actually, completely break out of this for loop since nothing after this in the aray should ever be valid either
 			continue; //break;//
@@ -4190,7 +4190,7 @@ qboolean WP_SaberDamageEffects(trace_t* tr, const float length, const float dmg,
 
 		for (i = 0; i < num_hit_ents; i++)
 		{
-			if (hit_ent_num[i] == coll.mentity_num)
+			if (hit_ent_num[i] == coll.mEntityNum)
 			{
 				//we hit this ent before
 				//we'll want to add this dist
@@ -4206,7 +4206,7 @@ qboolean WP_SaberDamageEffects(trace_t* tr, const float length, const float dmg,
 				//hit too many damn ents!
 				continue;
 			}
-			hit_ent_num[num_hit_ents] = coll.mentity_num;
+			hit_ent_num[num_hit_ents] = coll.mEntityNum;
 			if (!coll.mFlags)
 			{
 				//hmm, we came out first, so we must have started inside
@@ -4485,9 +4485,9 @@ qboolean WP_SaberDamageEffects(trace_t* tr, const float length, const float dmg,
 				//FIXME: find closest impact surf *first* (per ent), then call G_GetHitLocFromSurfName?
 				//FIXED: if hit multiple ents in this collision record, these trSurfName, trDismember and trDismemberLoc will get stomped/confused over the multiple ents I hit
 				const char* tr_surf_name = gi.G2API_GetSurfaceName(
-					&g_entities[coll.mentity_num].ghoul2[coll.mModelIndex],
+					&g_entities[coll.mEntityNum].ghoul2[coll.mModelIndex],
 					coll.mSurfaceIndex);
-				tr_dismember[num_hit_ents] = G_GetHitLocFromSurfName(&g_entities[coll.mentity_num], tr_surf_name,
+				tr_dismember[num_hit_ents] = G_GetHitLocFromSurfName(&g_entities[coll.mEntityNum], tr_surf_name,
 					&tr_hit_loc[num_hit_ents], coll.mCollisionPosition,
 					dmg_dir, blade_dir, MOD_SABER, saber_type);
 				if (tr_dismember[num_hit_ents])
@@ -5843,12 +5843,12 @@ qboolean WP_SabersCheckLock2(gentity_t* attacker, gentity_t* defender, sabersLoc
 		if (ValidAnimFileIndex(attacker->client->clientInfo.animFileIndex))
 		{
 			anim = &level.knownAnimFileSets[attacker->client->clientInfo.animFileIndex].animations[att_anim];
-			advance = floor(anim->num_frames * att_start);
+			advance = floor(anim->numFrames * att_start);
 			PM_SetAnimFrame(attacker, anim->firstFrame + advance, qtrue, qtrue);
 #ifndef FINAL_BUILD
 			if (d_saberCombat->integer)
 			{
-				Com_Printf("%s starting saber lock, anim = %s, %d frames to go!\n", attacker->NPC_type, anim_table[attAnim].name, anim->num_frames - advance);
+				Com_Printf("%s starting saber lock, anim = %s, %d frames to go!\n", attacker->NPC_type, anim_table[attAnim].name, anim->numFrames - advance);
 			}
 #endif
 		}
@@ -5858,9 +5858,9 @@ qboolean WP_SabersCheckLock2(gentity_t* attacker, gentity_t* defender, sabersLoc
 		if (ValidAnimFileIndex(defender->client->clientInfo.animFileIndex))
 		{
 			anim = &level.knownAnimFileSets[defender->client->clientInfo.animFileIndex].animations[def_anim];
-			advance = ceil(anim->num_frames * defStart);
+			advance = ceil(anim->numFrames * defStart);
 			PM_SetAnimFrame(defender, anim->firstFrame + advance, qtrue, qtrue);
-			//was anim->firstFrame + anim->num_frames - advance, but that's wrong since they are matched anims
+			//was anim->firstFrame + anim->numFrames - advance, but that's wrong since they are matched anims
 #ifndef FINAL_BUILD
 			if (d_saberCombat->integer)
 			{
@@ -11599,7 +11599,7 @@ void WP_SaberDamageTrace_MD(gentity_t* ent, int saber_num, int blade_num)
 		if (ent->s.number < ent->client->ps.saberLockEnemy)
 		{
 			vec3_t hit_norm = { 0, 0, 1 };
-			
+
 			if (wp_sabers_intersection(ent, &g_entities[ent->client->ps.saberLockEnemy], g_saberFlashPos))
 			{
 				int index = 1;
@@ -12795,7 +12795,7 @@ qboolean WP_SaberLaunch(gentity_t* self, gentity_t* saber, const qboolean thrown
 			{
 				saber->s.apos.trDelta[1] = 800;
 			}
-			else 
+			else
 			{
 				saber->s.apos.trDelta[0] = 600;
 			}

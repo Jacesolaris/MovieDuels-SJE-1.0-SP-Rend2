@@ -617,7 +617,7 @@ using trace_t = struct
 using markFragment_t = struct
 {
 	int firstPoint;
-	int num_points;
+	int numPoints;
 };
 
 using orientation_t = struct

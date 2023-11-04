@@ -1556,7 +1556,7 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte* d
 	}
 	R_IssuePendingRenderCommands();
 
-	if (tess.num_indexes) {
+	if (tess.numIndexes) {
 		RB_EndSurface();
 	}
 
@@ -1680,7 +1680,7 @@ static const void* RB_StretchPic(const void* data) {
 
 	shader = cmd->shader;
 	if (shader != tess.shader) {
-		if (tess.num_indexes) {
+		if (tess.numIndexes) {
 			RB_EndSurface();
 		}
 		backEnd.currentEntity = &backEnd.entity2D;
@@ -1688,51 +1688,51 @@ static const void* RB_StretchPic(const void* data) {
 	}
 
 	RB_CHECKOVERFLOW(4, 6);
-	int num_verts = tess.num_vertexes;
-	int num_indexes = tess.num_indexes;
+	int numVerts = tess.numVertexes;
+	int numIndexes = tess.numIndexes;
 
-	tess.num_vertexes += 4;
-	tess.num_indexes += 6;
+	tess.numVertexes += 4;
+	tess.numIndexes += 6;
 
-	tess.indexes[num_indexes] = num_verts + 3;
-	tess.indexes[num_indexes + 1] = num_verts + 0;
-	tess.indexes[num_indexes + 2] = num_verts + 2;
-	tess.indexes[num_indexes + 3] = num_verts + 2;
-	tess.indexes[num_indexes + 4] = num_verts + 0;
-	tess.indexes[num_indexes + 5] = num_verts + 1;
+	tess.indexes[numIndexes] = numVerts + 3;
+	tess.indexes[numIndexes + 1] = numVerts + 0;
+	tess.indexes[numIndexes + 2] = numVerts + 2;
+	tess.indexes[numIndexes + 3] = numVerts + 2;
+	tess.indexes[numIndexes + 4] = numVerts + 0;
+	tess.indexes[numIndexes + 5] = numVerts + 1;
 
-	VectorCopy4(backEnd.color2D, tess.vertexColors[num_verts]);
-	VectorCopy4(backEnd.color2D, tess.vertexColors[num_verts + 1]);
-	VectorCopy4(backEnd.color2D, tess.vertexColors[num_verts + 2]);
-	VectorCopy4(backEnd.color2D, tess.vertexColors[num_verts + 3]);
+	VectorCopy4(backEnd.color2D, tess.vertexColors[numVerts]);
+	VectorCopy4(backEnd.color2D, tess.vertexColors[numVerts + 1]);
+	VectorCopy4(backEnd.color2D, tess.vertexColors[numVerts + 2]);
+	VectorCopy4(backEnd.color2D, tess.vertexColors[numVerts + 3]);
 
-	tess.xyz[num_verts][0] = cmd->x;
-	tess.xyz[num_verts][1] = cmd->y;
-	tess.xyz[num_verts][2] = 0;
+	tess.xyz[numVerts][0] = cmd->x;
+	tess.xyz[numVerts][1] = cmd->y;
+	tess.xyz[numVerts][2] = 0;
 
-	tess.texCoords[num_verts][0][0] = cmd->s1;
-	tess.texCoords[num_verts][0][1] = cmd->t1;
+	tess.texCoords[numVerts][0][0] = cmd->s1;
+	tess.texCoords[numVerts][0][1] = cmd->t1;
 
-	tess.xyz[num_verts + 1][0] = cmd->x + cmd->w;
-	tess.xyz[num_verts + 1][1] = cmd->y;
-	tess.xyz[num_verts + 1][2] = 0;
+	tess.xyz[numVerts + 1][0] = cmd->x + cmd->w;
+	tess.xyz[numVerts + 1][1] = cmd->y;
+	tess.xyz[numVerts + 1][2] = 0;
 
-	tess.texCoords[num_verts + 1][0][0] = cmd->s2;
-	tess.texCoords[num_verts + 1][0][1] = cmd->t1;
+	tess.texCoords[numVerts + 1][0][0] = cmd->s2;
+	tess.texCoords[numVerts + 1][0][1] = cmd->t1;
 
-	tess.xyz[num_verts + 2][0] = cmd->x + cmd->w;
-	tess.xyz[num_verts + 2][1] = cmd->y + cmd->h;
-	tess.xyz[num_verts + 2][2] = 0;
+	tess.xyz[numVerts + 2][0] = cmd->x + cmd->w;
+	tess.xyz[numVerts + 2][1] = cmd->y + cmd->h;
+	tess.xyz[numVerts + 2][2] = 0;
 
-	tess.texCoords[num_verts + 2][0][0] = cmd->s2;
-	tess.texCoords[num_verts + 2][0][1] = cmd->t2;
+	tess.texCoords[numVerts + 2][0][0] = cmd->s2;
+	tess.texCoords[numVerts + 2][0][1] = cmd->t2;
 
-	tess.xyz[num_verts + 3][0] = cmd->x;
-	tess.xyz[num_verts + 3][1] = cmd->y + cmd->h;
-	tess.xyz[num_verts + 3][2] = 0;
+	tess.xyz[numVerts + 3][0] = cmd->x;
+	tess.xyz[numVerts + 3][1] = cmd->y + cmd->h;
+	tess.xyz[numVerts + 3][2] = 0;
 
-	tess.texCoords[num_verts + 3][0][0] = cmd->s1;
-	tess.texCoords[num_verts + 3][0][1] = cmd->t2;
+	tess.texCoords[numVerts + 3][0][0] = cmd->s1;
+	tess.texCoords[numVerts + 3][0][1] = cmd->t2;
 
 	return (const void*)(cmd + 1);
 }
@@ -1763,7 +1763,7 @@ static const void* RB_RotatePic(const void* data)
 
 	shader = cmd->shader;
 	if (shader != tess.shader) {
-		if (tess.num_indexes) {
+		if (tess.numIndexes) {
 			RB_EndSurface();
 		}
 		backEnd.currentEntity = &backEnd.entity2D;
@@ -1771,8 +1771,8 @@ static const void* RB_RotatePic(const void* data)
 	}
 
 	RB_CHECKOVERFLOW(4, 6);
-	int num_verts = tess.num_vertexes;
-	int num_indexes = tess.num_indexes;
+	int numVerts = tess.numVertexes;
+	int numIndexes = tess.numIndexes;
 
 	float angle = DEG2RAD(cmd->a);
 	float s = sinf(angle);
@@ -1784,48 +1784,48 @@ static const void* RB_RotatePic(const void* data)
 		{ cmd->x + cmd->w, cmd->y, 1.0f }
 	};
 
-	tess.num_vertexes += 4;
-	tess.num_indexes += 6;
+	tess.numVertexes += 4;
+	tess.numIndexes += 6;
 
-	tess.indexes[num_indexes] = num_verts + 3;
-	tess.indexes[num_indexes + 1] = num_verts + 0;
-	tess.indexes[num_indexes + 2] = num_verts + 2;
-	tess.indexes[num_indexes + 3] = num_verts + 2;
-	tess.indexes[num_indexes + 4] = num_verts + 0;
-	tess.indexes[num_indexes + 5] = num_verts + 1;
+	tess.indexes[numIndexes] = numVerts + 3;
+	tess.indexes[numIndexes + 1] = numVerts + 0;
+	tess.indexes[numIndexes + 2] = numVerts + 2;
+	tess.indexes[numIndexes + 3] = numVerts + 2;
+	tess.indexes[numIndexes + 4] = numVerts + 0;
+	tess.indexes[numIndexes + 5] = numVerts + 1;
 
-	VectorCopy4(backEnd.color2D, tess.vertexColors[num_verts]);
-	VectorCopy4(backEnd.color2D, tess.vertexColors[num_verts + 1]);
-	VectorCopy4(backEnd.color2D, tess.vertexColors[num_verts + 2]);
-	VectorCopy4(backEnd.color2D, tess.vertexColors[num_verts + 3]);
+	VectorCopy4(backEnd.color2D, tess.vertexColors[numVerts]);
+	VectorCopy4(backEnd.color2D, tess.vertexColors[numVerts + 1]);
+	VectorCopy4(backEnd.color2D, tess.vertexColors[numVerts + 2]);
+	VectorCopy4(backEnd.color2D, tess.vertexColors[numVerts + 3]);
 
-	tess.xyz[num_verts][0] = m[0][0] * (-cmd->w) + m[2][0];
-	tess.xyz[num_verts][1] = m[0][1] * (-cmd->w) + m[2][1];
-	tess.xyz[num_verts][2] = 0;
+	tess.xyz[numVerts][0] = m[0][0] * (-cmd->w) + m[2][0];
+	tess.xyz[numVerts][1] = m[0][1] * (-cmd->w) + m[2][1];
+	tess.xyz[numVerts][2] = 0;
 
-	tess.texCoords[num_verts][0][0] = cmd->s1;
-	tess.texCoords[num_verts][0][1] = cmd->t1;
+	tess.texCoords[numVerts][0][0] = cmd->s1;
+	tess.texCoords[numVerts][0][1] = cmd->t1;
 
-	tess.xyz[num_verts + 1][0] = m[2][0];
-	tess.xyz[num_verts + 1][1] = m[2][1];
-	tess.xyz[num_verts + 1][2] = 0;
+	tess.xyz[numVerts + 1][0] = m[2][0];
+	tess.xyz[numVerts + 1][1] = m[2][1];
+	tess.xyz[numVerts + 1][2] = 0;
 
-	tess.texCoords[num_verts + 1][0][0] = cmd->s2;
-	tess.texCoords[num_verts + 1][0][1] = cmd->t1;
+	tess.texCoords[numVerts + 1][0][0] = cmd->s2;
+	tess.texCoords[numVerts + 1][0][1] = cmd->t1;
 
-	tess.xyz[num_verts + 2][0] = m[1][0] * (cmd->h) + m[2][0];
-	tess.xyz[num_verts + 2][1] = m[1][1] * (cmd->h) + m[2][1];
-	tess.xyz[num_verts + 2][2] = 0;
+	tess.xyz[numVerts + 2][0] = m[1][0] * (cmd->h) + m[2][0];
+	tess.xyz[numVerts + 2][1] = m[1][1] * (cmd->h) + m[2][1];
+	tess.xyz[numVerts + 2][2] = 0;
 
-	tess.texCoords[num_verts + 2][0][0] = cmd->s2;
-	tess.texCoords[num_verts + 2][0][1] = cmd->t2;
+	tess.texCoords[numVerts + 2][0][0] = cmd->s2;
+	tess.texCoords[numVerts + 2][0][1] = cmd->t2;
 
-	tess.xyz[num_verts + 3][0] = m[0][0] * (-cmd->w) + m[1][0] * (cmd->h) + m[2][0];
-	tess.xyz[num_verts + 3][1] = m[0][1] * (-cmd->w) + m[1][1] * (cmd->h) + m[2][1];
-	tess.xyz[num_verts + 3][2] = 0;
+	tess.xyz[numVerts + 3][0] = m[0][0] * (-cmd->w) + m[1][0] * (cmd->h) + m[2][0];
+	tess.xyz[numVerts + 3][1] = m[0][1] * (-cmd->w) + m[1][1] * (cmd->h) + m[2][1];
+	tess.xyz[numVerts + 3][2] = 0;
 
-	tess.texCoords[num_verts + 3][0][0] = cmd->s1;
-	tess.texCoords[num_verts + 3][0][1] = cmd->t2;
+	tess.texCoords[numVerts + 3][0][0] = cmd->s1;
+	tess.texCoords[numVerts + 3][0][1] = cmd->t2;
 
 	return (const void*)(cmd + 1);
 }
@@ -1856,7 +1856,7 @@ static const void* RB_RotatePic2(const void* data)
 
 	shader = cmd->shader;
 	if (shader != tess.shader) {
-		if (tess.num_indexes) {
+		if (tess.numIndexes) {
 			RB_EndSurface();
 		}
 		backEnd.currentEntity = &backEnd.entity2D;
@@ -1864,8 +1864,8 @@ static const void* RB_RotatePic2(const void* data)
 	}
 
 	RB_CHECKOVERFLOW(4, 6);
-	int num_verts = tess.num_vertexes;
-	int num_indexes = tess.num_indexes;
+	int numVerts = tess.numVertexes;
+	int numIndexes = tess.numIndexes;
 
 	float angle = DEG2RAD(cmd->a);
 	float s = sinf(angle);
@@ -1877,48 +1877,48 @@ static const void* RB_RotatePic2(const void* data)
 		{ cmd->x, cmd->y, 1.0f }
 	};
 
-	tess.num_vertexes += 4;
-	tess.num_indexes += 6;
+	tess.numVertexes += 4;
+	tess.numIndexes += 6;
 
-	tess.indexes[num_indexes] = num_verts + 3;
-	tess.indexes[num_indexes + 1] = num_verts + 0;
-	tess.indexes[num_indexes + 2] = num_verts + 2;
-	tess.indexes[num_indexes + 3] = num_verts + 2;
-	tess.indexes[num_indexes + 4] = num_verts + 0;
-	tess.indexes[num_indexes + 5] = num_verts + 1;
+	tess.indexes[numIndexes] = numVerts + 3;
+	tess.indexes[numIndexes + 1] = numVerts + 0;
+	tess.indexes[numIndexes + 2] = numVerts + 2;
+	tess.indexes[numIndexes + 3] = numVerts + 2;
+	tess.indexes[numIndexes + 4] = numVerts + 0;
+	tess.indexes[numIndexes + 5] = numVerts + 1;
 
-	VectorCopy4(backEnd.color2D, tess.vertexColors[num_verts]);
-	VectorCopy4(backEnd.color2D, tess.vertexColors[num_verts + 1]);
-	VectorCopy4(backEnd.color2D, tess.vertexColors[num_verts + 2]);
-	VectorCopy4(backEnd.color2D, tess.vertexColors[num_verts + 3]);
+	VectorCopy4(backEnd.color2D, tess.vertexColors[numVerts]);
+	VectorCopy4(backEnd.color2D, tess.vertexColors[numVerts + 1]);
+	VectorCopy4(backEnd.color2D, tess.vertexColors[numVerts + 2]);
+	VectorCopy4(backEnd.color2D, tess.vertexColors[numVerts + 3]);
 
-	tess.xyz[num_verts][0] = m[0][0] * (-cmd->w * 0.5f) + m[1][0] * (-cmd->h * 0.5f) + m[2][0];
-	tess.xyz[num_verts][1] = m[0][1] * (-cmd->w * 0.5f) + m[1][1] * (-cmd->h * 0.5f) + m[2][1];
-	tess.xyz[num_verts][2] = 0;
+	tess.xyz[numVerts][0] = m[0][0] * (-cmd->w * 0.5f) + m[1][0] * (-cmd->h * 0.5f) + m[2][0];
+	tess.xyz[numVerts][1] = m[0][1] * (-cmd->w * 0.5f) + m[1][1] * (-cmd->h * 0.5f) + m[2][1];
+	tess.xyz[numVerts][2] = 0;
 
-	tess.texCoords[num_verts][0][0] = cmd->s1;
-	tess.texCoords[num_verts][0][1] = cmd->t1;
+	tess.texCoords[numVerts][0][0] = cmd->s1;
+	tess.texCoords[numVerts][0][1] = cmd->t1;
 
-	tess.xyz[num_verts + 1][0] = m[0][0] * (cmd->w * 0.5f) + m[1][0] * (-cmd->h * 0.5f) + m[2][0];
-	tess.xyz[num_verts + 1][1] = m[0][1] * (cmd->w * 0.5f) + m[1][1] * (-cmd->h * 0.5f) + m[2][1];
-	tess.xyz[num_verts + 1][2] = 0;
+	tess.xyz[numVerts + 1][0] = m[0][0] * (cmd->w * 0.5f) + m[1][0] * (-cmd->h * 0.5f) + m[2][0];
+	tess.xyz[numVerts + 1][1] = m[0][1] * (cmd->w * 0.5f) + m[1][1] * (-cmd->h * 0.5f) + m[2][1];
+	tess.xyz[numVerts + 1][2] = 0;
 
-	tess.texCoords[num_verts + 1][0][0] = cmd->s2;
-	tess.texCoords[num_verts + 1][0][1] = cmd->t1;
+	tess.texCoords[numVerts + 1][0][0] = cmd->s2;
+	tess.texCoords[numVerts + 1][0][1] = cmd->t1;
 
-	tess.xyz[num_verts + 2][0] = m[0][0] * (cmd->w * 0.5f) + m[1][0] * (cmd->h * 0.5f) + m[2][0];
-	tess.xyz[num_verts + 2][1] = m[0][1] * (cmd->w * 0.5f) + m[1][1] * (cmd->h * 0.5f) + m[2][1];
-	tess.xyz[num_verts + 2][2] = 0;
+	tess.xyz[numVerts + 2][0] = m[0][0] * (cmd->w * 0.5f) + m[1][0] * (cmd->h * 0.5f) + m[2][0];
+	tess.xyz[numVerts + 2][1] = m[0][1] * (cmd->w * 0.5f) + m[1][1] * (cmd->h * 0.5f) + m[2][1];
+	tess.xyz[numVerts + 2][2] = 0;
 
-	tess.texCoords[num_verts + 2][0][0] = cmd->s2;
-	tess.texCoords[num_verts + 2][0][1] = cmd->t2;
+	tess.texCoords[numVerts + 2][0][0] = cmd->s2;
+	tess.texCoords[numVerts + 2][0][1] = cmd->t2;
 
-	tess.xyz[num_verts + 3][0] = m[0][0] * (-cmd->w * 0.5f) + m[1][0] * (cmd->h * 0.5f) + m[2][0];
-	tess.xyz[num_verts + 3][1] = m[0][1] * (-cmd->w * 0.5f) + m[1][1] * (cmd->h * 0.5f) + m[2][1];
-	tess.xyz[num_verts + 3][2] = 0;
+	tess.xyz[numVerts + 3][0] = m[0][0] * (-cmd->w * 0.5f) + m[1][0] * (cmd->h * 0.5f) + m[2][0];
+	tess.xyz[numVerts + 3][1] = m[0][1] * (-cmd->w * 0.5f) + m[1][1] * (cmd->h * 0.5f) + m[2][1];
+	tess.xyz[numVerts + 3][2] = 0;
 
-	tess.texCoords[num_verts + 3][0][0] = cmd->s1;
-	tess.texCoords[num_verts + 3][0][1] = cmd->t2;
+	tess.texCoords[numVerts + 3][0][0] = cmd->s1;
+	tess.texCoords[numVerts + 3][0][1] = cmd->t2;
 
 	return (const void*)(cmd + 1);
 }
@@ -1963,7 +1963,7 @@ static const void* RB_PrefilterEnvMap(const void* data) {
 	const convolveCubemapCommand_t* cmd = (const convolveCubemapCommand_t*)data;
 
 	// finish any 2D drawing if needed
-	if (tess.num_indexes)
+	if (tess.numIndexes)
 		RB_EndSurface();
 
 	RB_SetGL2D();
@@ -2610,7 +2610,7 @@ static const void* RB_DrawBuffer(const void* data) {
 	cmd = (const drawBufferCommand_t*)data;
 
 	// finish any 2D drawing if needed
-	if (tess.num_indexes)
+	if (tess.numIndexes)
 		RB_EndSurface();
 
 	return (const void*)(cmd + 1);
@@ -2708,7 +2708,7 @@ static const void* RB_ClearDepth(const void* data)
 	const clearDepthCommand_t* cmd = (clearDepthCommand_t*)data;
 
 	// finish any 2D drawing if needed
-	if (tess.num_indexes)
+	if (tess.numIndexes)
 		RB_EndSurface();
 
 	// texture swapping test
@@ -2746,7 +2746,7 @@ static const void* RB_SwapBuffers(const void* data) {
 	const swapBuffersCommand_t* cmd;
 
 	// finish any 2D drawing if needed
-	if (tess.num_indexes) {
+	if (tess.numIndexes) {
 		RB_EndSurface();
 	}
 
@@ -2825,7 +2825,7 @@ const void* RB_PostProcess(const void* data)
 	qboolean autoExposure;
 
 	// finish any 2D drawing if needed
-	if (tess.num_indexes)
+	if (tess.numIndexes)
 		RB_EndSurface();
 
 	if (cmd)
@@ -3059,7 +3059,7 @@ static const void* RB_DrawSurfs(const void* data) {
 	const drawSurfsCommand_t* cmd;
 
 	// finish any 2D drawing if needed
-	if (tess.num_indexes) {
+	if (tess.numIndexes) {
 		RB_EndSurface();
 	}
 
@@ -3148,7 +3148,7 @@ void RB_ExecuteRenderCommands(const void* data) {
 		case RC_END_OF_LIST:
 		default:
 			// finish any 2D drawing if needed
-			if (tess.num_indexes)
+			if (tess.numIndexes)
 				RB_EndSurface();
 
 			// stop rendering

@@ -495,13 +495,13 @@ int R_CullBox(vec3_t worldBounds[2]) {
 	int             i;
 	cplane_t* frust;
 	qboolean        anyClip;
-	int             r, num_planes;
+	int             r, numplanes;
 
-	num_planes = (tr.viewParms.flags & VPF_FARPLANEFRUSTUM) ? 5 : 4;
+	numplanes = (tr.viewParms.flags & VPF_FARPLANEFRUSTUM) ? 5 : 4;
 
 	// check against frustum planes
 	anyClip = qfalse;
-	for (i = 0; i < num_planes; i++)
+	for (i = 0; i < numplanes; i++)
 	{
 		frust = &tr.viewParms.frustum[i];
 
@@ -543,7 +543,7 @@ int R_CullLocalPointAndRadius(const vec3_t pt, float radius)
 /*
 ** R_CullPointAndRadius
 */
-int R_CullPointAndRadiusEx(const vec3_t pt, float radius, const cplane_t* frustum, int num_planes)
+int R_CullPointAndRadiusEx(const vec3_t pt, float radius, const cplane_t* frustum, int numplanes)
 {
 	int		i;
 	float	dist;
@@ -555,7 +555,7 @@ int R_CullPointAndRadiusEx(const vec3_t pt, float radius, const cplane_t* frustu
 	}
 
 	// check against frustum planes
-	for (i = 0; i < num_planes; i++)
+	for (i = 0; i < numplanes; i++)
 	{
 		frust = &frustum[i];
 
@@ -1415,16 +1415,16 @@ static qboolean SurfIsOffscreen(const msurface_t* surface, int entity_num, vec4_
 	RB_BeginSurface(surface->shader, 0, 0);
 	rb_surfaceTable[*surface->data](surface->data);
 
-	if (tess.num_vertexes > 128)
+	if (tess.numVertexes > 128)
 	{
 		// Don't bother trying, just assume it's off-screen and make it look bad. Besides, artists
 		// shouldn't be using this many vertices on a mirror surface anyway :)
 		return qtrue;
 	}
 
-	*numVertices = tess.num_vertexes;
+	*numVertices = tess.numVertexes;
 
-	for (i = 0; i < tess.num_vertexes; i++)
+	for (i = 0; i < tess.numVertexes; i++)
 	{
 		int j;
 		unsigned int pointFlags = 0;
@@ -1458,9 +1458,9 @@ static qboolean SurfIsOffscreen(const msurface_t* surface, int entity_num, vec4_
 	// based on vertex distance isn't 100% correct (we should be checking for
 	// range to the surface), but it's good enough for the types of portals
 	// we have in the game right now.
-	numTriangles = tess.num_indexes / 3;
+	numTriangles = tess.numIndexes / 3;
 
-	for (i = 0; i < tess.num_indexes; i += 3)
+	for (i = 0; i < tess.numIndexes; i += 3)
 	{
 		vec3_t normal, tNormal;
 
@@ -1930,7 +1930,7 @@ static void R_AddEntitySurface(const trRefdef_t* refdef, trRefEntity_t* ent, int
 		if ((ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal) {
 			return;
 		}
-		shader = R_GetShaderByHandle(ent->e.custom_shader);
+		shader = R_GetShaderByHandle(ent->e.customShader);
 		R_AddDrawSurf(
 			&entitySurface,
 			entity_num,
@@ -1945,8 +1945,8 @@ static void R_AddEntitySurface(const trRefdef_t* refdef, trRefEntity_t* ent, int
 		// we must set up parts of tr.ori for model culling
 		R_RotateForEntity(ent, &tr.viewParms, &tr.ori);
 
-		tr.current_model = R_GetModelByHandle(ent->e.hModel);
-		if (!tr.current_model) {
+		tr.currentModel = R_GetModelByHandle(ent->e.hModel);
+		if (!tr.currentModel) {
 			R_AddDrawSurf(
 				&entitySurface,
 				entity_num,
@@ -1957,7 +1957,7 @@ static void R_AddEntitySurface(const trRefdef_t* refdef, trRefEntity_t* ent, int
 				0/* cubeMap */);
 		}
 		else {
-			switch (tr.current_model->type) {
+			switch (tr.currentModel->type) {
 			case MOD_MESH:
 				R_AddMD3Surfaces(ent, entity_num);
 				break;
@@ -1987,7 +1987,7 @@ static void R_AddEntitySurface(const trRefdef_t* refdef, trRefEntity_t* ent, int
 				}
 
 				// FIX ME: always draw null axis model instead of rejecting the drawcall
-				if (tr.current_model->dataSize > 0)
+				if (tr.currentModel->dataSize > 0)
 					R_AddDrawSurf(
 						&entitySurface,
 						entity_num,
@@ -2005,7 +2005,7 @@ static void R_AddEntitySurface(const trRefdef_t* refdef, trRefEntity_t* ent, int
 		break;
 #ifndef REND2_SP
 	case RT_ENT_CHAIN:
-		shader = R_GetShaderByHandle(ent->e.custom_shader);
+		shader = R_GetShaderByHandle(ent->e.customShader);
 		R_AddDrawSurf(
 			&entitySurface,
 			entity_num,
@@ -2088,7 +2088,7 @@ void R_GenerateDrawSurfs(viewParms_t* viewParms, trRefdef_t* refdef) {
 R_DebugPolygon
 ================
 */
-void R_DebugPolygon(const int color, const int num_points, const float* points)
+void R_DebugPolygon(const int color, const int numPoints, const float* points)
 {
 	// FIXME: implement this
 #if 0
@@ -2100,7 +2100,7 @@ void R_DebugPolygon(const int color, const int num_points, const float* points)
 
 	qglColor3f(color & 1, (color >> 1) & 1, (color >> 2) & 1);
 	qglBegin(GL_POLYGON);
-	for (i = 0; i < num_points; i++) {
+	for (i = 0; i < numPoints; i++) {
 		qglVertex3fv(points + i * 3);
 	}
 	qglEnd();
@@ -2110,7 +2110,7 @@ void R_DebugPolygon(const int color, const int num_points, const float* points)
 	qglDepthRange(0, 0);
 	qglColor3f(1, 1, 1);
 	qglBegin(GL_POLYGON);
-	for (i = 0; i < num_points; i++) {
+	for (i = 0; i < numPoints; i++) {
 		qglVertex3fv(points + i * 3);
 	}
 	qglEnd();
@@ -2343,9 +2343,9 @@ void R_SetupPshadowMaps(trRefdef_t* refdef)
 				if (ent->e.ghoul2 && G2API_HaveWeGhoul2Models(*((CGhoul2Info_v*)ent->e.ghoul2)))
 				{
 					shader_t* cust_shader = nullptr;
-					if (ent->e.custom_shader)
+					if (ent->e.customShader)
 					{
-						cust_shader = R_GetShaderByHandle(ent->e.custom_shader);
+						cust_shader = R_GetShaderByHandle(ent->e.customShader);
 						if (cust_shader->sort != SS_OPAQUE)
 							continue;
 					}
@@ -2644,16 +2644,16 @@ qboolean R_AddPortalView(const trRefdef_t* refdef)
 			// we must set up parts of tr.ori for model culling
 			R_RotateForEntity(ent, &tr.viewParms, &tr.ori);
 
-			tr.current_model = R_GetModelByHandle(ent->e.hModel);
-			if (!tr.current_model) {
+			tr.currentModel = R_GetModelByHandle(ent->e.hModel);
+			if (!tr.currentModel) {
 				continue;
 			}
 			else {
-				switch (tr.current_model->type) {
+				switch (tr.currentModel->type) {
 				case MOD_BRUSH:
 				{
 					//R_AddBrushModelSurfaces(ent, i);
-					bmodel_t* bmodel = tr.current_model->data.bmodel;
+					bmodel_t* bmodel = tr.currentModel->data.bmodel;
 					world_t* world = R_GetWorld(bmodel->worldIndex);
 					for (int j = 0; j < bmodel->numSurfaces; j++) {
 						int surf = bmodel->firstSurface + j;

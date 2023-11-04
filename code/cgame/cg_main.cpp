@@ -3127,13 +3127,13 @@ void CG_CreateMiscEnts()
 void CG_DrawMiscEnts()
 {
 	cgMiscEntData_t* MiscEnt = MiscEnts;
-	refEntity_t ref_ent;
+	refEntity_t refEnt;
 	vec3_t cullOrigin;
 
-	memset(&ref_ent, 0, sizeof ref_ent);
-	ref_ent.reType = RT_MODEL;
-	ref_ent.frame = 0;
-	ref_ent.renderfx = RF_LIGHTING_ORIGIN;
+	memset(&refEnt, 0, sizeof refEnt);
+	refEnt.reType = RT_MODEL;
+	refEnt.frame = 0;
+	refEnt.renderfx = RF_LIGHTING_ORIGIN;
 	for (int i = 0; i < NumMiscEnts; i++)
 	{
 		VectorCopy(MiscEnt->origin, cullOrigin);
@@ -3146,13 +3146,13 @@ void CG_DrawMiscEnts()
 			if (VectorLengthSquared(difference) - MiscEnt->radius <= 8192 * 8192/*RMG_distancecull.value*/)
 			{
 				//fixme: need access to the real cull dist here
-				ref_ent.hModel = MiscEnt->hModel;
-				AnglesToAxis(MiscEnt->angles, ref_ent.axis);
-				VectorCopy(MiscEnt->scale, ref_ent.modelScale);
-				VectorCopy(MiscEnt->origin, ref_ent.origin);
-				VectorCopy(cullOrigin, ref_ent.lightingOrigin);
-				ScaleModelAxis(&ref_ent);
-				cgi_R_AddRefEntityToScene(&ref_ent);
+				refEnt.hModel = MiscEnt->hModel;
+				AnglesToAxis(MiscEnt->angles, refEnt.axis);
+				VectorCopy(MiscEnt->scale, refEnt.modelScale);
+				VectorCopy(MiscEnt->origin, refEnt.origin);
+				VectorCopy(cullOrigin, refEnt.lightingOrigin);
+				ScaleModelAxis(&refEnt);
+				cgi_R_AddRefEntityToScene(&refEnt);
 			}
 		}
 		MiscEnt++;
@@ -3327,7 +3327,7 @@ void CG_DrawNode(vec3_t origin, const int type)
 	ex->endTime = ex->startTime + 51;
 	VectorCopy(origin, ex->refEntity.origin);
 
-	ex->refEntity.custom_shader = cgi_R_RegisterShader("gfx/misc/nav_node");
+	ex->refEntity.customShader = cgi_R_RegisterShader("gfx/misc/nav_node");
 
 	float scale = 16.0f;
 
@@ -3380,7 +3380,7 @@ void CG_DrawRadius(vec3_t origin, const unsigned int radius, const int type)
 	ex->endTime = ex->startTime + 51;
 	VectorCopy(origin, ex->refEntity.origin);
 
-	ex->refEntity.custom_shader = cgi_R_RegisterShader("gfx/misc/nav_radius");
+	ex->refEntity.customShader = cgi_R_RegisterShader("gfx/misc/nav_radius");
 
 	switch (type)
 	{
@@ -3612,7 +3612,7 @@ void CG_DrawCombatPoint(vec3_t origin, int type)
 	ex->endTime = ex->startTime + 51;
 	VectorCopy(origin, ex->refEntity.origin);
 
-	ex->refEntity.custom_shader = cgi_R_RegisterShader("gfx/misc/nav_cpoint");
+	ex->refEntity.customShader = cgi_R_RegisterShader("gfx/misc/nav_cpoint");
 
 	ex->color[0] = 255;
 	ex->color[1] = 0;

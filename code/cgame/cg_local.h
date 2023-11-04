@@ -780,12 +780,12 @@ constexpr auto CG_PULSE = 0x00004000;
 void CG_DrawRect(float x, float y, float width, float height, float size, const float* color);
 void CG_FillRect(float x, float y, float width, float height, const float* color);
 void CG_Scissor(float x, float y, float width, float height);
-void CG_DrawPic(float x, float y, float width, float height, qhandle_t h_shader);
+void CG_DrawPic(float x, float y, float width, float height, qhandle_t hShader);
 void CG_DrawPic2(float x, float y, float width, float height, float s1, float t1, float s2, float t2,
-	qhandle_t h_shader);
-void CG_DrawRotatePic(float x, float y, float width, float height, float angle, qhandle_t h_shader,
+	qhandle_t hShader);
+void CG_DrawRotatePic(float x, float y, float width, float height, float angle, qhandle_t hShader,
 	float aspect_correction = 1.0f);
-void CG_DrawRotatePic2(float x, float y, float width, float height, float angle, qhandle_t h_shader,
+void CG_DrawRotatePic2(float x, float y, float width, float height, float angle, qhandle_t hShader,
 	float aspect_correction = 1.0f);
 void CG_DrawNumField(int x, int y, int width, int value, int char_width, int char_height, int style, qboolean zero_fill);
 void CG_DrawProportionalString(int x, int y, const char* str, int style, vec4_t color);
@@ -846,7 +846,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position);
 // cg_ents.c
 //
 vec3_t* CG_SetEntitySoundPosition(const centity_t* cent);
-void CG_AddPacketEntities(qboolean is_portal);
+void CG_AddPacketEntities(qboolean isPortal);
 void CG_Beam(const centity_t* cent, int color);
 void CG_AdjustPositionForMover(const vec3_t in, int mover_num, int at_time, vec3_t out);
 
@@ -1046,7 +1046,7 @@ void cgi_CM_TransformedBoxTrace(trace_t* results, const vec3_t start, const vec3
 	const vec3_t origin, const vec3_t angles);
 
 // Returns the projection of a polygon onto the solid brushes in the world
-int cgi_CM_MarkFragments(int num_points, const vec3_t* points,
+int cgi_CM_MarkFragments(int numPoints, const vec3_t* points,
 	const vec3_t projection,
 	int max_points, vec3_t point_buffer,
 	int max_fragments, markFragment_t* fragment_buffer);
@@ -1102,22 +1102,22 @@ qboolean cgi_R_inPVS(vec3_t p1, vec3_t p2);
 
 // polys are intended for simple wall marks, not really for doing
 // significant construction
-void cgi_R_AddPolyToScene(qhandle_t h_shader, int num_verts, const polyVert_t* verts);
+void cgi_R_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t* verts);
 void cgi_R_AddLightToScene(const vec3_t org, float intensity, float r, float g, float b);
 void cgi_R_RenderScene(const refdef_t* fd);
 void cgi_R_SetColor(const float* rgba); // NULL = 1,1,1,1
 void cgi_R_DrawStretchPic(float x, float y, float w, float h,
-	float s1, float t1, float s2, float t2, qhandle_t h_shader);
+	float s1, float t1, float s2, float t2, qhandle_t hShader);
 
 void cgi_R_ModelBounds(qhandle_t model, vec3_t mins, vec3_t maxs);
 void cgi_R_LerpTag(orientation_t* tag, qhandle_t mod, int start_frame, int end_frame,
 	float frac, const char* tagName);
 // Does weird, barely controllable rotation behaviour
 void cgi_R_DrawRotatePic(float x, float y, float w, float h,
-	float s1, float t1, float s2, float t2, float a, qhandle_t h_shader, float aspectCorrection);
+	float s1, float t1, float s2, float t2, float a, qhandle_t hShader, float aspectCorrection);
 // rotates image around exact center point of passed in coords
 void cgi_R_DrawRotatePic2(float x, float y, float w, float h,
-	float s1, float t1, float s2, float t2, float a, qhandle_t h_shader, float aspectCorrection);
+	float s1, float t1, float s2, float t2, float a, qhandle_t hShader, float aspectCorrection);
 void cgi_R_SetRangeFog(float range);
 void cgi_R_LAGoggles();
 void cgi_R_Scissor(float x, float y, float w, float h);

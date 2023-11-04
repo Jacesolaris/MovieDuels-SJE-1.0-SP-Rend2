@@ -1140,11 +1140,6 @@ int get_com_frameTime()
 	return com_frameTime;
 }
 
-void* CL_Malloc(const int i_size, const memtag_t e_tag, const qboolean bZeroit, int iAlign)
-{
-	return Z_Malloc(i_size, e_tag, bZeroit);
-}
-
 /*
 ============
 CL_InitRef
@@ -1194,7 +1189,7 @@ void CL_InitRef()
 
 	memset(&rit, 0, sizeof(rit));
 
-	const auto get_ref_api = static_cast<get_ref_api_t>(Sys_LoadFunction(rendererLib, "get_ref_api"));
+	const auto get_ref_api = static_cast<GetRefAPI_t>(Sys_LoadFunction(rendererLib, "get_ref_api"));
 	if (!get_ref_api)
 		Com_Error(ERR_FATAL, "Can't load symbol get_ref_api: '%s'", Sys_LibraryError());
 
@@ -1240,7 +1235,7 @@ void CL_InitRef()
 	RIT(SV_Trace);
 	RIT(S_RestartMusic);
 	RIT(Z_Free);
-	rit.Malloc = CL_Malloc;
+	RIT(Z_Malloc);
 	RIT(Z_MemSize);
 	RIT(Z_MorphMallocTag);
 
@@ -1346,7 +1341,7 @@ void CL_Init()
 	cl_packetdup = Cvar_Get("cl_packetdup", "1", CVAR_ARCHIVE_ND);
 
 	cl_run = Cvar_Get("cl_run", "1", CVAR_ARCHIVE_ND);
-	cl_sensitivity = Cvar_Get("sensitivity", "5", CVAR_ARCHIVE);
+	cl_sensitivity = Cvar_Get("sensitivity", "6.593750", CVAR_ARCHIVE);
 	cl_mouseAccel = Cvar_Get("cl_mouseAccel", "0", CVAR_ARCHIVE_ND);
 	cl_freelook = Cvar_Get("cl_freelook", "1", CVAR_ARCHIVE_ND);
 
@@ -1364,7 +1359,7 @@ void CL_Init()
 	m_yaw = Cvar_Get("m_yaw", "0.022", CVAR_ARCHIVE_ND);
 	m_forward = Cvar_Get("m_forward", "0.25", CVAR_ARCHIVE_ND);
 	m_side = Cvar_Get("m_side", "0.25", CVAR_ARCHIVE_ND);
-	m_filter = Cvar_Get("m_filter", "0", CVAR_ARCHIVE_ND);
+	m_filter = Cvar_Get("m_filter", "1", CVAR_ARCHIVE_ND);
 
 	// ~ and `, as keys and characters
 	cl_consoleKeys = Cvar_Get("cl_consoleKeys", "~ ` 0x7e 0x60 0xb2", CVAR_ARCHIVE);

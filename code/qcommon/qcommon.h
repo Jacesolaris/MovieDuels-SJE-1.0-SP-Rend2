@@ -679,27 +679,26 @@ temp file loading
 
 */
 int Z_Validate(); // also used to insure all of these are paged in
-int Z_MemSize(memtag_t e_tag);
-void Z_TagFree(memtag_t e_tag);
-int Z_Free(void* pv_address); //returns bytes freed
+int Z_MemSize(const memtag_t eTag);
+void Z_TagFree(const memtag_t eTag);
+int Z_Free(void* pvAddress); //returns bytes freed
 int Z_Size(void* pvAddress);
-void Z_MorphMallocTag(void* pvAddress, memtag_t eDesiredTag);
-qboolean Z_IsFromZone(const void* pvAddress, memtag_t e_tag); //returns size if true
+void Z_MorphMallocTag(void* pvAddress, const memtag_t eDesiredTag);
+qboolean Z_IsFromZone(const void* pvAddress, memtag_t eTag); //returns size if true
 
 #ifdef DEBUG_ZONE_ALLOCS
-
-void* _D_Z_Malloc(const int i_size, const memtag_t e_tag, const qboolean b_zeroit, const char* psFile, const int iLine);
-void* _D_S_Malloc(const int i_size, const char* psFile, const int iLine);
+void* _D_Z_Malloc(const int iSize, const memtag_t eTag, const qboolean b_zeroit, const char* psFile, const int iLine);
+void* _D_S_Malloc(const int iSize, const char* psFile, const int iLine);
 void  Z_Label(const void* pvAddress, const char* pslabel);
 
-#define Z_Malloc(i_size, e_tag, b_zeroit)	_D_Z_Malloc ((i_size), (e_tag), (b_zeroit), __FILE__, __LINE__)
-#define S_Malloc(i_size)	_D_S_Malloc	((i_size), __FILE__, __LINE__)	// NOT 0 filled memory only for small allocations
+#define Z_Malloc(iSize, eTag, b_zeroit)	_D_Z_Malloc ((iSize), (eTag), (b_zeroit), __FILE__, __LINE__)
+#define S_Malloc(iSize)	_D_S_Malloc	((iSize), __FILE__, __LINE__)	// NOT 0 filled memory only for small allocations
 
 #else
 
-void* Z_Malloc(int i_size, memtag_t e_tag, qboolean bZeroit = qfalse, int iAlign = 4);
+void* Z_Malloc(const int iSize, const memtag_t eTag, const qboolean b_zeroit = qfalse, const int unusedAlign = 4);
 // return memory NOT zero-filled by default
-void* S_Malloc(int i_size); // NOT 0 filled memory only for small allocations
+void* S_Malloc(const int iSize); // NOT 0 filled memory only for small allocations
 #define Z_Label(_ptr, _label)
 
 #endif
@@ -712,7 +711,6 @@ void Hunk_ClearToMark();
 void Hunk_SetMark();
 // note the opposite default for 'bZeroIt' in Hunk_Alloc to Z_Malloc, since Hunk_Alloc always used to memset(0)...
 //
-inline void* Hunk_Alloc(int size, qboolean bZeroIt = qtrue);
 
 void Com_TouchMemory();
 

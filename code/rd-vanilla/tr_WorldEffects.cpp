@@ -1531,7 +1531,7 @@ void RB_RenderWorldEffects()
 
 	SetViewportAndScissor();
 	qglMatrixMode(GL_MODELVIEW);
-	qglLoadMatrixf(backEnd.viewParms.world.model_matrix);
+	qglLoadMatrixf(backEnd.viewParms.world.modelMatrix);
 
 	// Calculate Elapsed Time For Scale Purposes
 	//-------------------------------------------
@@ -1983,7 +1983,7 @@ void RE_WorldEffectCommand(const char* command) // vanilla sp
 
 	// Create A Sand Storm
 	//---------------------
-	else if (Q_stricmp(token, "Sandstorm") == 0)
+	else if ((Q_stricmp(token, "Sandstorm") == 0) || g_Weather->integer == 4)
 	{
 		if (mParticleClouds.full())
 		{

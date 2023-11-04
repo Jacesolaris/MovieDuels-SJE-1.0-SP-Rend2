@@ -268,10 +268,10 @@ void UI_Init(const int apiVersion, const uiimport_t* uiimport, const qboolean in
 	ui.Cvar_Create("cg_marks", "1", CVAR_ARCHIVE);
 	ui.Cvar_Create("s_language", "english", CVAR_ARCHIVE | CVAR_NORESTART);
 #ifndef JK2_MODE
-	ui.Cvar_Create("g_char_model", "jedi_tf", CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART);
-	ui.Cvar_Create("g_char_skin_head", "head_a1", CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART);
-	ui.Cvar_Create("g_char_skin_torso", "torso_a1", CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART);
-	ui.Cvar_Create("g_char_skin_legs", "lower_a1", CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART);
+	ui.Cvar_Create("g_char_model", "jedi_hm", CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART);
+	ui.Cvar_Create("g_char_skin_head", "head_b1", CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART);
+	ui.Cvar_Create("g_char_skin_torso", "torso_b1", CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART);
+	ui.Cvar_Create("g_char_skin_legs", "lower_b1", CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART);
 	ui.Cvar_Create("g_char_color_red", "255", CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART);
 	ui.Cvar_Create("g_char_color_green", "255", CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART);
 	ui.Cvar_Create("g_char_color_blue", "255", CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART);
@@ -322,8 +322,8 @@ UI_DrawNamedPic
 */
 void UI_DrawNamedPic(const float x, const float y, const float width, const float height, const char* picname)
 {
-	const qhandle_t h_shader = ui.R_RegisterShaderNoMip(picname);
-	ui.R_DrawStretchPic(x, y, width, height, 0, 0, 1, 1, h_shader);
+	const qhandle_t hShader = ui.R_RegisterShaderNoMip(picname);
+	ui.R_DrawStretchPic(x, y, width, height, 0, 0, 1, 1, hShader);
 }
 
 /*
@@ -331,7 +331,7 @@ void UI_DrawNamedPic(const float x, const float y, const float width, const floa
 UI_DrawHandlePic
 =================
 */
-void UI_DrawHandlePic(const float x, const float y, float w, float h, const qhandle_t h_shader)
+void UI_DrawHandlePic(const float x, const float y, float w, float h, const qhandle_t hShader)
 {
 	float s0;
 	float s1;
@@ -364,7 +364,7 @@ void UI_DrawHandlePic(const float x, const float y, float w, float h, const qhan
 		t1 = 1;
 	}
 
-	ui.R_DrawStretchPic(x, y, w, h, s0, t0, s1, t1, h_shader);
+	ui.R_DrawStretchPic(x, y, w, h, s0, t0, s1, t1, hShader);
 }
 
 /*

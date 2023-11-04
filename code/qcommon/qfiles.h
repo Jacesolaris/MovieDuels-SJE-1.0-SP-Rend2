@@ -35,7 +35,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // the maximum size of game reletive pathnames
 #define	MAX_QPATH		64
-#define	MAX_SKINNAME_PATH 128
 
 /*
 ========================================================================
@@ -135,8 +134,8 @@ using md3Tag_t = struct md3Tag_s
 ** header			sizeof( md3Surface_t )
 ** shaders			sizeof( md3Shader_t ) * numShaders
 ** triangles[0]		sizeof( md3Triangle_t ) * numTriangles
-** st				sizeof( md3St_t ) * num_verts
-** XyzNormals		sizeof( md3XyzNormal_t ) * num_verts * num_frames
+** st				sizeof( md3St_t ) * numVerts
+** XyzNormals		sizeof( md3XyzNormal_t ) * numVerts * numFrames
 */
 using md3Surface_t = struct
 {
@@ -145,17 +144,17 @@ using md3Surface_t = struct
 	char name[MAX_QPATH]; // polyset name
 
 	int flags;
-	int num_frames; // all surfaces in a model should have the same
+	int numFrames; // all surfaces in a model should have the same
 
 	int numShaders; // all surfaces in a model should have the same
-	int num_verts;
+	int numVerts;
 
 	int numTriangles;
 	int ofsTriangles;
 
 	int ofsShaders; // offset from start of
 	int ofsSt; // texture coords are common for all frames
-	int ofsXyzNormals; // num_verts * num_frames
+	int ofsXyzNormals; // numVerts * numFrames
 
 	int ofsEnd; // next surface follows
 };;
@@ -191,14 +190,14 @@ using md3Header_t = struct
 
 	int flags;
 
-	int num_frames;
+	int numFrames;
 	int numTags;
 	int numSurfaces;
 
 	int numSkins;
 
 	int ofsFrames; // offset for first frame
-	int ofsTags; // num_frames * numTags
+	int ofsTags; // numFrames * numTags
 	int ofsSurfaces; // first surface, others follow
 
 	int ofsEnd; // end of file
@@ -211,9 +210,9 @@ typedef struct {
 	char		name[MAX_QPATH];	// model name
 
 	// frames and bones are shared by all levels of detail
-	int			num_frames;
+	int			numFrames;
 	int			numBones;
-	int			ofsFrames;			// mdrFrame_t[num_frames]
+	int			ofsFrames;			// mdrFrame_t[numFrames]
 
 	// each level of detail has completely separate sets of surfaces
 	int			numLODs;
@@ -246,7 +245,7 @@ typedef struct {
 
 	int			ofsHeader;	// this will be a negative number
 
-	int			num_verts;
+	int			numVerts;
 	int			ofsVerts;
 
 	int			numTriangles;
@@ -436,7 +435,7 @@ using dleaf_t = struct
 using dbrushside_t = struct
 {
 	int planeNum; // positive plane side faces out of the leaf
-	int shader_num;
+	int shaderNum;
 	int drawSurfNum;
 };
 
@@ -444,7 +443,7 @@ using dbrush_t = struct
 {
 	int firstSide;
 	int numSides;
-	int shader_num; // the shader that determines the contents flags
+	int shaderNum; // the shader that determines the contents flags
 };
 
 using dfog_t = struct
@@ -498,18 +497,18 @@ using mapSurfaceType_t = enum
 
 using dsurface_t = struct
 {
-	int shader_num;
+	int shaderNum;
 	int fogNum;
 	int surfaceType;
 
 	int firstVert;
-	int num_verts;
+	int numVerts;
 
 	int firstIndex;
-	int num_indexes;
+	int numIndexes;
 
 	byte lightmapStyles[MAXLIGHTMAPS], vertexStyles[MAXLIGHTMAPS];
-	int lightmap_num[MAXLIGHTMAPS];
+	int lightmapNum[MAXLIGHTMAPS];
 	int lightmapX[MAXLIGHTMAPS], lightmapY[MAXLIGHTMAPS];
 	int lightmapWidth, lightmapHeight;
 

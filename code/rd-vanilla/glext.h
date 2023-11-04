@@ -10203,7 +10203,7 @@ extern "C" {
 #define GL_MAGNITUDE_BIAS_NV              0x8718
 #define GL_VIBRANCE_BIAS_NV               0x8719
 #define GL_TEXTURE_BORDER_VALUES_NV       0x871A
-#define GL_TEXTURE_HI_SIZE_NV             0x871B
+#define GL_TEXTURE_HiSize_NV             0x871B
 #define GL_TEXTURE_LO_SIZE_NV             0x871C
 #define GL_TEXTURE_DS_SIZE_NV             0x871D
 #define GL_TEXTURE_DT_SIZE_NV             0x871E

@@ -6581,7 +6581,7 @@ static void CG_DrawCrosshair(vec3_t world_point)
 	}
 	else
 	{
-		qhandle_t h_shader;
+		qhandle_t hShader;
 		if (cg_weaponcrosshairs.integer)
 		{
 			if (cg.snap->ps.weapon == WP_SABER ||
@@ -6661,18 +6661,18 @@ static void CG_DrawCrosshair(vec3_t world_point)
 			}
 			else
 			{
-				h_shader = cgs.media.crosshairShader[cg_drawCrosshair.integer % NUM_CROSSHAIRS];
+				hShader = cgs.media.crosshairShader[cg_drawCrosshair.integer % NUM_CROSSHAIRS];
 
 				cgi_R_DrawStretchPic(x + cg.refdef.x + 0.5 * (640 - w), y + cg.refdef.y + 0.5 * (480 - h), w, h, 0, 0,
-					1, 1, h_shader);
+					1, 1, hShader);
 			}
 		}
 		else
 		{
-			h_shader = cgs.media.crosshairShader[cg_drawCrosshair.integer % NUM_CROSSHAIRS];
+			hShader = cgs.media.crosshairShader[cg_drawCrosshair.integer % NUM_CROSSHAIRS];
 
 			cgi_R_DrawStretchPic(x + cg.refdef.x + 0.5 * (640 - w), y + cg.refdef.y + 0.5 * (480 - h), w, h, 0, 0, 1, 1,
-				h_shader);
+				hShader);
 		}
 	}
 

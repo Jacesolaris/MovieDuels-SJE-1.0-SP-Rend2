@@ -5226,9 +5226,9 @@ cvar_t* s_soundpoolmegs = nullptr;
 
 // currently passing in sfx as a param in case I want to do something with it later.
 //
-byte* SND_malloc(const int i_size, sfx_t* sfx)
+byte* SND_malloc(const int iSize, sfx_t* sfx)
 {
-	const auto p_data = static_cast<byte*>(Z_Malloc(i_size, TAG_SND_RAWDATA, qfalse)); // don't bother asking for zeroed mem
+	const auto p_data = static_cast<byte*>(Z_Malloc(iSize, TAG_SND_RAWDATA, qfalse)); // don't bother asking for zeroed mem
 
 	// if "s_soundpoolmegs" is < 0, then the -ve of the value is the maximum amount of sounds we're allowed to have loaded...
 	//
@@ -5263,18 +5263,18 @@ void SND_setup()
 //
 static int SND_MemUsed(const sfx_t* sfx)
 {
-	int i_size = 0;
+	int iSize = 0;
 	if (sfx->pSoundData)
 	{
-		i_size += Z_Size(sfx->pSoundData);
+		iSize += Z_Size(sfx->pSoundData);
 	}
 
 	if (sfx->pMP3StreamHeader)
 	{
-		i_size += Z_Size(sfx->pMP3StreamHeader);
+		iSize += Z_Size(sfx->pMP3StreamHeader);
 	}
 
-	return i_size;
+	return iSize;
 }
 
 // free any allocated sfx mem...
@@ -5309,8 +5309,8 @@ static int SND_FreeSFXMem(sfx_t* sfx)
 		{
 			iBytesFreed += Z_Free(sfx->lipSyncData);
 			sfx->lipSyncData = nullptr;
-			}
 		}
+	}
 #endif
 
 	if (sfx->pSoundData)
@@ -5328,7 +5328,7 @@ static int SND_FreeSFXMem(sfx_t* sfx)
 	}
 
 	return iBytesFreed;
-	}
+}
 
 void S_DisplayFreeMemory()
 {
@@ -6063,12 +6063,12 @@ static void UpdateEAXListener()
 							NULL, &s_eaxLPCur, sizeof(EAXREVERBPROPERTIES));
 
 						s_EnvironmentID = lID;
+					}
 				}
 			}
-		}
 
 			return;
-	}
+		}
 
 		// Convert Listener position and orientation to left-handed system
 		ListPos.fX = listener_pos[0];
@@ -6198,7 +6198,7 @@ static void UpdateEAXListener()
 				}
 				s_FXSlotInfo[i].lEnvID = -1;
 			}
-}
+		}
 
 		// Make sure all the reverbs we want are being rendered, if not, find an empty slot
 		// and apply appropriate reverb settings
@@ -6460,7 +6460,7 @@ static void UpdateEAXListener()
 			if (s_eaxSet(&s_FXSlotInfo[i].FXSlotGuid, EAXFXSLOT_VOLUME, NULL, &lVolume, sizeof(long)) != AL_NO_ERROR)
 				OutputDebugString("Failed to set FX Slot Volume to 0\n");
 		}
-}
+	}
 }
 
 /*

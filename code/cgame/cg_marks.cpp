@@ -183,11 +183,11 @@ void CG_ImpactMark(const qhandle_t mark_shader, const vec3_t origin, const vec3_
 
 		// we have an upper limit on the complexity of polygons
 		// that we store persistantly
-		if (mf->num_points > MAX_VERTS_ON_POLY)
+		if (mf->numPoints > MAX_VERTS_ON_POLY)
 		{
-			mf->num_points = MAX_VERTS_ON_POLY;
+			mf->numPoints = MAX_VERTS_ON_POLY;
 		}
-		for (j = 0, v = verts; j < mf->num_points; j++, v++)
+		for (j = 0, v = verts; j < mf->numPoints; j++, v++)
 		{
 			vec3_t delta;
 
@@ -205,7 +205,7 @@ void CG_ImpactMark(const qhandle_t mark_shader, const vec3_t origin, const vec3_
 		// if it is a temporary (shadow) mark, add it immediately and forget about it
 		if (temporary)
 		{
-			cgi_R_AddPolyToScene(mark_shader, mf->num_points, verts);
+			cgi_R_AddPolyToScene(mark_shader, mf->numPoints, verts);
 			continue;
 		}
 
@@ -214,12 +214,12 @@ void CG_ImpactMark(const qhandle_t mark_shader, const vec3_t origin, const vec3_
 		mark->time = cg.time;
 		mark->alphaFade = alpha_fade;
 		mark->markShader = mark_shader;
-		mark->poly.num_verts = mf->num_points;
+		mark->poly.numVerts = mf->numPoints;
 		mark->color[0] = colors[0]; //red;
 		mark->color[1] = colors[1]; //green;
 		mark->color[2] = colors[2]; //blue;
 		mark->color[3] = colors[3]; //alpha;
-		memcpy(mark->verts, verts, mf->num_points * sizeof verts[0]);
+		memcpy(mark->verts, verts, mf->numPoints * sizeof verts[0]);
 	}
 }
 
@@ -263,7 +263,7 @@ void CG_AddMarks()
 			const int fade = 255 * t / MARK_FADE_TIME;
 			if (mp->alphaFade)
 			{
-				for (j = 0; j < mp->poly.num_verts; j++)
+				for (j = 0; j < mp->poly.numVerts; j++)
 				{
 					mp->verts[j].modulate[3] = fade;
 				}
@@ -271,7 +271,7 @@ void CG_AddMarks()
 			else
 			{
 				const float f = static_cast<float>(t) / MARK_FADE_TIME;
-				for (j = 0; j < mp->poly.num_verts; j++)
+				for (j = 0; j < mp->poly.numVerts; j++)
 				{
 					mp->verts[j].modulate[0] = mp->color[0] * f;
 					mp->verts[j].modulate[1] = mp->color[1] * f;
@@ -281,7 +281,7 @@ void CG_AddMarks()
 		}
 		else
 		{
-			for (j = 0; j < mp->poly.num_verts; j++)
+			for (j = 0; j < mp->poly.numVerts; j++)
 			{
 				mp->verts[j].modulate[0] = mp->color[0];
 				mp->verts[j].modulate[1] = mp->color[1];
@@ -289,6 +289,6 @@ void CG_AddMarks()
 			}
 		}
 
-		cgi_R_AddPolyToScene(mp->markShader, mp->poly.num_verts, mp->verts);
+		cgi_R_AddPolyToScene(mp->markShader, mp->poly.numVerts, mp->verts);
 	}
 }

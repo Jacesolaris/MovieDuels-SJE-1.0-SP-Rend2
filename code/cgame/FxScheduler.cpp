@@ -197,7 +197,7 @@ CFxScheduler::CFxScheduler()
 	memset(&mLoopedEffectArray, 0, sizeof mLoopedEffectArray);
 }
 
-int CFxScheduler::ScheduleLoopedEffect(const int id, const int bolt_info, const bool is_portal, const int i_loop_time,
+int CFxScheduler::ScheduleLoopedEffect(const int id, const int bolt_info, const bool isPortal, const int i_loop_time,
 	const bool is_relative)
 {
 	int i;
@@ -209,7 +209,7 @@ int CFxScheduler::ScheduleLoopedEffect(const int id, const int bolt_info, const 
 	{
 		if (mLoopedEffectArray[i].mId == id &&
 			mLoopedEffectArray[i].mBoltInfo == bolt_info &&
-			mLoopedEffectArray[i].mPortalEffect == is_portal
+			mLoopedEffectArray[i].mPortalEffect == isPortal
 			)
 		{
 #ifdef _DEBUG
@@ -240,14 +240,14 @@ int CFxScheduler::ScheduleLoopedEffect(const int id, const int bolt_info, const 
 	}
 	mLoopedEffectArray[i].mId = id;
 	mLoopedEffectArray[i].mBoltInfo = bolt_info;
-	mLoopedEffectArray[i].mPortalEffect = is_portal;
+	mLoopedEffectArray[i].mPortalEffect = isPortal;
 	mLoopedEffectArray[i].mIsRelative = is_relative;
 	mLoopedEffectArray[i].mNextTime = theFxHelper.mTime + mEffectTemplates[id].mRepeatDelay;
 	mLoopedEffectArray[i].mLoopStopTime = i_loop_time == 1 ? 0 : theFxHelper.mTime + i_loop_time;
 	return i;
 }
 
-void CFxScheduler::StopEffect(const char* file, const int bolt_info, const bool is_portal)
+void CFxScheduler::StopEffect(const char* file, const int bolt_info, const bool isPortal)
 {
 	char sfile[MAX_QPATH];
 
@@ -266,7 +266,7 @@ void CFxScheduler::StopEffect(const char* file, const int bolt_info, const bool 
 	{
 		if (mLoopedEffectArray[i].mId == id &&
 			mLoopedEffectArray[i].mBoltInfo == bolt_info &&
-			mLoopedEffectArray[i].mPortalEffect == is_portal
+			mLoopedEffectArray[i].mPortalEffect == isPortal
 			)
 		{
 			memset(&mLoopedEffectArray[i], 0, sizeof mLoopedEffectArray[i]);
@@ -733,7 +733,7 @@ static void ReportPlayEffectError(const int id)
 // Return:
 //	none
 //------------------------------------------------------
-void CFxScheduler::PlayEffect(const int id, vec3_t origin, const bool is_portal)
+void CFxScheduler::PlayEffect(const int id, vec3_t origin, const bool isPortal)
 {
 	vec3_t axis[3]{};
 
@@ -741,7 +741,7 @@ void CFxScheduler::PlayEffect(const int id, vec3_t origin, const bool is_portal)
 	VectorSet(axis[1], 1, 0, 0);
 	VectorSet(axis[2], 0, 1, 0);
 
-	PlayEffect(id, origin, axis, -1, -1, is_portal);
+	PlayEffect(id, origin, axis, -1, -1, isPortal);
 }
 
 //------------------------------------------------------
@@ -756,7 +756,7 @@ void CFxScheduler::PlayEffect(const int id, vec3_t origin, const bool is_portal)
 // Return:
 //	none
 //------------------------------------------------------
-void CFxScheduler::PlayEffect(const int id, vec3_t origin, vec3_t forward, const bool is_portal)
+void CFxScheduler::PlayEffect(const int id, vec3_t origin, vec3_t forward, const bool isPortal)
 {
 	vec3_t axis[3]{};
 
@@ -764,7 +764,7 @@ void CFxScheduler::PlayEffect(const int id, vec3_t origin, vec3_t forward, const
 	VectorCopy(forward, axis[0]);
 	MakeNormalVectors(forward, axis[1], axis[2]);
 
-	PlayEffect(id, origin, axis, -1, -1, is_portal);
+	PlayEffect(id, origin, axis, -1, -1, isPortal);
 }
 
 //------------------------------------------------------
@@ -781,7 +781,7 @@ void CFxScheduler::PlayEffect(const int id, vec3_t origin, vec3_t forward, const
 //	none
 //------------------------------------------------------
 void CFxScheduler::PlayEffect(const char* file, vec3_t origin, vec3_t axis[3], const int bolt_info, const int ent_num,
-	const bool is_portal, const int i_loop_time, const bool is_relative)
+	const bool isPortal, const int i_loop_time, const bool is_relative)
 {
 	char sfile[MAX_QPATH];
 
@@ -803,7 +803,7 @@ void CFxScheduler::PlayEffect(const char* file, vec3_t origin, vec3_t axis[3], c
 	}
 #endif
 
-	PlayEffect(mEffectIDs[sfile], origin, axis, bolt_info, ent_num, is_portal, i_loop_time, is_relative);
+	PlayEffect(mEffectIDs[sfile], origin, axis, bolt_info, ent_num, isPortal, i_loop_time, is_relative);
 }
 
 //------------------------------------------------------
@@ -819,7 +819,7 @@ void CFxScheduler::PlayEffect(const char* file, vec3_t origin, vec3_t axis[3], c
 // Return:
 //	none
 //------------------------------------------------------
-void CFxScheduler::PlayEffect(const char* file, const int client_id, const bool is_portal)
+void CFxScheduler::PlayEffect(const char* file, const int client_id, const bool isPortal)
 {
 	char sfile[MAX_QPATH];
 
@@ -881,7 +881,7 @@ void CFxScheduler::PlayEffect(const char* file, const int client_id, const bool 
 			}
 
 			// if the delay is so small, we may as well just create this bit right now
-			if (delay < 1 && !is_portal)
+			if (delay < 1 && !isPortal)
 			{
 				CreateEffect(prim, client_id);
 			}
@@ -898,7 +898,7 @@ void CFxScheduler::PlayEffect(const char* file, const int client_id, const bool 
 				sfx->mpTemplate = prim;
 				sfx->mClientID = client_id;
 
-				if (is_portal)
+				if (isPortal)
 				{
 					sfx->mPortalEffect = true;
 				}
@@ -1102,7 +1102,7 @@ void CFxScheduler::CreateEffect(CPrimitiveTemplate* fx, const int client_id) con
 //	none
 //------------------------------------------------------
 void CFxScheduler::PlayEffect(const int id, vec3_t origin, vec3_t axis[3], const int bolt_info, const int ent_num,
-	const bool is_portal, const int i_loop_time, const bool is_relative)
+	const bool isPortal, const int i_loop_time, const bool is_relative)
 {
 	int delay;
 	float factor = 0.0f;
@@ -1137,7 +1137,7 @@ void CFxScheduler::PlayEffect(const int id, vec3_t origin, vec3_t axis[3], const
 		if (i_loop_time) //0 = not looping, 1 for infinite, else duration
 		{
 			//store off the id to reschedule every frame
-			ScheduleLoopedEffect(id, bolt_info, is_portal, i_loop_time, is_relative);
+			ScheduleLoopedEffect(id, bolt_info, isPortal, i_loop_time, is_relative);
 		}
 	}
 
@@ -1185,7 +1185,7 @@ void CFxScheduler::PlayEffect(const int id, vec3_t origin, vec3_t axis[3], const
 			}
 
 			// if the delay is so small, we may as well just create this bit right now
-			if (delay < 1 && !forceScheduling && !is_portal)
+			if (delay < 1 && !forceScheduling && !isPortal)
 			{
 				if (bolt_info == -1 && ent_num != -1)
 				{
@@ -1212,7 +1212,7 @@ void CFxScheduler::PlayEffect(const int id, vec3_t origin, vec3_t axis[3], const
 				sfx->mIsRelative = is_relative;
 				sfx->mEntNum = entity_num; //ent if bolted, else -1 for none, or -2 for _Immersion client 0
 
-				sfx->mPortalEffect = is_portal;
+				sfx->mPortalEffect = isPortal;
 
 				if (bolt_info == -1)
 				{
@@ -1277,14 +1277,14 @@ void CFxScheduler::PlayEffect(const int id, vec3_t origin, vec3_t axis[3], const
 // Return:
 //	none
 //------------------------------------------------------
-void CFxScheduler::PlayEffect(const char* file, vec3_t origin, const bool is_portal)
+void CFxScheduler::PlayEffect(const char* file, vec3_t origin, const bool isPortal)
 {
 	char sfile[MAX_QPATH];
 
 	// Get an extenstion stripped version of the file
 	COM_StripExtension(file, sfile, sizeof sfile);
 
-	PlayEffect(mEffectIDs[sfile], origin, is_portal);
+	PlayEffect(mEffectIDs[sfile], origin, isPortal);
 
 #ifndef FINAL_BUILD
 	if (mEffectIDs[sfile] == 0)
@@ -1306,14 +1306,14 @@ void CFxScheduler::PlayEffect(const char* file, vec3_t origin, const bool is_por
 // Return:
 //	none
 //------------------------------------------------------
-void CFxScheduler::PlayEffect(const char* file, vec3_t origin, vec3_t forward, const bool is_portal)
+void CFxScheduler::PlayEffect(const char* file, vec3_t origin, vec3_t forward, const bool isPortal)
 {
 	char sfile[MAX_QPATH];
 
 	// Get an extenstion stripped version of the file
 	COM_StripExtension(file, sfile, sizeof sfile);
 
-	PlayEffect(mEffectIDs[sfile], origin, forward, is_portal);
+	PlayEffect(mEffectIDs[sfile], origin, forward, isPortal);
 
 #ifndef FINAL_BUILD
 	if (mEffectIDs[sfile] == 0)
@@ -1390,7 +1390,7 @@ void CFxScheduler::AddScheduledEffects(const bool portal)
 					{
 						if (effect->mModelNum >= 0 && effect->mModelNum < cent.gent->ghoul2.size())
 						{
-							if (cent.gent->ghoul2[effect->mModelNum].mmodel_index >= 0)
+							if (cent.gent->ghoul2[effect->mModelNum].mModelindex >= 0)
 							{
 								does_bolt_exist = static_cast<qboolean>(theFxHelper.GetOriginAxisFromBolt(
 									cent, effect->mModelNum, effect->mBoltNum, origin, axis) != 0);

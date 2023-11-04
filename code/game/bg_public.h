@@ -306,7 +306,7 @@ using pmove_t = struct
 	// callbacks to test the world
 	// these will be different functions during game and cgame
 	void (*trace)(trace_t* results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-		int pass_entity_num, int content_mask, EG2_Collision e_g2_trace_type, int use_lod);
+		int pass_entity_num, int content_mask, EG2_Collision e_g2_trace_type, int useLod);
 	int (*pointcontents)(const vec3_t point, int pass_entity_num);
 };
 
@@ -696,17 +696,17 @@ class animation_t
 {
 public:
 	unsigned short firstFrame;
-	unsigned short num_frames;
+	unsigned short numFrames;
 	short frameLerp; // msec between frames
 	//initial lerp is abs(frameLerp)
-	signed char loopFrames; // 0 to num_frames, -1 = no loop
+	signed char loopFrames; // 0 to numFrames, -1 = no loop
 	unsigned char glaIndex;
 
 	void sg_export(
 		ojk::SavedGameHelper& saved_game) const
 	{
 		saved_game.write<uint16_t>(firstFrame);
-		saved_game.write<uint16_t>(num_frames);
+		saved_game.write<uint16_t>(numFrames);
 		saved_game.write<int16_t>(frameLerp);
 		saved_game.write<int8_t>(loopFrames);
 		saved_game.write<uint8_t>(glaIndex);
@@ -716,7 +716,7 @@ public:
 		ojk::SavedGameHelper& saved_game)
 	{
 		saved_game.read<uint16_t>(firstFrame);
-		saved_game.read<uint16_t>(num_frames);
+		saved_game.read<uint16_t>(numFrames);
 		saved_game.read<int16_t>(frameLerp);
 		saved_game.read<int8_t>(loopFrames);
 		saved_game.read<uint8_t>(glaIndex);

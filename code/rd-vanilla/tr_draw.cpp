@@ -37,7 +37,7 @@ Used for cinematics.
 */
 
 // param 'bDirty' should be true 99% of the time
-void RE_StretchRaw(const int x, const int y, const int w, const int h, int cols, int rows, const byte* data, const int i_client, const qboolean b_dirty)
+void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte* data, int iClient, qboolean bDirty)
 {
 	if (!tr.registered) {
 		return;
@@ -45,7 +45,7 @@ void RE_StretchRaw(const int x, const int y, const int w, const int h, int cols,
 
 	R_IssuePendingRenderCommands();
 
-	if (tess.num_indexes) {
+	if (tess.numIndexes) {
 		RB_EndSurface();
 	}
 
@@ -57,19 +57,19 @@ void RE_StretchRaw(const int x, const int y, const int w, const int h, int cols,
 	start = end = 0;	// only to stop compiler whining, don't need to be initialised
 #endif
 	// make sure rows and cols are powers of 2
-	if (cols & cols - 1 || rows & rows - 1)
+	if ((cols & (cols - 1)) || (rows & (rows - 1)))
 	{
 		Com_Error(ERR_DROP, "Draw_StretchRaw: size not a power of 2: %i by %i", cols, rows);
 	}
 
-	GL_Bind(tr.scratchImage[i_client]);
+	GL_Bind(tr.scratchImage[iClient]);
 
 	// if the scratchImage isn't in the format we want, specify it as a new texture...
 	//
-	if (cols != tr.scratchImage[i_client]->width || rows != tr.scratchImage[i_client]->height)
+	if (cols != tr.scratchImage[iClient]->width || rows != tr.scratchImage[iClient]->height)
 	{
-		tr.scratchImage[i_client]->width = cols;
-		tr.scratchImage[i_client]->height = rows;
+		tr.scratchImage[iClient]->width = cols;
+		tr.scratchImage[iClient]->height = rows;
 #ifdef TIMEBIND
 		if (r_ignore->integer)
 		{
@@ -94,7 +94,7 @@ void RE_StretchRaw(const int x, const int y, const int w, const int h, int cols,
 	}
 	else
 	{
-		if (b_dirty)	// FIXME: some TA addition or other, not sure why, yet. Should probably be true 99% of the time?
+		if (bDirty)	// FIXME: some TA addition or other, not sure why, yet. Should probably be true 99% of the time?
 		{
 			// otherwise, just subimage upload it so that drivers can tell we are going to be changing
 			// it and don't try and do a texture compression
@@ -118,7 +118,7 @@ void RE_StretchRaw(const int x, const int y, const int w, const int h, int cols,
 		}
 	}
 
-	extern void	RB_SetGL2D();
+	extern void	RB_SetGL2D(void);
 	if (!backEnd.projection2D)
 	{
 		RB_SetGL2D();
@@ -137,7 +137,7 @@ void RE_StretchRaw(const int x, const int y, const int w, const int h, int cols,
 	qglEnd();
 }
 
-void RE_UploadCinematic(const int cols, const int rows, const byte* data, const int client, const qboolean dirty) {
+void RE_UploadCinematic(int cols, int rows, const byte* data, int client, qboolean dirty) {
 	GL_Bind(tr.scratchImage[client]);
 
 	// if the scratchImage isn't in the format we want, specify it as a new texture
@@ -161,35 +161,40 @@ void RE_UploadCinematic(const int cols, const int rows, const byte* data, const 
 }
 
 extern byte* RB_ReadPixels(int x, int y, int width, int height, size_t* offset, int* padlen);
-void RE_GetScreenShot(byte* buffer, const int w, const int h)
+void RE_GetScreenShot(byte* buffer, int w, int h)
 {
-	size_t offset = 0;
+	byte* source;
+	byte* src, * dst;
+	size_t offset = 0, memcount;
 	int padlen;
 
-	int g, b;
+	int			x, y;
+	int			r, g, b;
+	float		xScale, yScale;
+	int			xx, yy;
 
-	byte* source = RB_ReadPixels(0, 0, glConfig.vidWidth, glConfig.vidHeight, &offset, &padlen);
-	const size_t memcount = (glConfig.vidWidth * 3 + padlen) * glConfig.vidHeight;
+	source = RB_ReadPixels(0, 0, glConfig.vidWidth, glConfig.vidHeight, &offset, &padlen);
+	memcount = (glConfig.vidWidth * 3 + padlen) * glConfig.vidHeight;
 
 	// gamma correct
 	if (glConfig.deviceSupportsGamma)
 		R_GammaCorrect(source + offset, memcount);
 
 	// resample from source
-	const float x_scale = glConfig.vidWidth / (4.0 * w);
-	const float y_scale = glConfig.vidHeight / (3.0 * h);
-	for (int y = 0; y < h; y++) {
-		for (int x = 0; x < w; x++) {
-			int r = g = b = 0;
-			for (int yy = 0; yy < 3; yy++) {
-				for (int xx = 0; xx < 4; xx++) {
-					const byte* src = source + offset + 3 * (glConfig.vidWidth * static_cast<int>((y * 3 + yy) * y_scale) + static_cast<int>((x * 4 + xx) * x_scale));
+	xScale = glConfig.vidWidth / (4.0 * w);
+	yScale = glConfig.vidHeight / (3.0 * h);
+	for (y = 0; y < h; y++) {
+		for (x = 0; x < w; x++) {
+			r = g = b = 0;
+			for (yy = 0; yy < 3; yy++) {
+				for (xx = 0; xx < 4; xx++) {
+					src = source + offset + 3 * (glConfig.vidWidth * (int)((y * 3 + yy) * yScale) + (int)((x * 4 + xx) * xScale));
 					r += src[0];
 					g += src[1];
 					b += src[2];
 				}
 			}
-			byte* dst = buffer + 3 * (y * w + x);
+			dst = buffer + 3 * (y * w + x);
 			dst[0] = r / 12;
 			dst[1] = g / 12;
 			dst[2] = b / 12;
@@ -202,47 +207,47 @@ void RE_GetScreenShot(byte* buffer, const int w, const int h)
 // this is just a chunk of code from RE_TempRawImage_ReadFromFile() below, subroutinised so I can call it
 //	from the screen dissolve code as well...
 //
-static byte* RE_ReSample(byte* pb_loaded_pic, const int i_loaded_width, const int i_loaded_height,
-	byte* pb_re_sample_buffer, int* pi_width, int* pi_height
+static byte* RE_ReSample(byte* pbLoadedPic, int iLoadedWidth, int iLoadedHeight,
+	byte* pbReSampleBuffer, int* piWidth, int* piHeight
 )
 {
-	byte* pb_return;
+	byte* pbReturn = NULL;
 
 	// if not resampling, just return some values and return...
 	//
-	if (pb_re_sample_buffer == nullptr || i_loaded_width == *pi_width && i_loaded_height == *pi_height)
+	if (pbReSampleBuffer == NULL || (iLoadedWidth == *piWidth && iLoadedHeight == *piHeight))
 	{
 		// if not resampling, we're done, just return the loaded size...
 		//
-		*pi_width = i_loaded_width;
-		*pi_height = i_loaded_height;
-		pb_return = pb_loaded_pic;
+		*piWidth = iLoadedWidth;
+		*piHeight = iLoadedHeight;
+		pbReturn = pbLoadedPic;
 	}
 	else
 	{
 		// resample from pbLoadedPic to pbReSampledBuffer...
 		//
-		const float	f_x_step = static_cast<float>(i_loaded_width) / static_cast<float>(*pi_width);
-		const float	f_y_step = static_cast<float>(i_loaded_height) / static_cast<float>(*pi_height);
-		const int		i_tot_pixels_per_down_sample = static_cast<int>(ceil(f_x_step)) * static_cast<int>(ceil(f_y_step));
+		float	fXStep = (float)iLoadedWidth / (float)*piWidth;
+		float	fYStep = (float)iLoadedHeight / (float)*piHeight;
+		int		iTotPixelsPerDownSample = (int)ceil(fXStep) * (int)ceil(fYStep);
 
-		int g, b;
+		int 	r, g, b;
 
-		byte* pb_dst = pb_re_sample_buffer;
+		byte* pbDst = pbReSampleBuffer;
 
-		for (int y = 0; y < *pi_height; y++)
+		for (int y = 0; y < *piHeight; y++)
 		{
-			for (int x = 0; x < *pi_width; x++)
+			for (int x = 0; x < *piWidth; x++)
 			{
-				int r = g = b = 0;
+				r = g = b = 0;
 
-				for (float yy = static_cast<float>(y) * f_y_step; yy < static_cast<float>(y + 1) * f_y_step; yy += 1)
+				for (float yy = (float)y * fYStep; yy < (float)(y + 1) * fYStep; yy += 1)
 				{
-					for (float xx = static_cast<float>(x) * f_x_step; xx < static_cast<float>(x + 1) * f_x_step; xx += 1)
+					for (float xx = (float)x * fXStep; xx < (float)(x + 1) * fXStep; xx += 1)
 					{
-						const byte* pbSrc = pb_loaded_pic + 4 * (static_cast<int>(yy) * i_loaded_width + static_cast<int>(xx));
+						byte* pbSrc = pbLoadedPic + 4 * (((int)yy * iLoadedWidth) + (int)xx);
 
-						assert(pbSrc < pb_loaded_pic + i_loaded_width * i_loaded_height * 4);
+						assert(pbSrc < pbLoadedPic + (iLoadedWidth * iLoadedHeight * 4));
 
 						r += pbSrc[0];
 						g += pbSrc[1];
@@ -250,22 +255,22 @@ static byte* RE_ReSample(byte* pb_loaded_pic, const int i_loaded_width, const in
 					}
 				}
 
-				assert(pb_dst < pb_re_sample_buffer + *pi_width * *pi_height * 4);
+				assert(pbDst < pbReSampleBuffer + (*piWidth * *piHeight * 4));
 
-				pb_dst[0] = r / i_tot_pixels_per_down_sample;
-				pb_dst[1] = g / i_tot_pixels_per_down_sample;
-				pb_dst[2] = b / i_tot_pixels_per_down_sample;
-				pb_dst[3] = 255;
-				pb_dst += 4;
+				pbDst[0] = r / iTotPixelsPerDownSample;
+				pbDst[1] = g / iTotPixelsPerDownSample;
+				pbDst[2] = b / iTotPixelsPerDownSample;
+				pbDst[3] = 255;
+				pbDst += 4;
 			}
 		}
 
 		// set return value...
 		//
-		pb_return = pb_re_sample_buffer;
+		pbReturn = pbReSampleBuffer;
 	}
 
-	return pb_return;
+	return pbReturn;
 }
 
 // this is so the server (or anyone else) can get access to raw pixels if they really need to,
@@ -290,58 +295,58 @@ static byte* RE_ReSample(byte* pb_loaded_pic, const int i_loaded_width, const in
 //
 // (not brilliantly fast, but it's only used for weird stuff anyway)
 //
-byte* pbLoadedPic = nullptr;
+byte* pbLoadedPic = NULL;
 
-byte* RE_TempRawImage_ReadFromFile(const char* ps_local_filename, int* pi_width, int* pi_height, byte* pb_re_sample_buffer, const qboolean qb_vert_flip)
+byte* RE_TempRawImage_ReadFromFile(const char* psLocalFilename, int* piWidth, int* piHeight, byte* pbReSampleBuffer, qboolean qbVertFlip)
 {
 	RE_TempRawImage_CleanUp();	// jic
 
-	byte* pb_return = nullptr;
+	byte* pbReturn = NULL;
 
-	if (ps_local_filename && pi_width && pi_height)
+	if (psLocalFilename && piWidth && piHeight)
 	{
-		int	 i_loaded_width, i_loaded_height;
+		int	 iLoadedWidth, iLoadedHeight;
 
-		R_LoadImage(ps_local_filename, &pbLoadedPic, &i_loaded_width, &i_loaded_height);
+		R_LoadImage(psLocalFilename, &pbLoadedPic, &iLoadedWidth, &iLoadedHeight);
 		if (pbLoadedPic)
 		{
-			pb_return = RE_ReSample(pbLoadedPic, i_loaded_width, i_loaded_height,
-				pb_re_sample_buffer, pi_width, pi_height);
+			pbReturn = RE_ReSample(pbLoadedPic, iLoadedWidth, iLoadedHeight,
+				pbReSampleBuffer, piWidth, piHeight);
 		}
 	}
 
-	if (pb_return && qb_vert_flip)
+	if (pbReturn && qbVertFlip)
 	{
-		auto p_src_line = reinterpret_cast<unsigned*>(pb_return);
-		unsigned int* p_dst_line = reinterpret_cast<unsigned*>(pb_return) + *pi_height * *pi_width;	// *4 done by compiler (longs)
-		p_dst_line -= *pi_width;	// point at start of last line, not first after buffer
+		unsigned int* pSrcLine = (unsigned int*)pbReturn;
+		unsigned int* pDstLine = (unsigned int*)pbReturn + (*piHeight * *piWidth);	// *4 done by compiler (longs)
+		pDstLine -= *piWidth;	// point at start of last line, not first after buffer
 
-		for (int i_line_count = 0; i_line_count < *pi_height / 2; i_line_count++)
+		for (int iLineCount = 0; iLineCount < *piHeight / 2; iLineCount++)
 		{
-			for (int x = 0; x < *pi_width; x++)
+			for (int x = 0; x < *piWidth; x++)
 			{
-				const unsigned int l = p_src_line[x];
-				p_src_line[x] = p_dst_line[x];
-				p_dst_line[x] = l;
+				unsigned int l = pSrcLine[x];
+				pSrcLine[x] = pDstLine[x];
+				pDstLine[x] = l;
 			}
-			p_src_line += *pi_width;
-			p_dst_line -= *pi_width;
+			pSrcLine += *piWidth;
+			pDstLine -= *piWidth;
 		}
 	}
 
-	return pb_return;
+	return pbReturn;
 }
 
-void RE_TempRawImage_CleanUp()
+void RE_TempRawImage_CleanUp(void)
 {
 	if (pbLoadedPic)
 	{
 		R_Free(pbLoadedPic);
-		pbLoadedPic = nullptr;
+		pbLoadedPic = NULL;
 	}
 }
 
-using Dissolve_e = enum
+typedef enum
 {
 	eDISSOLVE_RT_TO_LT = 0,
 	eDISSOLVE_LT_TO_RT,
@@ -356,9 +361,9 @@ using Dissolve_e = enum
 	eDISSOLVE_CIRCULAR_IN,	// new image comes in from edges
 	//
 	eDISSOLVE_NUMBEROF
-};
+} Dissolve_e;
 
-using Dissolve_t = struct
+typedef struct
 {
 	int			iWidth;
 	int			iHeight;
@@ -371,23 +376,23 @@ using Dissolve_t = struct
 	int			iStartTime;	// 0 = not processing
 	Dissolve_e	eDissolveType;
 	qboolean	bTouchNeeded;
-};
+} Dissolve_t;
 
-static int PowerOf2(int i_arg)
+static int PowerOf2(int iArg)
 {
-	if ((i_arg & i_arg - 1) != 0)
+	if ((iArg & (iArg - 1)) != 0)
 	{
-		int i_shift = 0;
-		while (i_arg)
+		int iShift = 0;
+		while (iArg)
 		{
-			i_arg >>= 1;
-			i_shift++;
+			iArg >>= 1;
+			iShift++;
 		}
 
-		i_arg = 1 << i_shift;
+		iArg = 1 << iShift;
 	}
 
-	return i_arg;
+	return iArg;
 }
 
 Dissolve_t Dissolve = { 0 };
@@ -395,9 +400,9 @@ Dissolve_t Dissolve = { 0 };
 
 // leave the UV stuff in for now as comments in case I ever need to do some sneaky stuff, but for now...
 //
-static void RE_Blit(const float f_x0, const float f_y0, const float f_x1, const float f_y1, const float f_x2, const float f_y2, const float f_x3, const float f_y3,
+static void RE_Blit(float fX0, float fY0, float fX1, float fY1, float fX2, float fY2, float fX3, float fY3,
 	//float fU0, float fV0, float fU1, float fV1, float fU2, float fV2, float fU3, float fV3,
-	image_t* p_image, const int i_gl_state
+	image_t* pImage, int iGLState
 )
 {
 	//
@@ -406,8 +411,8 @@ static void RE_Blit(const float f_x0, const float f_y0, const float f_x1, const 
 	R_IssuePendingRenderCommands();
 	//	qglFinish();
 
-	GL_Bind(p_image);
-	GL_State(i_gl_state);
+	GL_Bind(pImage);
+	GL_State(iGLState);
 	GL_Cull(CT_TWO_SIDED);
 
 	qglColor3f(1.0f, 1.0f, 1.0f);
@@ -418,37 +423,37 @@ static void RE_Blit(const float f_x0, const float f_y0, const float f_x1, const 
 		//
 //		qglTexCoord2f( fU0 / (float)pImage->width,  fV0 / (float)pImage->height );
 		qglTexCoord2f(0, 0);
-		qglVertex2f(f_x0, f_y0);
+		qglVertex2f(fX0, fY0);
 
 		// TR...
 		//
 //		qglTexCoord2f( fU1 / (float)pImage->width,  fV1 / (float)pImage->height );
 		qglTexCoord2f(1, 0);
-		qglVertex2f(f_x1, f_y1);
+		qglVertex2f(fX1, fY1);
 
 		// BR...
 		//
 //		qglTexCoord2f( fU2 / (float)pImage->width,  fV2 / (float)pImage->height );
 		qglTexCoord2f(1, 1);
-		qglVertex2f(f_x2, f_y2);
+		qglVertex2f(fX2, fY2);
 
 		// BL...
 		//
 //		qglTexCoord2f( fU3 / (float)pImage->width,  fV3 / (float)pImage->height );
 		qglTexCoord2f(0, 1);
-		qglVertex2f(f_x3, f_y3);
+		qglVertex2f(fX3, fY3);
 	}
 	qglEnd();
 }
 
-static void RE_KillDissolve()
+static void RE_KillDissolve(void)
 {
 	Dissolve.iStartTime = 0;
 
 	if (Dissolve.pImage)
 	{
 		R_Images_DeleteImage(Dissolve.pImage);
-		Dissolve.pImage = nullptr;
+		Dissolve.pImage = NULL;
 	}
 }
 // Draw the dissolve pic to the screen, over the top of what's already been rendered.
@@ -456,7 +461,7 @@ static void RE_KillDissolve()
 // return = qtrue while still processing, for those interested...
 //
 #define iSAFETY_SPRITE_OVERLAP 2	// #pixels to overlap blit region by, in case some drivers leave onscreen seams
-qboolean RE_ProcessDissolve()
+qboolean RE_ProcessDissolve(void)
 {
 	if (Dissolve.iStartTime)
 	{
@@ -476,13 +481,13 @@ qboolean RE_ProcessDissolve()
 			Dissolve.iStartTime = ri.Milliseconds();
 		}
 
-		int i_dissolve_percentage = (ri.Milliseconds() - Dissolve.iStartTime) * 100 / (1000.0f * fDISSOLVE_SECONDS);
+		int iDissolvePercentage = ((ri.Milliseconds() - Dissolve.iStartTime) * 100) / (1000.0f * fDISSOLVE_SECONDS);
 
 		//		ri.Printf(PRINT_ALL,"iDissolvePercentage %d\n",iDissolvePercentage);
 
-		if (i_dissolve_percentage <= 100)
+		if (iDissolvePercentage <= 100)
 		{
-			extern void	RB_SetGL2D();
+			extern void	RB_SetGL2D(void);
 			RB_SetGL2D();
 
 			//			GLdouble glD;
@@ -491,24 +496,24 @@ qboolean RE_ProcessDissolve()
 			qglClearDepth(1.0f);
 			qglClear(GL_DEPTH_BUFFER_BIT);
 
-			float f_x_scale_factor = static_cast<float>(SCREEN_WIDTH) / static_cast<float>(Dissolve.iWidth);
-			float f_y_scale_factor = static_cast<float>(SCREEN_HEIGHT) / static_cast<float>(Dissolve.iHeight);
+			float fXScaleFactor = (float)SCREEN_WIDTH / (float)Dissolve.iWidth;
+			float fYScaleFactor = (float)SCREEN_HEIGHT / (float)Dissolve.iHeight;
 			float x0, y0, x1, y1, x2, y2, x3, y3;
 
 			switch (Dissolve.eDissolveType)
 			{
 			case eDISSOLVE_RT_TO_LT:
 			{
-				float f_xboundary = static_cast<float>(Dissolve.iWidth) - static_cast<float>(Dissolve.iWidth + Dissolve.pDissolve->width) * static_cast<float>(i_dissolve_percentage) / 100.0f;
+				float fXboundary = (float)Dissolve.iWidth - (((float)(Dissolve.iWidth + Dissolve.pDissolve->width) * (float)iDissolvePercentage) / 100.0f);
 
 				// blit the fuzzy-dissolve sprite...
 				//
-				x0 = f_x_scale_factor * f_xboundary;
+				x0 = fXScaleFactor * fXboundary;
 				y0 = 0.0f;
-				x1 = f_x_scale_factor * (f_xboundary + Dissolve.pDissolve->width);
+				x1 = fXScaleFactor * (fXboundary + Dissolve.pDissolve->width);
 				y1 = 0.0f;
 				x2 = x1;
-				y2 = f_y_scale_factor * Dissolve.iHeight;
+				y2 = fYScaleFactor * Dissolve.iHeight;
 				x3 = x0;
 				y3 = y2;
 
@@ -519,10 +524,10 @@ qboolean RE_ProcessDissolve()
 				//
 				x0 = 0.0f;
 				y0 = 0.0f;
-				x1 = f_x_scale_factor * (f_xboundary + iSAFETY_SPRITE_OVERLAP);
+				x1 = fXScaleFactor * (fXboundary + iSAFETY_SPRITE_OVERLAP);
 				y1 = 0.0f;
 				x2 = x1;
-				y2 = f_y_scale_factor * Dissolve.iHeight;
+				y2 = fYScaleFactor * Dissolve.iHeight;
 				x3 = x0;
 				y3 = y2;
 				RE_Blit(x0, y0, x1, y1, x2, y2, x3, y3, Dissolve.pBlack, GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE);
@@ -531,16 +536,16 @@ qboolean RE_ProcessDissolve()
 
 			case eDISSOLVE_LT_TO_RT:
 			{
-				float f_xboundary = static_cast<float>(Dissolve.iWidth + 2 * Dissolve.pDissolve->width) * static_cast<float>(i_dissolve_percentage) / 100.0f - Dissolve.pDissolve->width;
+				float fXboundary = (((float)(Dissolve.iWidth + (2 * Dissolve.pDissolve->width)) * (float)iDissolvePercentage) / 100.0f) - Dissolve.pDissolve->width;
 
 				// blit the fuzzy-dissolve sprite...
 				//
-				x0 = f_x_scale_factor * (f_xboundary + Dissolve.pDissolve->width);
+				x0 = fXScaleFactor * (fXboundary + Dissolve.pDissolve->width);
 				y0 = 0.0f;
-				x1 = f_x_scale_factor * f_xboundary;
+				x1 = fXScaleFactor * fXboundary;
 				y1 = 0.0f;
 				x2 = x1;
-				y2 = f_y_scale_factor * Dissolve.iHeight;
+				y2 = fYScaleFactor * Dissolve.iHeight;
 				x3 = x0;
 				y3 = y2;
 
@@ -549,12 +554,12 @@ qboolean RE_ProcessDissolve()
 				// blit a blank thing over the area the old screen is to be displayed on to enable screen-writing...
 				// (to the right of fXboundary)
 				//
-				x0 = f_x_scale_factor * (f_xboundary + Dissolve.pDissolve->width - iSAFETY_SPRITE_OVERLAP);
+				x0 = fXScaleFactor * ((fXboundary + Dissolve.pDissolve->width) - iSAFETY_SPRITE_OVERLAP);
 				y0 = 0.0f;
-				x1 = f_x_scale_factor * Dissolve.iWidth;
+				x1 = fXScaleFactor * Dissolve.iWidth;
 				y0 = 0.0f;
 				x2 = x1;
-				y2 = f_y_scale_factor * Dissolve.iHeight;
+				y2 = fYScaleFactor * Dissolve.iHeight;
 				x3 = x0;
 				y3 = y2;
 				RE_Blit(x0, y0, x1, y1, x2, y2, x3, y3, Dissolve.pBlack, GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE);
@@ -563,15 +568,15 @@ qboolean RE_ProcessDissolve()
 
 			case eDISSOLVE_TP_TO_BT:
 			{
-				float f_yboundary = static_cast<float>(Dissolve.iHeight + 2 * Dissolve.pDissolve->width) * static_cast<float>(i_dissolve_percentage) / 100.0f - Dissolve.pDissolve->width;
+				float fYboundary = (((float)(Dissolve.iHeight + (2 * Dissolve.pDissolve->width)) * (float)iDissolvePercentage) / 100.0f) - Dissolve.pDissolve->width;
 
 				// blit the fuzzy-dissolve sprite...
 				//
 				x0 = 0.0f;
-				y0 = f_y_scale_factor * (f_yboundary + Dissolve.pDissolve->width);
+				y0 = fYScaleFactor * (fYboundary + Dissolve.pDissolve->width);
 				x1 = x0;
-				y1 = f_y_scale_factor * f_yboundary;
-				x2 = f_x_scale_factor * Dissolve.iWidth;
+				y1 = fYScaleFactor * fYboundary;
+				x2 = fXScaleFactor * Dissolve.iWidth;
 				y2 = y1;
 				x3 = x2;
 				y3 = y0;
@@ -582,11 +587,11 @@ qboolean RE_ProcessDissolve()
 				// (underneath fYboundary)
 				//
 				x0 = 0.0f;
-				y0 = f_y_scale_factor * (f_yboundary + Dissolve.pDissolve->width - iSAFETY_SPRITE_OVERLAP);
-				x1 = f_x_scale_factor * Dissolve.iWidth;
+				y0 = fYScaleFactor * ((fYboundary + Dissolve.pDissolve->width) - iSAFETY_SPRITE_OVERLAP);
+				x1 = fXScaleFactor * Dissolve.iWidth;
 				y1 = y0;
 				x2 = x1;
-				y2 = f_y_scale_factor * Dissolve.iHeight;
+				y2 = fYScaleFactor * Dissolve.iHeight;
 				x3 = x0;
 				y3 = y2;
 				RE_Blit(x0, y0, x1, y1, x2, y2, x3, y3, Dissolve.pBlack, GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE);
@@ -595,15 +600,15 @@ qboolean RE_ProcessDissolve()
 
 			case eDISSOLVE_BT_TO_TP:
 			{
-				float f_yboundary = Dissolve.iHeight - static_cast<float>(Dissolve.iHeight + Dissolve.pDissolve->width) * static_cast<float>(i_dissolve_percentage) / 100.0f;
+				float fYboundary = Dissolve.iHeight - (((float)(Dissolve.iHeight + Dissolve.pDissolve->width) * (float)iDissolvePercentage) / 100.0f);
 
 				// blit the fuzzy-dissolve sprite...
 				//
 				x0 = 0.0f;
-				y0 = f_y_scale_factor * f_yboundary;
+				y0 = fYScaleFactor * fYboundary;
 				x1 = x0;
-				y1 = f_y_scale_factor * (f_yboundary + Dissolve.pDissolve->width);
-				x2 = f_x_scale_factor * Dissolve.iWidth;
+				y1 = fYScaleFactor * (fYboundary + Dissolve.pDissolve->width);
+				x2 = fXScaleFactor * Dissolve.iWidth;
 				y2 = y1;
 				x3 = x2;
 				y3 = y0;
@@ -615,10 +620,10 @@ qboolean RE_ProcessDissolve()
 				//
 				x0 = 0.0f;
 				y0 = 0.0f;
-				x1 = f_x_scale_factor * Dissolve.iWidth;
+				x1 = fXScaleFactor * Dissolve.iWidth;
 				y1 = y0;
 				x2 = x1;
-				y2 = f_y_scale_factor * (f_yboundary + iSAFETY_SPRITE_OVERLAP);
+				y2 = fYScaleFactor * (fYboundary + iSAFETY_SPRITE_OVERLAP);
 				x3 = x0;
 				y3 = y2;
 				RE_Blit(x0, y0, x1, y1, x2, y2, x3, y3, Dissolve.pBlack, GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE);
@@ -627,17 +632,17 @@ qboolean RE_ProcessDissolve()
 
 			case eDISSOLVE_CIRCULAR_IN:
 			{
-				float f_diag_zoom = static_cast<float>(Dissolve.iWidth) * 0.8 * (100 - i_dissolve_percentage) / 100.0f;
+				float fDiagZoom = (((float)Dissolve.iWidth * 0.8) * (100 - iDissolvePercentage)) / 100.0f;
 
 				//
 				// blit circular graphic...
 				//
-				x0 = f_x_scale_factor * (Dissolve.iWidth / static_cast<float>(2) - f_diag_zoom);
-				y0 = f_y_scale_factor * (Dissolve.iHeight / static_cast<float>(2) - f_diag_zoom);
-				x1 = f_x_scale_factor * (Dissolve.iWidth / static_cast<float>(2) + f_diag_zoom);
+				x0 = fXScaleFactor * ((Dissolve.iWidth / 2) - fDiagZoom);
+				y0 = fYScaleFactor * ((Dissolve.iHeight / 2) - fDiagZoom);
+				x1 = fXScaleFactor * ((Dissolve.iWidth / 2) + fDiagZoom);
 				y1 = y0;
 				x2 = x1;
-				y2 = f_y_scale_factor * (Dissolve.iHeight / static_cast<float>(2) + f_diag_zoom);
+				y2 = fYScaleFactor * ((Dissolve.iHeight / 2) + fDiagZoom);
 				x3 = x0;
 				y3 = y2;
 
@@ -647,17 +652,17 @@ qboolean RE_ProcessDissolve()
 
 			case eDISSOLVE_CIRCULAR_OUT:
 			{
-				float f_diag_zoom = static_cast<float>(Dissolve.iWidth) * 0.8 * i_dissolve_percentage / 100.0f;
+				float fDiagZoom = (((float)Dissolve.iWidth * 0.8) * iDissolvePercentage) / 100.0f;
 
 				//
 				// blit circular graphic...
 				//
-				x0 = f_x_scale_factor * (Dissolve.iWidth / static_cast<float>(2) - f_diag_zoom);
-				y0 = f_y_scale_factor * (Dissolve.iHeight / static_cast<float>(2) - f_diag_zoom);
-				x1 = f_x_scale_factor * (Dissolve.iWidth / static_cast<float>(2) + f_diag_zoom);
+				x0 = fXScaleFactor * ((Dissolve.iWidth / 2) - fDiagZoom);
+				y0 = fYScaleFactor * ((Dissolve.iHeight / 2) - fDiagZoom);
+				x1 = fXScaleFactor * ((Dissolve.iWidth / 2) + fDiagZoom);
 				y1 = y0;
 				x2 = x1;
-				y2 = f_y_scale_factor * (Dissolve.iHeight / static_cast<float>(2) + f_diag_zoom);
+				y2 = fYScaleFactor * ((Dissolve.iHeight / 2) + fDiagZoom);
 				x3 = x0;
 				y3 = y2;
 
@@ -668,17 +673,17 @@ qboolean RE_ProcessDissolve()
 				//
 				RE_Blit(0, 0,								// x0,y0
 					x0 + iSAFETY_SPRITE_OVERLAP, 0,		// x1,y1
-					x0 + iSAFETY_SPRITE_OVERLAP, f_y_scale_factor * Dissolve.iHeight,// x2,y2
-					0, f_y_scale_factor * Dissolve.iHeight,	// x3,y3,
+					x0 + iSAFETY_SPRITE_OVERLAP, (fYScaleFactor * Dissolve.iHeight),// x2,y2
+					0, (fYScaleFactor * Dissolve.iHeight),	// x3,y3,
 					Dissolve.pBlack, GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE
 				);
 
 				// RHS top to bottom...
 				//
 				RE_Blit(x1 - iSAFETY_SPRITE_OVERLAP, 0,		// x0,y0
-					f_x_scale_factor * Dissolve.iWidth, 0,	// x1,y1
-					f_x_scale_factor * Dissolve.iWidth, f_y_scale_factor * Dissolve.iHeight,// x2,y2
-					x1 - iSAFETY_SPRITE_OVERLAP, f_y_scale_factor * Dissolve.iHeight,	// x3,y3,
+					(fXScaleFactor * Dissolve.iWidth), 0,	// x1,y1
+					(fXScaleFactor * Dissolve.iWidth), (fYScaleFactor * Dissolve.iHeight),// x2,y2
+					x1 - iSAFETY_SPRITE_OVERLAP, (fYScaleFactor * Dissolve.iHeight),	// x3,y3,
 					Dissolve.pBlack, GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE
 				);
 
@@ -695,8 +700,8 @@ qboolean RE_ProcessDissolve()
 				//
 				RE_Blit(x0 - iSAFETY_SPRITE_OVERLAP, y3 - iSAFETY_SPRITE_OVERLAP,	// x0,y0
 					x1 + iSAFETY_SPRITE_OVERLAP, y2 - iSAFETY_SPRITE_OVERLAP,		// x1,y1
-					x1 + iSAFETY_SPRITE_OVERLAP, f_y_scale_factor * Dissolve.iHeight,	// x2,y2
-					x0 - iSAFETY_SPRITE_OVERLAP, f_y_scale_factor * Dissolve.iHeight,	// x3,y3
+					x1 + iSAFETY_SPRITE_OVERLAP, (fYScaleFactor * Dissolve.iHeight),	// x2,y2
+					x0 - iSAFETY_SPRITE_OVERLAP, (fYScaleFactor * Dissolve.iHeight),	// x3,y3
 					Dissolve.pBlack, GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE
 				);
 			}
@@ -705,23 +710,23 @@ qboolean RE_ProcessDissolve()
 			default:
 			{
 				assert(0);
-				i_dissolve_percentage = 101;	// force a dissolve-kill
+				iDissolvePercentage = 101;	// force a dissolve-kill
 				break;
 			}
 			}
 
 			// re-check in case we hit the default case above...
 			//
-			if (i_dissolve_percentage <= 100)
+			if (iDissolvePercentage <= 100)
 			{
 				// still dissolving, so now (finally), blit old image over top...
 				//
 				x0 = 0.0f;
 				y0 = 0.0f;
-				x1 = f_x_scale_factor * Dissolve.pImage->width;
+				x1 = fXScaleFactor * Dissolve.pImage->width;
 				y1 = y0;
 				x2 = x1;
-				y2 = f_y_scale_factor * Dissolve.pImage->height;
+				y2 = fYScaleFactor * Dissolve.pImage->height;
 				x3 = x0;
 				y3 = y2;
 
@@ -729,7 +734,7 @@ qboolean RE_ProcessDissolve()
 			}
 		}
 
-		if (i_dissolve_percentage > 100)
+		if (iDissolvePercentage > 100)
 		{
 			RE_KillDissolve();
 		}
@@ -740,7 +745,7 @@ qboolean RE_ProcessDissolve()
 
 // return = qtrue(success) else fail, for those interested...
 //
-qboolean RE_InitDissolve(const qboolean bForceCircularExtroWipe)
+qboolean RE_InitDissolve(qboolean bForceCircularExtroWipe)
 {
 	R_IssuePendingRenderCommands();
 
@@ -754,111 +759,112 @@ qboolean RE_InitDissolve(const qboolean bForceCircularExtroWipe)
 	{
 		RE_KillDissolve();	// kill any that are already running
 
-		const int i_pow2_vid_width = PowerOf2(glConfig.vidWidth);
-		const int i_pow2_vid_height = PowerOf2(glConfig.vidHeight);
+		int iPow2VidWidth = PowerOf2(glConfig.vidWidth);
+		int iPow2VidHeight = PowerOf2(glConfig.vidHeight);
 
-		const int i_buffer_bytes = i_pow2_vid_width * i_pow2_vid_height * 4;
-		byte* p_buffer = static_cast<byte*>(R_Malloc(i_buffer_bytes, TAG_TEMP_WORKSPACE, qfalse));
-		if (p_buffer)
+		int iBufferBytes = iPow2VidWidth * iPow2VidHeight * 4;
+		byte* pBuffer = (byte*)R_Malloc(iBufferBytes, TAG_TEMP_WORKSPACE, qfalse);
+		if (pBuffer)
 		{
 			// read current screen image...  (GL_RGBA should work even on 3DFX in that the RGB parts will be valid at least)
 			//
-			qglReadPixels(0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_RGBA, GL_UNSIGNED_BYTE, p_buffer);
+			qglReadPixels(0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_RGBA, GL_UNSIGNED_BYTE, pBuffer);
 			//
 			// now expand the pic over the top of itself so that it has a stride value of {PowerOf2(glConfig.vidWidth)}
 			//	(for GL power-of-2 rules)
 			//
-			byte* pb_src = &p_buffer[glConfig.vidWidth * glConfig.vidHeight * 4];
-			byte* pb_dst = &p_buffer[i_pow2_vid_width * glConfig.vidHeight * 4];
+			byte* pbSrc = &pBuffer[glConfig.vidWidth * glConfig.vidHeight * 4];
+			byte* pbDst = &pBuffer[iPow2VidWidth * glConfig.vidHeight * 4];
 			//
 			// ( clear to end, since we've got pbDst nicely setup here)
 			//
-			int i_clear_bytes = &p_buffer[i_buffer_bytes] - pb_dst;
-			memset(pb_dst, 0, i_clear_bytes);
+			int iClearBytes = &pBuffer[iBufferBytes] - pbDst;
+			memset(pbDst, 0, iClearBytes);
 			//
 			// work out copy/stride vals...
 			//
-			i_clear_bytes = (i_pow2_vid_width - glConfig.vidWidth) * 4;
-			const int i_copy_bytes = glConfig.vidWidth * 4;
+			iClearBytes = (iPow2VidWidth - glConfig.vidWidth) * 4;
+			int iCopyBytes = glConfig.vidWidth * 4;
 			//
 			// do it...
 			//
 			for (int y = 0; y < glConfig.vidHeight; y++)
 			{
-				pb_dst -= i_clear_bytes;
-				memset(pb_dst, 0, i_clear_bytes);
-				pb_dst -= i_copy_bytes;
-				pb_src -= i_copy_bytes;
-				memmove(pb_dst, pb_src, i_copy_bytes);
+				pbDst -= iClearBytes;
+				memset(pbDst, 0, iClearBytes);
+				pbDst -= iCopyBytes;
+				pbSrc -= iCopyBytes;
+				memmove(pbDst, pbSrc, iCopyBytes);
 			}
 			//
 			// ok, now we've got the screen image in the top left of the power-of-2 texture square,
 			//	but of course the damn thing's upside down (thanks, GL), so invert it, but only within
 			//	the picture pixels, NOT the upload texture as a whole...
 			//
-			byte* pb_swap_line_buffer = static_cast<byte*>(R_Malloc(i_copy_bytes, TAG_TEMP_WORKSPACE, qfalse));
-			pb_src = &p_buffer[0];
-			pb_dst = &p_buffer[(glConfig.vidHeight - 1) * i_pow2_vid_width * 4];
+			byte* pbSwapLineBuffer = (byte*)R_Malloc(iCopyBytes, TAG_TEMP_WORKSPACE, qfalse);
+			pbSrc = &pBuffer[0];
+			pbDst = &pBuffer[(glConfig.vidHeight - 1) * iPow2VidWidth * 4];
 			for (int y = 0; y < glConfig.vidHeight / 2; y++)
 			{
-				memcpy(pb_swap_line_buffer, pb_dst, i_copy_bytes);
-				memcpy(pb_dst, pb_src, i_copy_bytes);
-				memcpy(pb_src, pb_swap_line_buffer, i_copy_bytes);
-				pb_dst -= i_pow2_vid_width * 4;
-				pb_src += i_pow2_vid_width * 4;
+				memcpy(pbSwapLineBuffer, pbDst, iCopyBytes);
+				memcpy(pbDst, pbSrc, iCopyBytes);
+				memcpy(pbSrc, pbSwapLineBuffer, iCopyBytes);
+				pbDst -= iPow2VidWidth * 4;
+				pbSrc += iPow2VidWidth * 4;
 			}
-			R_Free(pb_swap_line_buffer);
+			R_Free(pbSwapLineBuffer);
 
 			//
 			// Now, in case of busted drivers, 3DFX cards, etc etc we stomp the alphas to 255...
 			//
-			byte* p_pix = p_buffer;
-			for (int i = 0; i < i_buffer_bytes / 4; i++, p_pix += 4)
+			byte* pPix = pBuffer;
+			for (int i = 0; i < iBufferBytes / 4; i++, pPix += 4)
 			{
-				p_pix[3] = 255;
+				pPix[3] = 255;
 			}
 
 			// work out what res we're capable of storing/xfading this "screen sprite"...
 			//
 			Dissolve.iWidth = glConfig.vidWidth;
 			Dissolve.iHeight = glConfig.vidHeight;
-			Dissolve.iUploadWidth = i_pow2_vid_width;
-			Dissolve.iUploadHeight = i_pow2_vid_height;
-			int	i_tex_size = glConfig.maxTextureSize;
+			Dissolve.iUploadWidth = iPow2VidWidth;
+			Dissolve.iUploadHeight = iPow2VidHeight;
+			int	iTexSize = glConfig.maxTextureSize;
 
 			if (glConfig.maxTextureSize < 256)	// jic the driver sucks
 			{
-				i_tex_size = 256;
+				iTexSize = 256;
 			}
 
-			if (Dissolve.iUploadWidth > i_tex_size) {
-				Dissolve.iUploadWidth = i_tex_size;
+			if (Dissolve.iUploadWidth > iTexSize) {
+				Dissolve.iUploadWidth = iTexSize;
 			}
 
-			if (Dissolve.iUploadHeight > i_tex_size) {
-				Dissolve.iUploadHeight = i_tex_size;
+			if (Dissolve.iUploadHeight > iTexSize) {
+				Dissolve.iUploadHeight = iTexSize;
 			}
 
 			// alloc resample buffer...  (note slight optimisation to avoid spurious alloc)
 			//
-			byte* pb_re_sample_buffer = i_pow2_vid_width == Dissolve.iUploadWidth &&
-				i_pow2_vid_height == Dissolve.iUploadHeight ?
-				nullptr :
-				static_cast<byte*>(R_Malloc(i_pow2_vid_width * i_pow2_vid_height * 4, TAG_TEMP_WORKSPACE, qfalse));
+			byte* pbReSampleBuffer = (iPow2VidWidth == Dissolve.iUploadWidth &&
+				iPow2VidHeight == Dissolve.iUploadHeight
+				) ?
+				NULL :
+				(byte*)R_Malloc(iPow2VidWidth * iPow2VidHeight * 4, TAG_TEMP_WORKSPACE, qfalse);
 
 			// re-sample screen...
 			//
-			const byte* pb_screen_sprite = RE_ReSample(p_buffer,				// byte *pbLoadedPic
-				i_pow2_vid_width,			// int iLoadedWidth
-				i_pow2_vid_height,			// int iLoadedHeight
+			byte* pbScreenSprite = RE_ReSample(pBuffer,				// byte *pbLoadedPic
+				iPow2VidWidth,			// int iLoadedWidth
+				iPow2VidHeight,			// int iLoadedHeight
 				//
-				pb_re_sample_buffer,		// byte *pbReSampleBuffer
+				pbReSampleBuffer,		// byte *pbReSampleBuffer
 				&Dissolve.iUploadWidth,	// int *piWidth
 				&Dissolve.iUploadHeight	// int *piHeight
 			);
 
 			Dissolve.pImage = R_CreateImage("*DissolveImage",		// const char *name
-				pb_screen_sprite,			// const byte *pic
+				pbScreenSprite,			// const byte *pic
 				Dissolve.iUploadWidth,	// int width
 				Dissolve.iUploadHeight,	// int height
 				GL_RGBA,
@@ -868,12 +874,12 @@ qboolean RE_InitDissolve(const qboolean bForceCircularExtroWipe)
 				GL_CLAMP				// int glWrapClampMode
 			);
 
-			static byte b_black[8 * 8 * 4] = { 0 };
+			static byte bBlack[8 * 8 * 4] = { 0 };
 			for (int j = 0; j < 8 * 8 * 4; j += 4)	// itu?
-				b_black[j + 3] = 255;		//
+				bBlack[j + 3] = 255;		//
 
 			Dissolve.pBlack = R_CreateImage("*DissolveBlack",	// const char *name
-				b_black,				// const byte *pic
+				bBlack,				// const byte *pic
 				8,					// int width
 				8,					// int height
 				GL_RGBA,
@@ -883,11 +889,11 @@ qboolean RE_InitDissolve(const qboolean bForceCircularExtroWipe)
 				GL_CLAMP			// int glWrapClampMode
 			);
 
-			if (pb_re_sample_buffer)
+			if (pbReSampleBuffer)
 			{
-				R_Free(pb_re_sample_buffer);
+				R_Free(pbReSampleBuffer);
 			}
-			R_Free(p_buffer);
+			R_Free(pBuffer);
 
 			// pick dissolve type...
 			//
@@ -904,7 +910,7 @@ qboolean RE_InitDissolve(const qboolean bForceCircularExtroWipe)
 #else
 			// final (& random) version...
 			//
-			Dissolve.eDissolveType = static_cast<Dissolve_e>(Q_irand(0, eDISSOLVE_RAND_LIMIT - 1));
+			Dissolve.eDissolveType = (Dissolve_e)Q_irand(0, eDISSOLVE_RAND_LIMIT - 1);
 #endif
 
 			if (bForceCircularExtroWipe)

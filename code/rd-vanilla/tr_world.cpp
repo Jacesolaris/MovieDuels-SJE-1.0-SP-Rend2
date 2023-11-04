@@ -33,8 +33,10 @@ Returns true if the grid is completely culled away.
 Also sets the clipped hint bit in tess
 =================
 */
-static qboolean	R_CullTriSurf(const srfTriangles_t* cv) {
-	const int boxCull = R_CullLocalBox(cv->bounds);
+static qboolean	R_CullTriSurf(srfTriangles_t* cv) {
+	int 	boxCull;
+
+	boxCull = R_CullLocalBox(cv->bounds);
 
 	if (boxCull == CULL_OUT) {
 		return qtrue;
@@ -50,7 +52,8 @@ Returns true if the grid is completely culled away.
 Also sets the clipped hint bit in tess
 =================
 */
-static qboolean	R_CullGrid(const srfGridMesh_t* cv) {
+static qboolean	R_CullGrid(srfGridMesh_t* cv) {
+	int 	boxCull;
 	int 	sphereCull;
 
 	if (r_nocurves->integer) {
@@ -63,6 +66,7 @@ static qboolean	R_CullGrid(const srfGridMesh_t* cv) {
 	else {
 		sphereCull = R_CullPointAndRadius(cv->localOrigin, cv->meshRadius);
 	}
+	boxCull = CULL_OUT;
 
 	// check for trivial reject
 	if (sphereCull == CULL_OUT)
@@ -71,18 +75,18 @@ static qboolean	R_CullGrid(const srfGridMesh_t* cv) {
 		return qtrue;
 	}
 	// check bounding box if necessary
-	if (sphereCull == CULL_CLIP)
+	else if (sphereCull == CULL_CLIP)
 	{
 		tr.pc.c_sphere_cull_patch_clip++;
 
-		const int boxCull = R_CullLocalBox(cv->meshBounds);
+		boxCull = R_CullLocalBox(cv->meshBounds);
 
 		if (boxCull == CULL_OUT)
 		{
 			tr.pc.c_box_cull_patch_out++;
 			return qtrue;
 		}
-		if (boxCull == CULL_IN)
+		else if (boxCull == CULL_IN)
 		{
 			tr.pc.c_box_cull_patch_in++;
 		}
@@ -109,17 +113,20 @@ added to the sorting list.
 This will also allow mirrors on both sides of a model without recursion.
 ================
 */
-static qboolean	R_CullSurface(surfaceType_t* surface, const shader_t* shader) {
+static qboolean	R_CullSurface(surfaceType_t* surface, shader_t* shader) {
+	srfSurfaceFace_t* sface;
+	float			d;
+
 	if (r_nocull->integer == 1) {
 		return qfalse;
 	}
 
 	if (*surface == SF_GRID) {
-		return R_CullGrid(reinterpret_cast<srfGridMesh_t*>(surface));
+		return R_CullGrid((srfGridMesh_t*)surface);
 	}
 
 	if (*surface == SF_TRIANGLES) {
-		return R_CullTriSurf(reinterpret_cast<srfTriangles_t*>(surface));
+		return R_CullTriSurf((srfTriangles_t*)surface);
 	}
 
 	if (*surface != SF_FACE) {
@@ -135,8 +142,8 @@ static qboolean	R_CullSurface(surfaceType_t* surface, const shader_t* shader) {
 		return qfalse;
 	}
 
-	const srfSurfaceFace_t* sface = reinterpret_cast<srfSurfaceFace_t*>(surface);
-	const float d = DotProduct(tr.ori.viewOrigin, sface->plane.normal);
+	sface = (srfSurfaceFace_t*)surface;
+	d = DotProduct(tr.ori.viewOrigin, sface->plane.normal);
 
 	// don't cull exactly on the plane, because there are levels of rounding
 	// through the BSP, ICD, and hardware that may cause pixel gaps if an
@@ -156,12 +163,16 @@ static qboolean	R_CullSurface(surfaceType_t* surface, const shader_t* shader) {
 }
 
 static int R_DlightFace(srfSurfaceFace_t* face, int dlightBits) {
-	for (int i = 0; i < tr.refdef.num_dlights; i++) {
-		if (!(dlightBits & 1 << i)) {
+	float		d;
+	int			i;
+	dlight_t* dl;
+
+	for (i = 0; i < tr.refdef.num_dlights; i++) {
+		if (!(dlightBits & (1 << i))) {
 			continue;
 		}
-		const dlight_t* dl = &tr.refdef.dlights[i];
-		const float d = DotProduct(dl->origin, face->plane.normal) - face->plane.dist;
+		dl = &tr.refdef.dlights[i];
+		d = DotProduct(dl->origin, face->plane.normal) - face->plane.dist;
 		if (!VectorCompare(face->plane.normal, vec3_origin) && (d < -dl->radius || d > dl->radius)) {
 			// dlight doesn't reach the plane
 			dlightBits &= ~(1 << i);
@@ -177,11 +188,14 @@ static int R_DlightFace(srfSurfaceFace_t* face, int dlightBits) {
 }
 
 static int R_DlightGrid(srfGridMesh_t* grid, int dlightBits) {
-	for (int i = 0; i < tr.refdef.num_dlights; i++) {
-		if (!(dlightBits & 1 << i)) {
+	int			i;
+	dlight_t* dl;
+
+	for (i = 0; i < tr.refdef.num_dlights; i++) {
+		if (!(dlightBits & (1 << i))) {
 			continue;
 		}
-		const dlight_t* dl = &tr.refdef.dlights[i];
+		dl = &tr.refdef.dlights[i];
 		if (dl->origin[0] - dl->radius > grid->meshBounds[1][0]
 			|| dl->origin[0] + dl->radius < grid->meshBounds[0][0]
 			|| dl->origin[1] - dl->radius > grid->meshBounds[1][1]
@@ -243,15 +257,15 @@ that is touched by one or more dlights, so try to throw out
 more dlights if possible.
 ====================
 */
-static int R_DlightSurface(const msurface_t* surf, int dlightBits) {
+static int R_DlightSurface(msurface_t* surf, int dlightBits) {
 	if (*surf->data == SF_FACE) {
-		dlightBits = R_DlightFace(reinterpret_cast<srfSurfaceFace_t*>(surf->data), dlightBits);
+		dlightBits = R_DlightFace((srfSurfaceFace_t*)surf->data, dlightBits);
 	}
 	else if (*surf->data == SF_GRID) {
-		dlightBits = R_DlightGrid(reinterpret_cast<srfGridMesh_t*>(surf->data), dlightBits);
+		dlightBits = R_DlightGrid((srfGridMesh_t*)surf->data, dlightBits);
 	}
 	else if (*surf->data == SF_TRIANGLES) {
-		dlightBits = R_DlightTrisurf(reinterpret_cast<srfTriangles_t*>(surf->data), dlightBits);
+		dlightBits = R_DlightTrisurf((srfTriangles_t*)surf->data, dlightBits);
 	}
 	else {
 		dlightBits = 0;
@@ -269,7 +283,7 @@ static int R_DlightSurface(const msurface_t* surf, int dlightBits) {
 R_AddWorldSurface
 ======================
 */
-static void R_AddWorldSurface(msurface_t* surf, int dlightBits, const qboolean noViewCount = qfalse) {
+static void R_AddWorldSurface(msurface_t* surf, int dlightBits, qboolean noViewCount = qfalse) {
 	/*
 	if ( surf->viewCount == tr.viewCount ) {
 		return;		// already in this view
@@ -286,15 +300,15 @@ static void R_AddWorldSurface(msurface_t* surf, int dlightBits, const qboolean n
 			// already in this view, but lets make sure all the dlight bits are set
 			if (*surf->data == SF_FACE)
 			{
-				reinterpret_cast<srfSurfaceFace_t*>(surf->data)->dlightBits |= dlightBits;
+				((srfSurfaceFace_t*)surf->data)->dlightBits |= dlightBits;
 			}
 			else if (*surf->data == SF_GRID)
 			{
-				reinterpret_cast<srfGridMesh_t*>(surf->data)->dlightBits |= dlightBits;
+				((srfGridMesh_t*)surf->data)->dlightBits |= dlightBits;
 			}
 			else if (*surf->data == SF_TRIANGLES)
 			{
-				reinterpret_cast<srfTriangles_t*>(surf->data)->dlightBits |= dlightBits;
+				((srfTriangles_t*)surf->data)->dlightBits |= dlightBits;
 			}
 			return;
 		}
@@ -313,7 +327,7 @@ static void R_AddWorldSurface(msurface_t* surf, int dlightBits, const qboolean n
 	// check for dlighting
 	if (dlightBits) {
 		dlightBits = R_DlightSurface(surf, dlightBits);
-		dlightBits = dlightBits != 0;
+		dlightBits = (dlightBits != 0);
 	}
 
 	R_AddDrawSurf(surf->data, surf->shader, surf->fogIndex, dlightBits);
@@ -333,11 +347,16 @@ R_AddBrushModelSurfaces
 =================
 */
 void R_AddBrushModelSurfaces(trRefEntity_t* ent) {
-	const model_t* pModel = R_GetModelByHandle(ent->e.hModel);
+	bmodel_t* bmodel;
+	int			clip;
+	model_t* pModel;
+	int			i;
 
-	const bmodel_t* bmodel = pModel->bmodel;
+	pModel = R_GetModelByHandle(ent->e.hModel);
 
-	const int clip = R_CullLocalBox(bmodel->bounds);
+	bmodel = pModel->bmodel;
+
+	clip = R_CullLocalBox(bmodel->bounds);
 	if (clip == CULL_OUT) {
 		return;
 	}
@@ -349,7 +368,7 @@ void R_AddBrushModelSurfaces(trRefEntity_t* ent) {
 
 	R_DlightBmodel(bmodel, qfalse);
 
-	for (int i = 0; i < bmodel->numSurfaces; i++) {
+	for (i = 0; i < bmodel->numSurfaces; i++) {
 		R_AddWorldSurface(bmodel->firstSurface + i, tr.currentEntity->dlightBits, qtrue);
 	}
 }
@@ -371,30 +390,34 @@ float GetQuadArea(vec3_t v1, vec3_t v2, vec3_t v3, vec3_t v4)
 	VectorScale(dis2, 0.25f, dis2);
 
 	// Return addition of disSqr of each tri area
-	return dis1[0] * dis1[0] + dis1[1] * dis1[1] + dis1[2] * dis1[2] +
-		dis2[0] * dis2[0] + dis2[1] * dis2[1] + dis2[2] * dis2[2];
+	return (dis1[0] * dis1[0] + dis1[1] * dis1[1] + dis1[2] * dis1[2] +
+		dis2[0] * dis2[0] + dis2[1] * dis2[1] + dis2[2] * dis2[2]);
 }
 
-void RE_GetBModelVerts(const int bmodelIndex, vec3_t* verts, vec3_t normal)
+void RE_GetBModelVerts(int bmodelIndex, vec3_t* verts, vec3_t normal)
 {
 	msurface_t* surfs;
 	srfSurfaceFace_t* face;
+	bmodel_t* bmodel;
+	model_t* pModel;
 	int					i;
 	//	Not sure if we really need to track the best two candidates
 	int					maxDist[2] = { 0,0 };
 	int					maxIndx[2] = { 0,0 };
+	int					dist = 0;
+	float				dot1, dot2;
 
-	const model_t* pModel = R_GetModelByHandle(bmodelIndex);
-	const bmodel_t* bmodel = pModel->bmodel;
+	pModel = R_GetModelByHandle(bmodelIndex);
+	bmodel = pModel->bmodel;
 
 	// Loop through all surfaces on the brush and find the best two candidates
 	for (i = 0; i < bmodel->numSurfaces; i++)
 	{
 		surfs = bmodel->firstSurface + i;
-		face = reinterpret_cast<srfSurfaceFace_t*>(surfs->data);
+		face = (srfSurfaceFace_t*)surfs->data;
 
 		// It seems that the safest way to handle this is by finding the area of the faces
-		const int dist = GetQuadArea(face->points[0], face->points[1], face->points[2], face->points[3]);
+		dist = GetQuadArea(face->points[0], face->points[1], face->points[2], face->points[3]);
 
 		// Check against the highest max
 		if (dist > maxDist[0])
@@ -417,12 +440,12 @@ void RE_GetBModelVerts(const int bmodelIndex, vec3_t* verts, vec3_t normal)
 
 	// Hopefully we've found two best case candidates.  Now we should see which of these faces the viewer
 	surfs = bmodel->firstSurface + maxIndx[0];
-	face = reinterpret_cast<srfSurfaceFace_t*>(surfs->data);
-	const float dot1 = DotProduct(face->plane.normal, tr.refdef.viewaxis[0]);
+	face = (srfSurfaceFace_t*)surfs->data;
+	dot1 = DotProduct(face->plane.normal, tr.refdef.viewaxis[0]);
 
 	surfs = bmodel->firstSurface + maxIndx[1];
-	face = reinterpret_cast<srfSurfaceFace_t*>(surfs->data);
-	const float dot2 = DotProduct(face->plane.normal, tr.refdef.viewaxis[0]);
+	face = (srfSurfaceFace_t*)surfs->data;
+	dot2 = DotProduct(face->plane.normal, tr.refdef.viewaxis[0]);
 
 	if (dot2 < dot1 && dot2 < 0.0f)
 	{
@@ -439,7 +462,7 @@ void RE_GetBModelVerts(const int bmodelIndex, vec3_t* verts, vec3_t normal)
 	}
 
 	surfs = bmodel->firstSurface + i;
-	face = reinterpret_cast<srfSurfaceFace_t*>(surfs->data);
+	face = (srfSurfaceFace_t*)surfs->data;
 
 	for (int t = 0; t < 4; t++)
 	{
@@ -462,7 +485,7 @@ R_RecursiveWorldNode
 */
 static void R_RecursiveWorldNode(mnode_t* node, int planeBits, int dlightBits) {
 	do {
-		int			newDlights[2]{};
+		int			newDlights[2];
 
 		// if the node wasn't marked as potentially visible, exit
 		if (node->visframe != tr.visCount) {
@@ -537,17 +560,21 @@ static void R_RecursiveWorldNode(mnode_t* node, int planeBits, int dlightBits) {
 			newDlights[1] = 0;
 			if (dlightBits)
 			{
-				for (int i = 0; i < tr.refdef.num_dlights; i++)
+				int	i;
+				for (i = 0; i < tr.refdef.num_dlights; i++)
 				{
-					if (dlightBits & 1 << i) {
-						const dlight_t* dl = &tr.refdef.dlights[i];
-						const float dist = DotProduct(dl->origin, node->plane->normal) - node->plane->dist;
+					dlight_t* dl;
+					float		dist;
+
+					if (dlightBits & (1 << i)) {
+						dl = &tr.refdef.dlights[i];
+						dist = DotProduct(dl->origin, node->plane->normal) - node->plane->dist;
 
 						if (dist > -dl->radius) {
-							newDlights[0] |= 1 << i;
+							newDlights[0] |= (1 << i);
 						}
 						if (dist < dl->radius) {
-							newDlights[1] |= 1 << i;
+							newDlights[1] |= (1 << i);
 						}
 					}
 				}
@@ -564,9 +591,13 @@ static void R_RecursiveWorldNode(mnode_t* node, int planeBits, int dlightBits) {
 		// tail recurse
 		node = node->children[1];
 		dlightBits = newDlights[1];
-	} while (true);
+	} while (1);
 
 	{
+		// leaf node, so add mark surfaces
+		int			c;
+		msurface_t* surf, ** mark;
+
 		tr.pc.c_leafs++;
 
 		// add to z buffer bounds
@@ -591,12 +622,12 @@ static void R_RecursiveWorldNode(mnode_t* node, int planeBits, int dlightBits) {
 		}
 
 		// add the individual surfaces
-		msurface_t** mark = node->firstmarksurface;
-		int c = node->nummarksurfaces;
+		mark = node->firstmarksurface;
+		c = node->nummarksurfaces;
 		while (c--) {
 			// the surface may have already been added if it
 			// spans multiple leafs
-			msurface_t* surf = *mark;
+			surf = *mark;
 			R_AddWorldSurface(surf, dlightBits);
 			mark++;
 		}
@@ -609,18 +640,22 @@ R_PointInLeaf
 ===============
 */
 static mnode_t* R_PointInLeaf(vec3_t p) {
+	mnode_t* node;
+	float		d;
+	cplane_t* plane;
+
 	if (!tr.world) {
 		Com_Error(ERR_DROP, "R_PointInLeaf: bad model");
 	}
 
-	mnode_t* node = tr.world->nodes;
-	while (true) {
+	node = tr.world->nodes;
+	while (1) {
 		if (node->contents != -1) {
 			break;
 		}
-		const cplane_t* plane = node->plane;
+		plane = node->plane;
 
-		const float d = DotProduct(p, plane->normal) - plane->dist;
+		d = DotProduct(p, plane->normal) - plane->dist;
 		if (d > 0) {
 			node = node->children[0];
 		}
@@ -637,7 +672,7 @@ static mnode_t* R_PointInLeaf(vec3_t p) {
 R_ClusterPVS
 ==============
 */
-static const byte* R_ClusterPVS(const int cluster) {
+static const byte* R_ClusterPVS(int cluster) {
 	if (!tr.world || !tr.world->vis || cluster < 0 || cluster >= tr.world->numClusters) {
 		return tr.world->novis;
 	}
@@ -652,11 +687,14 @@ R_inPVS
 */
 
 qboolean R_inPVS(vec3_t p1, vec3_t p2) {
-	const mnode_t* leaf = R_PointInLeaf(p1);
-	const byte* vis = ri.CM_ClusterPVS(leaf->cluster);
+	mnode_t* leaf;
+	byte* vis;
+
+	leaf = R_PointInLeaf(p1);
+	vis = ri.CM_ClusterPVS(leaf->cluster);
 	leaf = R_PointInLeaf(p2);
 
-	if (!(vis[leaf->cluster >> 3] & 1 << (leaf->cluster & 7))) {
+	if (!(vis[leaf->cluster >> 3] & (1 << (leaf->cluster & 7)))) {
 		return qfalse;
 	}
 	return qtrue;
@@ -670,8 +708,11 @@ Mark the leaves and nodes that are in the PVS for the current
 cluster
 ===============
 */
-static void R_MarkLeaves() {
+static void R_MarkLeaves(void) {
+	const byte* vis;
+	mnode_t* leaf, * parent;
 	int		i;
+	int		cluster;
 
 	// lockpvs lets designers walk around to determine the
 	// extent of the current pvs
@@ -680,8 +721,8 @@ static void R_MarkLeaves() {
 	}
 
 	// current viewcluster
-	mnode_t* leaf = R_PointInLeaf(tr.viewParms.pvsOrigin);
-	int cluster = leaf->cluster;
+	leaf = R_PointInLeaf(tr.viewParms.pvsOrigin);
+	cluster = leaf->cluster;
 
 	// if the cluster is the same and the area visibility matrix
 	// hasn't changed, we don't need to mark everything again
@@ -711,7 +752,7 @@ static void R_MarkLeaves() {
 		return;
 	}
 
-	const byte* vis = R_ClusterPVS(tr.viewCluster);
+	vis = R_ClusterPVS(tr.viewCluster);
 
 	for (i = 0, leaf = tr.world->nodes; i < tr.world->numnodes; i++, leaf++) {
 		cluster = leaf->cluster;
@@ -720,16 +761,16 @@ static void R_MarkLeaves() {
 		}
 
 		// check general pvs
-		if (!(vis[cluster >> 3] & 1 << (cluster & 7))) {
+		if (!(vis[cluster >> 3] & (1 << (cluster & 7)))) {
 			continue;
 		}
 
 		// check for door connection
-		if (tr.refdef.areamask[leaf->area >> 3] & 1 << (leaf->area & 7)) {
+		if ((tr.refdef.areamask[leaf->area >> 3] & (1 << (leaf->area & 7)))) {
 			continue;		// not visible
 		}
 
-		mnode_t* parent = leaf;
+		parent = leaf;
 		do {
 			if (parent->visframe == tr.visCount)
 				break;
@@ -744,7 +785,7 @@ static void R_MarkLeaves() {
 R_AddWorldSurfaces
 =============
 */
-void R_AddWorldSurfaces() {
+void R_AddWorldSurfaces(void) {
 	if (!r_drawworld->integer) {
 		return;
 	}

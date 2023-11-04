@@ -41,7 +41,7 @@ int G2API_GetTime(int arg_time); // this may or may not return arg depending on 
 // we save the whole surfaceInfo_t struct
 struct surfaceInfo_t
 {
-	int off_flags; // what the flags are for this model
+	int offFlags; // what the flags are for this model
 	int surface;
 	// index into array held inside the model definition of pointers to the actual surface data loaded in - used by both client and game
 	float genBarycentricJ; // point 0 barycentric coors
@@ -50,7 +50,7 @@ struct surfaceInfo_t
 	int genLod; // used to determine original lod of original surface and poly hit location
 
 	surfaceInfo_t() :
-		off_flags(0),
+		offFlags(0),
 		surface(0),
 		genBarycentricJ(0),
 		genBarycentricI(0),
@@ -62,7 +62,7 @@ struct surfaceInfo_t
 	void sg_export(
 		ojk::SavedGameHelper& saved_game) const
 	{
-		saved_game.write<int32_t>(off_flags);
+		saved_game.write<int32_t>(offFlags);
 		saved_game.write<int32_t>(surface);
 		saved_game.write<float>(genBarycentricJ);
 		saved_game.write<float>(genBarycentricI);
@@ -73,7 +73,7 @@ struct surfaceInfo_t
 	void sg_import(
 		ojk::SavedGameHelper& saved_game)
 	{
-		saved_game.read<int32_t>(off_flags);
+		saved_game.read<int32_t>(offFlags);
 		saved_game.read<int32_t>(surface);
 		saved_game.read<float>(genBarycentricJ);
 		saved_game.read<float>(genBarycentricI);
@@ -455,7 +455,7 @@ constexpr auto GHOUL2_NORENDER = 0x002;
 constexpr auto GHOUL2_NOMODEL = 0x004;
 constexpr auto GHOUL2_NEWORIGIN = 0x008;
 
-// NOTE order in here matters. We save out from mmodel_index to mFlags, but not the STL vectors that are at the top or the bottom.
+// NOTE order in here matters. We save out from mModelindex to mFlags, but not the STL vectors that are at the top or the bottom.
 class CBoneCache;
 struct model_s;
 //struct mdxaHeader_t;
@@ -489,8 +489,8 @@ public:
 	boltInfo_v mBltlist;
 	boneInfo_v mBlist;
 	// save from here (do not put any ptrs etc within this save block unless you adds special handlers to G2_SaveGhoul2Models / G2_LoadGhoul2Models!!!!!!!!!!!!
-#define BSAVE_START_FIELD mmodel_index	// this is the start point for loadsave, keep it up to date it you change anything
-	int mmodel_index;
+#define BSAVE_START_FIELD mModelindex	// this is the start point for loadsave, keep it up to date it you change anything
+	int mModelindex;
 	int animModelIndexOffset;
 	qhandle_t mCustomShader;
 	qhandle_t mCustomSkin;
@@ -520,14 +520,14 @@ public:
 	// these occasionally are not valid (like after a vid_restart)
 	// call the questionably efficient G2_SetupModelPointers(this) to insure validity
 	bool mValid; // all the below are proper and valid
-	const model_s* current_model;
+	const model_s* currentModel;
 	int currentModelSize;
 	const model_s* animModel;
 	int currentAnimModelSize;
 	const mdxaHeader_t* aHeader;
 
 	CGhoul2Info() :
-		mmodel_index(-1),
+		mModelindex(-1),
 		animModelIndexOffset(0),
 		mCustomShader(0),
 		mCustomSkin(0),
@@ -547,7 +547,7 @@ public:
 		mBoneCache(nullptr),
 		mSkin(0),
 		mValid(false),
-		current_model(nullptr),
+		currentModel(nullptr),
 		currentModelSize(0),
 		animModel(nullptr),
 		currentAnimModelSize(0),
@@ -559,7 +559,7 @@ public:
 	void sg_export(
 		ojk::SavedGameHelper& saved_game) const
 	{
-		saved_game.write<int32_t>(mmodel_index);
+		saved_game.write<int32_t>(mModelindex);
 
 #ifndef JK2_MODE
 		saved_game.write<int32_t>(animModelIndexOffset);
@@ -587,7 +587,7 @@ public:
 	void sg_import(
 		ojk::SavedGameHelper& saved_game)
 	{
-		saved_game.read<int32_t>(mmodel_index);
+		saved_game.read<int32_t>(mModelindex);
 
 #ifndef JK2_MODE
 		saved_game.read<int32_t>(animModelIndexOffset);
@@ -798,7 +798,7 @@ class CCollisionRecord
 {
 public:
 	float mDistance;
-	int mentity_num;
+	int mEntityNum;
 	int mModelIndex;
 	int mPolyIndex;
 	int mSurfaceIndex;
@@ -812,7 +812,7 @@ public:
 
 	CCollisionRecord() :
 		mDistance(100000),
-		mentity_num(-1), mModelIndex(0), mPolyIndex(0), mSurfaceIndex(0), mCollisionPosition{}, mCollisionNormal{},
+		mEntityNum(-1), mModelIndex(0), mPolyIndex(0), mSurfaceIndex(0), mCollisionPosition{}, mCollisionNormal{},
 		mFlags(0),
 		mMaterial(0),
 		mLocation(0),
@@ -824,7 +824,7 @@ public:
 		ojk::SavedGameHelper& saved_game) const
 	{
 		saved_game.write<float>(mDistance);
-		saved_game.write<int32_t>(mentity_num);
+		saved_game.write<int32_t>(mEntityNum);
 		saved_game.write<int32_t>(mModelIndex);
 		saved_game.write<int32_t>(mPolyIndex);
 		saved_game.write<int32_t>(mSurfaceIndex);
@@ -841,7 +841,7 @@ public:
 		ojk::SavedGameHelper& saved_game)
 	{
 		saved_game.read<float>(mDistance);
-		saved_game.read<int32_t>(mentity_num);
+		saved_game.read<int32_t>(mEntityNum);
 		saved_game.read<int32_t>(mModelIndex);
 		saved_game.read<int32_t>(mPolyIndex);
 		saved_game.read<int32_t>(mSurfaceIndex);

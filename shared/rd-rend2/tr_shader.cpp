@@ -2794,7 +2794,7 @@ static qboolean ParseShader(const char** text)
 		// fogParms
 		else if (!Q_stricmp(token, "fogParms"))
 		{
-			if (!ParseVector(text, 3, shader.fogParms.color)) 
+			if (!ParseVector(text, 3, shader.fogParms.color))
 			{
 				return qfalse;
 			}
@@ -4855,16 +4855,16 @@ When a handle is passed in by another module, this range checks
 it and returns a valid (possibly default) shader_t to be used internally.
 ====================
 */
-shader_t* R_GetShaderByHandle(qhandle_t h_shader) {
-	if (h_shader < 0) {
-		ri.Printf(PRINT_WARNING, "R_GetShaderByHandle: out of range h_shader '%d'\n", h_shader);
+shader_t* R_GetShaderByHandle(qhandle_t hShader) {
+	if (hShader < 0) {
+		ri.Printf(PRINT_WARNING, "R_GetShaderByHandle: out of range hShader '%d'\n", hShader);
 		return tr.defaultShader;
 	}
-	if (h_shader >= tr.numShaders) {
-		ri.Printf(PRINT_WARNING, "R_GetShaderByHandle: out of range h_shader '%d'\n", h_shader);
+	if (hShader >= tr.numShaders) {
+		ri.Printf(PRINT_WARNING, "R_GetShaderByHandle: out of range hShader '%d'\n", hShader);
 		return tr.defaultShader;
 	}
-	return tr.shaders[h_shader];
+	return tr.shaders[hShader];
 }
 
 /*

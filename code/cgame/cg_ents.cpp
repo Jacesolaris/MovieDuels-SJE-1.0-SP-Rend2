@@ -238,7 +238,7 @@ void CG_AddRefEntWithTransportEffect(const centity_t* cent, refEntity_t* ent)
 		cent->gent->owner->client->ps.saberEntityState == SES_RETURNING &&
 		cent->currentState.saberActive == qfalse)
 	{
-		ent->custom_shader = cgi_R_RegisterShader("gfx/effects/solidWhite_cull");
+		ent->customShader = cgi_R_RegisterShader("gfx/effects/solidWhite_cull");
 		ent->renderfx = RF_RGB_TINT;
 		const float wv = sin(cg.time * 0.003f) * 0.08f + 0.1f;
 		ent->shaderRGBA[0] = wv * 255;
@@ -561,7 +561,7 @@ static void CG_General(centity_t* cent)
 				if (!cent->gent->bounceCount)
 				{
 					//not an EWeb
-					ent.custom_shader = cgi_R_RegisterShader("models/map_objects/imp_mine/turret_chair_dmg");
+					ent.customShader = cgi_R_RegisterShader("models/map_objects/imp_mine/turret_chair_dmg");
 				}
 
 				VectorSet(temp, 0, 0, 1);
@@ -581,7 +581,7 @@ static void CG_General(centity_t* cent)
 					if (!cent->gent->bounceCount)
 					{
 						//not an EWeb
-						ent.custom_shader = cgi_R_RegisterShader("models/map_objects/imp_mine/turret_chair_on");
+						ent.customShader = cgi_R_RegisterShader("models/map_objects/imp_mine/turret_chair_on");
 					}
 				}
 
@@ -959,7 +959,7 @@ static void CG_General(centity_t* cent)
 		// make the gun pulse red to warn about it exploding
 		float val = (1.0f - static_cast<float>(cent->gent->nextthink - cg.time) / 3200.0f) * 0.3f;
 
-		ent.custom_shader = cgi_R_RegisterShader("gfx/effects/solidWhite");
+		ent.customShader = cgi_R_RegisterShader("gfx/effects/solidWhite");
 		ent.shaderRGBA[0] = (sin(cg.time * 0.04f) * val * 0.4f + val) * 255;
 		ent.shaderRGBA[1] = ent.shaderRGBA[2] = 0;
 		ent.renderfx |= RF_RGB_TINT;
@@ -1057,7 +1057,7 @@ static void CG_General(centity_t* cent)
 					ent.shaderRGBA[3] = 255;
 					ent.renderfx &= ~RF_ALPHA_FADE;
 					ent.renderfx |= RF_RGB_TINT;
-					ent.custom_shader = cgi_R_RegisterShader("gfx/misc/ion_shield");
+					ent.customShader = cgi_R_RegisterShader("gfx/misc/ion_shield");
 
 					cgi_R_AddRefEntityToScene(&ent);
 				}
@@ -1153,7 +1153,7 @@ static void CG_Item(centity_t* cent)
 		VectorCopy(cent->lerpOrigin, ent.origin);
 		ent.origin[2] += 16;
 		ent.radius = 14;
-		ent.custom_shader = cg_items[es->modelindex].icon;
+		ent.customShader = cg_items[es->modelindex].icon;
 		ent.shaderRGBA[0] = 255;
 		ent.shaderRGBA[1] = 255;
 		ent.shaderRGBA[2] = 255;
@@ -1263,7 +1263,7 @@ static void CG_Item(centity_t* cent)
 		&& item->giTag == WP_SABER
 		&& (!cent->gent || !(cent->gent->spawnflags & 64)))
 	{
-		ent.custom_shader = cgi_R_RegisterShader("gfx/effects/solidWhite_cull");
+		ent.customShader = cgi_R_RegisterShader("gfx/effects/solidWhite_cull");
 		ent.renderfx = RF_RGB_TINT;
 		const float wv = sin(cg.time * 0.002f) * 0.08f + 0.2f;
 		ent.shaderRGBA[0] = ent.shaderRGBA[1] = wv * 255;
@@ -2885,7 +2885,7 @@ void CG_StasisEffectLong(const centity_t* cent)
 	if (stop_effect)
 	{
 		//time is up or this is a falling spin and they hit the ground or mission end screen is up
-		cg.overrides.active &= ~( CG_OVERRIDE_3RD_PERSON_RNG | CG_OVERRIDE_3RD_PERSON_ANG | CG_OVERRIDE_3RD_PERSON_POF);
+		cg.overrides.active &= ~(CG_OVERRIDE_3RD_PERSON_RNG | CG_OVERRIDE_3RD_PERSON_ANG | CG_OVERRIDE_3RD_PERSON_POF);
 		cg.overrides.thirdPersonHorzOffset = 0;
 		cg.overrides.thirdPersonAngle = 0;
 		cg.overrides.thirdPersonPitchOffset = 0;
@@ -2993,11 +2993,11 @@ static void CG_Clouds(const centity_t* cent)
 
 	if (cent->gent->spawnflags & 2) // ALT type, uses a different shader
 	{
-		ent.custom_shader = cgi_R_RegisterShader("gfx/world/haze2");
+		ent.customShader = cgi_R_RegisterShader("gfx/world/haze2");
 	}
 	else
 	{
-		ent.custom_shader = cgi_R_RegisterShader("gfx/world/haze");
+		ent.customShader = cgi_R_RegisterShader("gfx/world/haze");
 	}
 
 	cgi_R_AddRefEntityToScene(&ent);
@@ -3105,12 +3105,12 @@ CG_AddPacketEntities
 
 ===============
 */
-void CG_AddPacketEntities(const qboolean is_portal)
+void CG_AddPacketEntities(const qboolean isPortal)
 {
 	int num;
 	centity_t* cent;
 
-	if (is_portal)
+	if (isPortal)
 	{
 		for (num = 0; num < cg.snap->numEntities; num++)
 		{

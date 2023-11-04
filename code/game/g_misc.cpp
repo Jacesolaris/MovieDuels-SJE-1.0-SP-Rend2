@@ -2995,7 +2995,7 @@ void misc_atst_setanim(gentity_t* self, const int bone, const int anim)
 		if (!Q_stricmp("atst", level.knownAnimFileSets[i].filename))
 		{
 			firstFrame = level.knownAnimFileSets[i].animations[anim].firstFrame;
-			lastFrame = firstFrame + level.knownAnimFileSets[i].animations[anim].num_frames;
+			lastFrame = firstFrame + level.knownAnimFileSets[i].animations[anim].numFrames;
 			anim_speed = 50.0f / level.knownAnimFileSets[i].animations[anim].frameLerp;
 			break;
 		}

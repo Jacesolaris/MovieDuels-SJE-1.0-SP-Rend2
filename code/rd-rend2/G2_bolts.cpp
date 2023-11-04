@@ -12,7 +12,7 @@
 #include "ghoul2/G2.h"
 #endif
 
-#define G2_MODEL_OK(g) ((g)&&(g)->mValid&&(g)->aHeader&&(g)->current_model&&(g)->animModel)
+#define G2_MODEL_OK(g) ((g)&&(g)->mValid&&(g)->aHeader&&(g)->currentModel&&(g)->animModel)
 
 //=====================================================================================================================
 // Bolt List handling routines - so entities can attach themselves to any part of the model in question
@@ -61,9 +61,9 @@ int G2_Find_Bolt_Surface_Num(boltInfo_v& bltlist, const int surface_num, const i
 
 //=========================================================================================
 //// Public Bolt Routines
-int G2_Add_Bolt_Surf_Num(const CGhoul2Info* ghl_info, boltInfo_v& bltlist, const surfaceInfo_v& slist, const int surf_num)
+int G2_Add_Bolt_Surf_Num(const CGhoul2Info* ghlInfo, boltInfo_v& bltlist, const surfaceInfo_v& slist, const int surf_num)
 {
-	assert(ghl_info && ghl_info->mValid);
+	assert(ghlInfo && ghlInfo->mValid);
 	boltInfo_t			temp_bolt;
 
 	assert(surf_num >= 0 && surf_num < (int)slist.size());
@@ -109,11 +109,11 @@ int G2_Add_Bolt_Surf_Num(const CGhoul2Info* ghl_info, boltInfo_v& bltlist, const
 	return bltlist.size() - 1;
 }
 
-int G2_Add_Bolt(const CGhoul2Info* ghl_info, boltInfo_v& bltlist, const surfaceInfo_v& slist, const char* bone_name)
+int G2_Add_Bolt(const CGhoul2Info* ghlInfo, boltInfo_v& bltlist, const surfaceInfo_v& slist, const char* bone_name)
 {
-	assert(ghl_info && ghl_info->mValid);
-	model_t* mod_m = (model_t*)ghl_info->current_model;
-	model_t* mod_a = (model_t*)ghl_info->animModel;
+	assert(ghlInfo && ghlInfo->mValid);
+	model_t* mod_m = (model_t*)ghlInfo->currentModel;
+	model_t* mod_a = (model_t*)ghlInfo->animModel;
 	int x, surf_num = -1;
 	mdxaSkel_t* skel;
 	mdxaSkelOffsets_t* offsets;

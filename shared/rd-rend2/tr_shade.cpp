@@ -42,12 +42,12 @@ R_DrawElements
 ==================
 */
 
-void R_DrawElementsVBO(int num_indexes, glIndex_t firstIndex, glIndex_t minIndex, glIndex_t maxIndex)
+void R_DrawElementsVBO(int numIndexes, glIndex_t firstIndex, glIndex_t minIndex, glIndex_t maxIndex)
 {
 	int offset = firstIndex * sizeof(glIndex_t) +
 		(tess.useInternalVBO ? backEndData->current_frame->dynamicIboCommitOffset : 0);
 
-	GL_DrawIndexed(GL_TRIANGLES, num_indexes, GL_INDEX_TYPE, offset, 1, 0);
+	GL_DrawIndexed(GL_TRIANGLES, numIndexes, GL_INDEX_TYPE, offset, 1, 0);
 }
 
 static void R_DrawMultiElementsVBO(int multiDrawPrimitives, glIndex_t* multiDrawMinIndex, glIndex_t* multiDrawMaxIndex,
@@ -138,9 +138,9 @@ to overflow.
 void RB_BeginSurface(shader_t* shader, int fogNum, int cubemapIndex) {
 	shader_t* state = (shader->remappedShader) ? shader->remappedShader : shader;
 
-	tess.num_indexes = 0;
+	tess.numIndexes = 0;
 	tess.firstIndex = 0;
-	tess.num_vertexes = 0;
+	tess.numVertexes = 0;
 	tess.multiDrawPrimitives = 0;
 	tess.shader = state;
 	tess.fogNum = fogNum;
@@ -476,7 +476,7 @@ static void ComputeShaderColors(shaderStage_t* pStage, vec4_t baseColor, vec4_t 
 	{
 		int scale;
 
-		for (i = 0; i < tess.num_vertexes; i++)
+		for (i = 0; i < tess.numVertexes; i++)
 		{
 			scale = (tess.svars.colors[i][0] + tess.svars.colors[i][1] + tess.svars.colors[i][2]) / 3;
 			tess.svars.colors[i][0] = tess.svars.colors[i][1] = tess.svars.colors[i][2] = scale;
@@ -523,9 +523,9 @@ static void CaptureDrawData(const shaderCommands_t* input, shaderStage_t* stage,
 
 	if (input->multiDrawPrimitives)
 	{
-		int num_indexes = 0;
+		int numIndexes = 0;
 		for (int i = 0; i < input->multiDrawPrimitives; i++)
-			num_indexes += input->multiDrawNumIndexes[i];
+			numIndexes += input->multiDrawNumIndexes[i];
 
 		const char* data = va("%d,%d,%s,%d,%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,Y\n",
 			tr.frameCount,
@@ -538,7 +538,7 @@ static void CaptureDrawData(const shaderCommands_t* input, shaderStage_t* stage,
 			glState.glStateBits,
 			glState.currentVBO->vertexesVBO,
 			glState.currentIBO->indexesVBO,
-			num_indexes / 3);
+			numIndexes / 3);
 		ri.FS_Write(data, strlen(data), tr.debugFile);
 	}
 	else
@@ -554,7 +554,7 @@ static void CaptureDrawData(const shaderCommands_t* input, shaderStage_t* stage,
 			glState.glStateBits,
 			glState.currentVBO->vertexesVBO,
 			glState.currentIBO->indexesVBO,
-			input->num_indexes / 3);
+			input->numIndexes / 3);
 		ri.FS_Write(data, strlen(data), tr.debugFile);
 	}
 }
@@ -675,7 +675,7 @@ void RB_FillDrawCommand(
 		drawCmd.type = DRAW_COMMAND_INDEXED;
 		drawCmd.params.indexed.indexType = GL_INDEX_TYPE;
 		drawCmd.params.indexed.firstIndex = offset;
-		drawCmd.params.indexed.numIndices = input->num_indexes;
+		drawCmd.params.indexed.numIndices = input->numIndexes;
 		drawCmd.params.indexed.baseVertex = 0;
 	}
 }
@@ -1004,7 +1004,7 @@ static void ProjectPshadowVBOGLSL(const shaderCommands_t* input, const VertexArr
 		uint32_t key = RB_CreateSortKey(item, 13, input->shader->sort);
 		RB_AddDrawItem(backEndData->currentPass, key, item);
 
-		backEnd.pc.c_totalIndexes += tess.num_indexes;
+		backEnd.pc.c_totalIndexes += tess.numIndexes;
 
 		RB_BinTriangleCounts();
 	}
@@ -1342,7 +1342,7 @@ void RB_ShadowTessEnd(shaderCommands_t* input, const VertexArraysProperties* ver
 		return;
 	}
 
-	if (!input->num_vertexes || !input->num_indexes || input->useInternalVBO)
+	if (!input->numVertexes || !input->numIndexes || input->useInternalVBO)
 	{
 		return;
 	}
@@ -1862,7 +1862,7 @@ static void RB_IterateStagesGeneric(shaderCommands_t* input, const VertexArraysP
 void RB_StageIteratorGeneric(void)
 {
 	shaderCommands_t* input = &tess;
-	if (!input->num_vertexes || !input->num_indexes)
+	if (!input->numVertexes || !input->numIndexes)
 	{
 		return;
 	}
@@ -1963,7 +1963,7 @@ void RB_StageIteratorGeneric(void)
 
 void RB_BinTriangleCounts(void)
 {
-	int numTriangles = tess.num_indexes / 3;
+	int numTriangles = tess.numIndexes / 3;
 	if (numTriangles < 20)
 		backEnd.pc.c_triangleCountBins[TRI_BIN_0_19]++;
 	else if (numTriangles < 50)
@@ -1992,7 +1992,7 @@ void RB_EndSurface(void) {
 
 	input = &tess;
 
-	if (input->num_indexes == 0 || input->num_vertexes == 0) {
+	if (input->numIndexes == 0 || input->numVertexes == 0) {
 		return;
 	}
 
@@ -2028,9 +2028,9 @@ void RB_EndSurface(void) {
 	// update performance counters
 	//
 	backEnd.pc.c_shaders++;
-	backEnd.pc.c_vertexes += tess.num_vertexes;
-	backEnd.pc.c_indexes += tess.num_indexes;
-	backEnd.pc.c_totalIndexes += tess.num_indexes * tess.numPasses;
+	backEnd.pc.c_vertexes += tess.numVertexes;
+	backEnd.pc.c_indexes += tess.numIndexes;
+	backEnd.pc.c_totalIndexes += tess.numIndexes * tess.numPasses;
 
 	RB_BinTriangleCounts();
 
@@ -2040,8 +2040,8 @@ void RB_EndSurface(void) {
 	tess.currentStageIteratorFunc();
 
 	// clear shader so we can tell we don't have any unclosed surfaces
-	tess.num_indexes = 0;
-	tess.num_vertexes = 0;
+	tess.numIndexes = 0;
+	tess.numVertexes = 0;
 	tess.firstIndex = 0;
 	tess.multiDrawPrimitives = 0;
 	tess.externalIBO = nullptr;

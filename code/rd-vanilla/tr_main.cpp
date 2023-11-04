@@ -271,16 +271,16 @@ R_TransformModelToClip
 
 ==========================
 */
-void R_TransformModelToClip(const vec3_t src, const float* model_matrix, const float* projection_matrix,
+void R_TransformModelToClip(const vec3_t src, const float* modelMatrix, const float* projection_matrix,
 	vec4_t eye, vec4_t dst) {
 	int i;
 
 	for (i = 0; i < 4; i++) {
 		eye[i] =
-			src[0] * model_matrix[i + 0 * 4] +
-			src[1] * model_matrix[i + 1 * 4] +
-			src[2] * model_matrix[i + 2 * 4] +
-			1 * model_matrix[i + 3 * 4];
+			src[0] * modelMatrix[i + 0 * 4] +
+			src[1] * modelMatrix[i + 1 * 4] +
+			src[2] * modelMatrix[i + 2 * 4] +
+			1 * modelMatrix[i + 3 * 4];
 	}
 
 	for (i = 0; i < 4; i++) {
@@ -375,7 +375,7 @@ void R_RotateForEntity(const trRefEntity_t* ent, const viewParms_t* view_parms,
 	preTransEntMatrix[11] = 0;
 	preTransEntMatrix[15] = 1;
 
-	myGlMultMatrix(preTransEntMatrix, view_parms->world.model_matrix, ori->model_matrix);
+	myGlMultMatrix(preTransEntMatrix, view_parms->world.modelMatrix, ori->modelMatrix);
 
 	// calculate the viewer origin in the model's space
 	// needed for fog, specular, and environment mapping
@@ -443,7 +443,7 @@ void R_RotateForViewer()
 
 	// convert from our coordinate system (looking down X)
 	// to OpenGL's coordinate system (looking down -Z)
-	myGlMultMatrix(viewer_matrix, s_flipMatrix, tr.ori.model_matrix);
+	myGlMultMatrix(viewer_matrix, s_flipMatrix, tr.ori.modelMatrix);
 
 	tr.viewParms.world = tr.ori;
 }
@@ -874,15 +874,15 @@ static qboolean SurfIsOffscreen(const drawSurf_t* draw_surf) {
 	RB_BeginSurface(shader, fog_num);
 	rb_surfaceTable[*draw_surf->surface](draw_surf->surface);
 
-	assert(tess.num_vertexes < 128);
+	assert(tess.numVertexes < 128);
 
-	for (i = 0; i < tess.num_vertexes; i++)
+	for (i = 0; i < tess.numVertexes; i++)
 	{
 		vec4_t eye;
 		vec4_t clip;
 		unsigned int point_flags = 0;
 
-		R_TransformModelToClip(tess.xyz[i], tr.ori.model_matrix, tr.viewParms.projectionMatrix, eye, clip);
+		R_TransformModelToClip(tess.xyz[i], tr.ori.modelMatrix, tr.viewParms.projectionMatrix, eye, clip);
 
 		for (int j = 0; j < 3; j++)
 		{
@@ -910,9 +910,9 @@ static qboolean SurfIsOffscreen(const drawSurf_t* draw_surf) {
 	// based on vertex distance isn't 100% correct (we should be checking for
 	// range to the surface), but it's good enough for the types of portals
 	// we have in the game right now.
-	int num_triangles = tess.num_indexes / 3;
+	int num_triangles = tess.numIndexes / 3;
 
-	for (i = 0; i < tess.num_indexes; i += 3)
+	for (i = 0; i < tess.numIndexes; i += 3)
 	{
 		vec3_t normal;
 		float dot;
@@ -965,7 +965,7 @@ qboolean R_MirrorViewBySurface(drawSurf_t* draw_surf, int entity_num)
 	orientation_t	surface, camera;
 
 	// don't recursively mirror
-	if (tr.viewParms.is_portal)
+	if (tr.viewParms.isPortal)
 	{
 		ri.Printf(PRINT_DEVELOPER, "WARNING: recursive mirror/portal found\n");
 		return qfalse;
@@ -984,7 +984,7 @@ qboolean R_MirrorViewBySurface(drawSurf_t* draw_surf, int entity_num)
 	old_parms = tr.viewParms;
 
 	new_parms = tr.viewParms;
-	new_parms.is_portal = qtrue;
+	new_parms.isPortal = qtrue;
 	if (!R_GetPortalOrientations(draw_surf, entity_num, &surface, &camera,
 		new_parms.pvsOrigin, &new_parms.isMirror)) {
 		return qfalse;		// bad portal, no portalentity
@@ -1249,7 +1249,7 @@ void R_AddEntitySurfaces() {
 		// we don't want the hacked weapon position showing in
 		// mirrors, because the true body position will already be drawn
 		//
-		if (ent->e.renderfx & RF_FIRST_PERSON && tr.viewParms.is_portal) {
+		if (ent->e.renderfx & RF_FIRST_PERSON && tr.viewParms.isPortal) {
 			continue;
 		}
 
@@ -1270,10 +1270,10 @@ void R_AddEntitySurfaces() {
 			// self blood sprites, talk balloons, etc should not be drawn in the primary
 			// view.  We can't just do this check for all entities, because md3
 			// entities may still want to cast shadows from them
-			if (ent->e.renderfx & RF_THIRD_PERSON && !tr.viewParms.is_portal) {
+			if (ent->e.renderfx & RF_THIRD_PERSON && !tr.viewParms.isPortal) {
 				continue;
 			}
-			shader = R_GetShaderByHandle(ent->e.custom_shader);
+			shader = R_GetShaderByHandle(ent->e.customShader);
 			R_AddDrawSurf(&entitySurface, shader, R_SpriteFogNum(ent), 0);
 			break;
 
@@ -1281,12 +1281,12 @@ void R_AddEntitySurfaces() {
 			// we must set up parts of tr.or for model culling
 			R_RotateForEntity(ent, &tr.viewParms, &tr.ori);
 
-			tr.current_model = R_GetModelByHandle(ent->e.hModel);
-			if (!tr.current_model) {
+			tr.currentModel = R_GetModelByHandle(ent->e.hModel);
+			if (!tr.currentModel) {
 				R_AddDrawSurf(&entitySurface, tr.defaultShader, 0, 0);
 			}
 			else {
-				switch (tr.current_model->type) {
+				switch (tr.currentModel->type) {
 				case MOD_MESH:
 					R_AddMD3Surfaces(ent);
 					break;
@@ -1301,7 +1301,7 @@ void R_AddEntitySurfaces() {
 					R_AddGhoulSurfaces(ent);
 					break;
 				case MOD_BAD:		// null model axis
-					if (ent->e.renderfx & RF_THIRD_PERSON && !tr.viewParms.is_portal)
+					if (ent->e.renderfx & RF_THIRD_PERSON && !tr.viewParms.isPortal)
 					{
 						if (!(ent->e.renderfx & RF_SHADOW_ONLY))
 						{
@@ -1357,7 +1357,7 @@ void R_GenerateDrawSurfs() {
 R_DebugPolygon
 ================
 */
-void R_DebugPolygon(const int color, const int num_points, const float* points) {
+void R_DebugPolygon(const int color, const int numPoints, const float* points) {
 	int		i;
 
 	GL_State(GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
@@ -1366,7 +1366,7 @@ void R_DebugPolygon(const int color, const int num_points, const float* points) 
 
 	qglColor3f(color & 1, color >> 1 & 1, color >> 2 & 1);
 	qglBegin(GL_POLYGON);
-	for (i = 0; i < num_points; i++) {
+	for (i = 0; i < numPoints; i++) {
 		qglVertex3fv(points + i * 3);
 	}
 	qglEnd();
@@ -1376,7 +1376,7 @@ void R_DebugPolygon(const int color, const int num_points, const float* points) 
 	qglDepthRange(0, 0);
 	qglColor3f(1, 1, 1);
 	qglBegin(GL_POLYGON);
-	for (i = 0; i < num_points; i++) {
+	for (i = 0; i < numPoints; i++) {
 		qglVertex3fv(points + i * 3);
 	}
 	qglEnd();
@@ -1390,7 +1390,7 @@ R_DebugGraphics
 Visualization aid for movement clipping debugging
 ====================
 */
-void R_DebugGraphics() 
+void R_DebugGraphics()
 {
 	if (!r_debugSurface->integer)
 	{

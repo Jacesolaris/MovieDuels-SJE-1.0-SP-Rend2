@@ -540,7 +540,7 @@ void WP_LoadWeaponParms();
 
 void IT_LoadItemParms();
 
-void IT_LoadWeatherParms();
+void IT_LoadWeatherParms(void);
 
 //
 // g_client.c
@@ -702,7 +702,7 @@ extern qboolean G_ClearLOS(gentity_t* self, const vec3_t end);
 #define	RTF_NONE	0
 #define	RTF_NAVGOAL	0x00000001
 
-using reference_tag_t = struct reference_tag_s
+using referenceTag_t = struct referenceTag_s
 {
 	char name[MAX_REFNAME];
 	vec3_t origin;
@@ -712,7 +712,7 @@ using reference_tag_t = struct reference_tag_s
 };
 
 extern void TAG_Init();
-extern reference_tag_t* TAG_Add(const char* name, const char* owner, vec3_t origin, vec3_t angles, int radius,
+extern referenceTag_t* TAG_Add(const char* name, const char* owner, vec3_t origin, vec3_t angles, int radius,
 	int flags);
 
 extern int TAG_GetOrigin(const char* owner, const char* name, vec3_t origin);
