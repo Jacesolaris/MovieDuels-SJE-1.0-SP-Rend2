@@ -1983,7 +1983,7 @@ void G_SetTauntAnim(gentity_t* ent, const int taunt)
 			}
 			break;
 		case TAUNT_MEDITATE:
-			G_TauntSound(ent, TAUNT_MEDITATE);
+			//G_TauntSound(ent, TAUNT_MEDITATE);
 
 			if (ent->client->ps.weapon != WP_SABER) //SP
 			{
@@ -2685,7 +2685,7 @@ void Cmd_SaberDrop_f(gentity_t* ent, const int saber_num)
 
 void G_RemoveWeather()
 {
-	gi.SendConsoleCommand(va("exec WeatherSP/clear.cfg"));
+	gi.SendConsoleCommand(va("exec Weather/clear.cfg"));
 }
 
 /*

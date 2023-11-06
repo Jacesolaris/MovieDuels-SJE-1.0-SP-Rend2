@@ -397,6 +397,13 @@ static void CG_LoadBar()
 
 	if (cg.loadLCARSStage >= 3)
 	{
+		if (cg.loadLCARSStage <= 6)
+		{
+			if (cg_com_rend2.integer == 1) //rend2 is on
+			{
+				cgi_R_Font_DrawString(40, 2, va("Warning: When using Quality mode, longer loading times can be expected."), colorTable[CT_WHITE], cgs.media.qhFontSmall, -1, 1.0f);
+			}
+		}
 		constexpr int x = (640 - LOADBAR_CLIP_WIDTH) / 2;
 		constexpr int y = 50;
 
@@ -821,7 +828,7 @@ static void LoadTips()
 	if (SCREENTIP_NEXT_UPDATE_TIME < time)
 	{
 		cgi_Cvar_Set("ui_tipsbriefing", va("@LOADTIPS_TIP%d", index));
-		SCREENTIP_NEXT_UPDATE_TIME = time + 3200;
+		SCREENTIP_NEXT_UPDATE_TIME = time + 3500;
 	}
 }
 
@@ -911,7 +918,7 @@ void CG_DrawInformation()
 			|| strcmp(s, "kejim_post") == 0)) //special case for first map!
 	{
 		constexpr char text[1024] = { 0 };
-		if (cg.loadLCARSStage <= 2 && cg_com_rend2.integer == 1)
+		if (cg.loadLCARSStage <= 4 && cg_com_rend2.integer == 1)
 		{
 			CG_DrawPic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, Loadshot2);
 		}
@@ -925,25 +932,10 @@ void CG_DrawInformation()
 	}
 	else
 	{
-		if (cg.loadLCARSStage <= 2 && cg_com_rend2.integer == 1)
-		{
-			CG_DrawPic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, Loadshot2);
-		}
-		else
-		{
-			CG_DrawLoadingScreen(levelshot, s);
-			cgi_UI_Menu_Paint(cgi_UI_GetMenuByName("loadscreen"), qtrue);
-			CG_LoadBar();
-			LoadTips();
-		}
-	}
-
-	if (cg.loadLCARSStage <= 6)
-	{
-		if (cg_com_rend2.integer == 1) //rend2 is on
-		{
-			cgi_R_Font_DrawString(40, 2, va("Warning: When using Quality mode, longer loading times can be expected."), colorTable[CT_WHITE], cgs.media.qhFontSmall, -1, 1.0f);
-		}
+		CG_DrawLoadingScreen(levelshot, s);
+		cgi_UI_Menu_Paint(cgi_UI_GetMenuByName("loadscreen"), qtrue);
+		CG_LoadBar();
+		LoadTips();
 	}
 
 	// draw info string information
