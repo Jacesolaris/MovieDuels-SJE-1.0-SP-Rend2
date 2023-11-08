@@ -333,7 +333,7 @@ int G2API_GetTime(int arg_time) // this may or may not return arg depending on g
 #define G2_MODEL_BITS (10)   //jacesolaris was 9
 #define G2_INDEX_MASK (MAX_G2_MODELS-1)
 
-void RemoveBoneCache(const CBoneCache* bone_cache);
+void RemoveBoneCache(const CBoneCache* boneCache);
 
 static size_t GetSizeOfGhoul2Info(const CGhoul2Info& g2_info)
 {

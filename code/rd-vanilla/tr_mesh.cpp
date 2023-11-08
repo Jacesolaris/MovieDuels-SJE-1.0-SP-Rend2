@@ -300,20 +300,12 @@ R_AddMD3Surfaces
 
 =================
 */
-void R_AddMD3Surfaces(trRefEntity_t* ent) {
-	int				i;
-	md3Header_t* header = 0;
-	md3Surface_t* surface = 0;
-	md3Shader_t* md3Shader = 0;
-	shader_t* shader = 0;
-	shader_t* main_shader = 0;
-	int				cull;
-	int				lod;
-	int				fogNum;
-	qboolean		personalModel;
+void R_AddMD3Surfaces(trRefEntity_t* ent)
+{
+	const shader_t* shader;
 
 	// don't add third_person objects if not in a portal
-	personalModel = (qboolean)((ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal);
+	const auto personalModel = static_cast<qboolean>(ent->e.renderfx & RF_THIRD_PERSON && !tr.viewParms.isPortal);
 
 	if (ent->e.renderfx & RF_CAP_FRAMES) {
 		if (ent->e.frame > tr.currentModel->md3[0]->numFrames - 1)
@@ -332,10 +324,10 @@ void R_AddMD3Surfaces(trRefEntity_t* ent) {
 	// when the surfaces are rendered, they don't need to be
 	// range checked again.
 	//
-	if ((ent->e.frame >= tr.currentModel->md3[0]->numFrames)
-		|| (ent->e.frame < 0)
-		|| (ent->e.oldframe >= tr.currentModel->md3[0]->numFrames)
-		|| (ent->e.oldframe < 0))
+	if (ent->e.frame >= tr.currentModel->md3[0]->numFrames
+		|| ent->e.frame < 0
+		|| ent->e.oldframe >= tr.currentModel->md3[0]->numFrames
+		|| ent->e.oldframe < 0)
 	{
 		ri.Printf(PRINT_ALL, "R_AddMD3Surfaces: no such frame %d to %d for '%s'\n",
 			ent->e.oldframe, ent->e.frame,
@@ -347,62 +339,69 @@ void R_AddMD3Surfaces(trRefEntity_t* ent) {
 	//
 	// compute LOD
 	//
-	lod = R_ComputeLOD(ent);
+	const int lod = R_ComputeLOD(ent);
 
-	header = tr.currentModel->md3[lod];
+	md3Header_t* header = tr.currentModel->md3[lod];
 
 	//
 	// cull the entire model if merged bounding box of both frames
 	// is outside the view frustum.
 	//
-	cull = R_CullModel(header, ent);
-	if (cull == CULL_OUT) {
+	const int cull = R_CullModel(header, ent);
+	if (cull == CULL_OUT)
+	{
 		return;
 	}
 
 	//
 	// set up lighting now that we know we aren't culled
 	//
-	if (!personalModel || r_shadows->integer > 1) {
+	if (!personalModel || r_shadows->integer > 1)
+	{
 		R_SetupEntityLighting(&tr.refdef, ent);
 	}
 
 	//
 	// see if we are in a fog volume
 	//
-	fogNum = R_ComputeFogNum(header, ent);
+	const int fogNum = R_ComputeFogNum(header, ent);
 
 	//
 	// draw all surfaces
 	//
-	main_shader = R_GetShaderByHandle(ent->e.customShader);
+	const shader_t* main_shader = R_GetShaderByHandle(ent->e.customShader);
 
-	surface = (md3Surface_t*)((byte*)header + header->ofsSurfaces);
-	for (i = 0; i < header->numSurfaces; i++) {
-		if (ent->e.customShader) {// a little more efficient
+	auto surface = reinterpret_cast<md3Surface_t*>(reinterpret_cast<byte*>(header) + header->ofsSurfaces);
+
+	for (int i = 0; i < header->numSurfaces; i++)
+	{
+		if (ent->e.customShader)
+		{// a little more efficient
 			shader = main_shader;
 		}
-		else if (ent->e.customSkin > 0 && ent->e.customSkin < tr.numSkins) {
-			skin_t* skin;
-			int		j;
-
-			skin = R_GetSkinByHandle(ent->e.customSkin);
+		else if (ent->e.customSkin > 0 && ent->e.customSkin < tr.numSkins)
+		{
+			const skin_t* skin = R_GetSkinByHandle(ent->e.customSkin);
 
 			// match the surface name to something in the skin file
 			shader = tr.defaultShader;
-			for (j = 0; j < skin->numSurfaces; j++) {
+			for (int j = 0; j < skin->numSurfaces; j++)
+			{
 				// the names have both been lowercased
-				if (!strcmp(skin->surfaces[j]->name, surface->name)) {
+				if (!strcmp(skin->surfaces[j]->name, surface->name))
+				{
 					shader = skin->surfaces[j]->shader;
 					break;
 				}
 			}
 		}
-		else if (surface->numShaders <= 0) {
+		else if (surface->numShaders <= 0)
+		{
 			shader = tr.defaultShader;
 		}
-		else {
-			md3Shader = (md3Shader_t*)((byte*)surface + surface->ofsShaders);
+		else
+		{
+			auto md3Shader = reinterpret_cast<md3Shader_t*>(reinterpret_cast<byte*>(surface) + surface->ofsShaders);
 			md3Shader += ent->e.skinNum % surface->numShaders;
 			shader = tr.shaders[md3Shader->shaderIndex];
 		}
@@ -410,28 +409,45 @@ void R_AddMD3Surfaces(trRefEntity_t* ent) {
 		// we will add shadows even if the main object isn't visible in the view
 
 		// stencil shadows can't do personal models unless I polyhedron clip
-		if (!personalModel
-			&& r_shadows->integer == 2
-			&& fogNum == 0
-			&& (ent->e.renderfx & RF_SHADOW_PLANE)
-			&& !(ent->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK))
-			&& shader->sort == SS_OPAQUE) {
-			R_AddDrawSurf((surfaceType_t*)surface, tr.shadowShader, 0, qfalse);
+		if (r_AdvancedsurfaceSprites->integer)
+		{
+			if (!personalModel
+				&& r_shadows->integer == 2
+				&& fogNum == 0
+				&& !(ent->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK))
+				&& shader->sort == SS_OPAQUE)
+			{
+				R_AddDrawSurf(reinterpret_cast<surfaceType_t*>(surface), tr.shadowShader, 0, qfalse);
+			}
+		}
+		else
+		{
+			if (!personalModel
+				&& r_shadows->integer == 2
+				&& fogNum == 0
+				&& (ent->e.renderfx & RF_SHADOW_PLANE)
+				&& !(ent->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK))
+				&& shader->sort == SS_OPAQUE)
+			{
+				R_AddDrawSurf(reinterpret_cast<surfaceType_t*>(surface), tr.shadowShader, 0, qfalse);
+			}
 		}
 
 		// projection shadows work fine with personal models
 		if (r_shadows->integer == 3
 			&& fogNum == 0
-			&& (ent->e.renderfx & RF_SHADOW_PLANE)
-			&& shader->sort == SS_OPAQUE) {
-			R_AddDrawSurf((surfaceType_t*)surface, tr.projectionShadowShader, 0, qfalse);
+			&& ent->e.renderfx & RF_SHADOW_PLANE
+			&& shader->sort == SS_OPAQUE)
+		{
+			R_AddDrawSurf(reinterpret_cast<surfaceType_t*>(surface), tr.projectionShadowShader, 0, qfalse);
 		}
 
 		// don't add third_person objects if not viewing through a portal
-		if (!personalModel) {
-			R_AddDrawSurf((surfaceType_t*)surface, shader, fogNum, qfalse);
+		if (!personalModel)
+		{
+			R_AddDrawSurf(reinterpret_cast<surfaceType_t*>(surface), shader, fogNum, qfalse);
 		}
 
-		surface = (md3Surface_t*)((byte*)surface + surface->ofsEnd);
+		surface = reinterpret_cast<md3Surface_t*>(reinterpret_cast<byte*>(surface) + surface->ofsEnd);
 	}
 }
