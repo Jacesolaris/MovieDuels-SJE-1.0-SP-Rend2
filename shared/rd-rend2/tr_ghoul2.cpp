@@ -2365,7 +2365,7 @@ void G2_ProcessGeneratedSurfaceBolts(CGhoul2Info& ghoul2, mdxaBone_v& bonePtr, m
 }
 #endif
 
-void RenderSurfaces(CRenderSurface& RS, const trRefEntity_t* ent, int entity_num)
+void RenderSurfaces(CRenderSurface& RS, const trRefEntity_t* ent, int entityNum)
 {
 #ifdef G2_PERFORMANCE_ANALYSIS
 	G2PerformanceTimer_RenderSurfaces.Start();
@@ -2456,7 +2456,7 @@ void RenderSurfaces(CRenderSurface& RS, const trRefEntity_t* ent, int entity_num
 
 			R_AddDrawSurf(
 				(surfaceType_t*)newSurf,
-				entity_num,
+				entityNum,
 				(shader_t*)shader,
 				RS.fogNum,
 				qfalse,
@@ -2543,7 +2543,7 @@ void RenderSurfaces(CRenderSurface& RS, const trRefEntity_t* ent, int entity_num
 						last = newSurf2;
 						R_AddDrawSurf(
 							(surfaceType_t*)newSurf2,
-							entity_num,
+							entityNum,
 							gshader,
 							RS.fogNum,
 							qfalse,
@@ -2565,7 +2565,7 @@ void RenderSurfaces(CRenderSurface& RS, const trRefEntity_t* ent, int entity_num
 			assert(newSurf->vboMesh != NULL && RS.surfaceNum == surface->thisSurfaceIndex);
 			newSurf->surfaceData = surface;
 			newSurf->boneCache = RS.boneCache;
-			R_AddDrawSurf((surfaceType_t*)newSurf, entity_num, tr.projectionShadowShader, 0, qfalse, qfalse, 0);
+			R_AddDrawSurf((surfaceType_t*)newSurf, entityNum, tr.projectionShadowShader, 0, qfalse, qfalse, 0);
 		}
 	}
 
@@ -2579,7 +2579,7 @@ void RenderSurfaces(CRenderSurface& RS, const trRefEntity_t* ent, int entity_num
 	for (i = 0; i < surfInfo->numChildren; i++)
 	{
 		RS.surfaceNum = surfInfo->childIndexes[i];
-		RenderSurfaces(RS, ent, entity_num);
+		RenderSurfaces(RS, ent, entityNum);
 	}
 
 #ifdef G2_PERFORMANCE_ANALYSIS
@@ -3191,7 +3191,7 @@ R_AddGHOULSurfaces
 ==============
 */
 
-void R_AddGhoulSurfaces(trRefEntity_t* ent, int entity_num)
+void R_AddGhoulSurfaces(trRefEntity_t* ent, int entityNum)
 {
 #ifdef G2_PERFORMANCE_ANALYSIS
 	G2PerformanceTimer_R_AddGHOULSurfaces.Start();
@@ -3342,7 +3342,7 @@ void R_AddGhoulSurfaces(trRefEntity_t* ent, int entity_num)
 			RS.renderfx |= RF_NOSHADOW;
 		}
 
-		RenderSurfaces(RS, ent, entity_num);
+		RenderSurfaces(RS, ent, entityNum);
 	}
 
 	HackadelicOnClient = false;
@@ -3365,7 +3365,7 @@ bool G2_NeedsRecalc(CGhoul2Info* ghlInfo, int frameNum)
 		ghlInfo->mBoneCache->mod != ghlInfo->currentModel)
 	{
 #ifdef _G2_LISTEN_SERVER_OPT
-		if (ghlInfo->entity_num != ENTITYNUM_NONE &&
+		if (ghlInfo->entityNum != ENTITYNUM_NONE &&
 			G2API_OverrideServerWithClientData(ghlInfo))
 		{ //if we can manage this, then we don't have to reconstruct
 			return false;
@@ -3438,7 +3438,7 @@ void G2_ConstructGhoulSkeleton(
 		}
 		else
 #ifdef _G2_LISTEN_SERVER_OPT
-			if (g2Info.entity_num == ENTITYNUM_NONE || g2Info.mSkelFrameNum != frameNum)
+			if (g2Info.entityNum == ENTITYNUM_NONE || g2Info.mSkelFrameNum != frameNum)
 #endif
 			{
 				G2_TransformGhoulBones(

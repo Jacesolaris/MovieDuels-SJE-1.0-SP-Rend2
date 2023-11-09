@@ -428,7 +428,7 @@ CG_CustomSound
 
 ================
 */
-static sfxHandle_t CG_CustomSound(const int entity_num, const char* sound_name, const int custom_sound_set)
+static sfxHandle_t CG_CustomSound(const int entityNum, const char* sound_name, const int custom_sound_set)
 {
 	int i;
 
@@ -437,7 +437,7 @@ static sfxHandle_t CG_CustomSound(const int entity_num, const char* sound_name, 
 		return cgi_S_RegisterSound(sound_name);
 	}
 
-	if (!g_entities[entity_num].client)
+	if (!g_entities[entityNum].client)
 	{
 		// No client, this should never happen, so just don't
 #ifndef FINAL_BUILD
@@ -445,7 +445,7 @@ static sfxHandle_t CG_CustomSound(const int entity_num, const char* sound_name, 
 #endif
 		return 0;
 	}
-	const clientInfo_t* ci = &g_entities[entity_num].client->clientInfo;
+	const clientInfo_t* ci = &g_entities[entityNum].client->clientInfo;
 
 	//FIXME: if the sound you want to play could not be found, pick another from the same
 	//general grouping?  ie: if you want ff_2c and there is none, try ff_2b or ff_2a...
@@ -548,16 +548,16 @@ static sfxHandle_t CG_CustomSound(const int entity_num, const char* sound_name, 
 	return 0;
 }
 
-qboolean CG_TryPlayCustomSound(vec3_t origin, const int entity_num, const soundChannel_t channel,
+qboolean CG_TryPlayCustomSound(vec3_t origin, const int entityNum, const soundChannel_t channel,
 	const char* sound_name, const int custom_sound_set)
 {
-	const sfxHandle_t sound_index = CG_CustomSound(entity_num, sound_name, custom_sound_set);
+	const sfxHandle_t sound_index = CG_CustomSound(entityNum, sound_name, custom_sound_set);
 	if (!sound_index)
 	{
 		return qfalse;
 	}
 
-	cgi_S_StartSound(origin, entity_num, channel, sound_index);
+	cgi_S_StartSound(origin, entityNum, channel, sound_index);
 	return qtrue;
 }
 
@@ -13404,7 +13404,7 @@ static void CG_AddSaberBladeGo(centity_t* cent, centity_t* scent, const int rend
 								saber[saber_num].saberFlags2 & SFL2_NO_WALL_MARKS2))
 						{
 							if (!(trace.surfaceFlags & SURF_NOIMPACT) // never spark on sky
-								&& (trace.entity_num == ENTITYNUM_WORLD || cg_entities[trace.entity_num].currentState.
+								&& (trace.entityNum == ENTITYNUM_WORLD || cg_entities[trace.entityNum].currentState.
 									solid == SOLID_BMODEL)
 								&& Q_irand(1, client->ps.saber[saber_num].numBlades) == 1)
 							{
@@ -13416,8 +13416,8 @@ static void CG_AddSaberBladeGo(centity_t* cent, centity_t* scent, const int rend
 						//....come up with something better..
 						if (client->ps.saber[saber_num].blade[blade_num].trail.haveOldPos[i])
 						{
-							if (trace.entity_num == ENTITYNUM_WORLD || cg_entities[trace.entity_num].currentState.eFlags
-								& EF_PERMANENT || cg_entities[trace.entity_num].currentState.eType == ET_TERRAIN)
+							if (trace.entityNum == ENTITYNUM_WORLD || cg_entities[trace.entityNum].currentState.eFlags
+								& EF_PERMANENT || cg_entities[trace.entityNum].currentState.eType == ET_TERRAIN)
 							{
 								//only put marks on architecture
 								if (!WP_SaberBladeUseSecondBladeStyle(&client->ps.saber[saber_num], blade_num) && !(
@@ -13469,7 +13469,7 @@ static void CG_AddSaberBladeGo(centity_t* cent, centity_t* scent, const int rend
 							else if (!i)
 							{
 								//can put marks on G2 clients (but only on base to tip trace)
-								gentity_t* hit_ent = &g_entities[trace.entity_num];
+								gentity_t* hit_ent = &g_entities[trace.entityNum];
 								vec3_t uaxis, splash_back_dir;
 								VectorSubtract(client->ps.saber[saber_num].blade[blade_num].trail.oldPos[i],
 									trace.endpos, uaxis);

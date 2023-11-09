@@ -1195,7 +1195,7 @@ void R_LoadLightGridArray(lump_t* l, world_t& worldData) {
 			ri.Printf(PRINT_WARNING, "WARNING: light grid array mismatch\n");
 		w->lightGridData = NULL;
 		return;
-}
+	}
 
 	w->lightGridArray = (unsigned short*)R_Hunk_Alloc(l->filelen, qfalse);
 	memcpy(w->lightGridArray, (void*)(fileBase + l->fileofs), l->filelen);

@@ -1122,14 +1122,14 @@ void CFxScheduler::PlayEffect(const int id, vec3_t origin, vec3_t axis[3], const
 	}
 
 	int model_num = 0, bolt_num = -1;
-	int entity_num = ent_num;
+	int entityNum = ent_num;
 
 	if (bolt_info > 0)
 	{
 		// extract the wraith ID from the bolt info
 		model_num = bolt_info >> MODEL_SHIFT & MODEL_AND;
 		bolt_num = bolt_info >> BOLT_SHIFT & BOLT_AND;
-		entity_num = bolt_info >> ENTITY_SHIFT & ENTITY_AND;
+		entityNum = bolt_info >> ENTITY_SHIFT & ENTITY_AND;
 
 		// We always force ghoul bolted objects to be scheduled so that they don't play right away.
 		forceScheduling = true;
@@ -1210,7 +1210,7 @@ void CFxScheduler::PlayEffect(const int id, vec3_t origin, vec3_t axis[3], const
 				sfx->mpTemplate = prim;
 				sfx->mClientID = -1;
 				sfx->mIsRelative = is_relative;
-				sfx->mEntNum = entity_num; //ent if bolted, else -1 for none, or -2 for _Immersion client 0
+				sfx->mEntNum = entityNum; //ent if bolted, else -1 for none, or -2 for _Immersion client 0
 
 				sfx->mPortalEffect = isPortal;
 
@@ -1799,10 +1799,10 @@ void CFxScheduler::CreateEffect(CPrimitiveTemplate* fx, const vec3_t origin, vec
 
 			theFxHelper.G2Trace(&trace, org, nullptr, nullptr, end, ENTITYNUM_NONE, MASK_PLAYERSOLID);
 
-			if (trace.entity_num < ENTITYNUM_WORLD &&
-				g_entities[trace.entity_num].ghoul2.size())
+			if (trace.entityNum < ENTITYNUM_WORLD &&
+				g_entities[trace.entityNum].ghoul2.size())
 			{
-				gentity_t* ent = &g_entities[trace.entity_num];
+				gentity_t* ent = &g_entities[trace.entityNum];
 
 				if (ent != nullptr)
 				{
@@ -1843,7 +1843,7 @@ void CFxScheduler::CreateEffect(CPrimitiveTemplate* fx, const vec3_t origin, vec
 
 						CG_AddGhoul2Mark(fx->mMediaHandles.GetHandle(), fx->mSizeStart.GetVal(), trace.endpos,
 							trace.plane.normal,
-							trace.entity_num, ent_org, ent_yaw,
+							trace.entityNum, ent_org, ent_yaw,
 							ent->ghoul2, ent->s.modelScale, Q_irand(40000, 60000), first_model);
 					}
 				}

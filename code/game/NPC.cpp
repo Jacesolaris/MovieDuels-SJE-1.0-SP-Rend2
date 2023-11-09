@@ -91,7 +91,7 @@ static bState_t G_CurrentBState(gNPC_t* g_npc);
 
 extern int eventClearTime;
 
-extern qboolean G_EntIsBreakable(int entity_num, const gentity_t* breaker);
+extern qboolean G_EntIsBreakable(int entityNum, const gentity_t* breaker);
 
 qboolean NPC_EntityIsBreakable(const gentity_t* ent)
 {
