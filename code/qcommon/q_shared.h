@@ -155,14 +155,14 @@ using thandle_t = int32_t;
 using fxHandle_t = int32_t;
 using sfxHandle_t = int32_t;
 using fileHandle_t = int32_t;
-using clip_handle_t = int32_t;
+using clipHandle_t = int32_t;
 
 #define NULL_HANDLE ((qhandle_t)0)
 #define NULL_SOUND ((sfxHandle_t)0)
 #define NULL_FX ((fxHandle_t)0)
 #define NULL_SFX ((sfxHandle_t)0)
 #define NULL_FILE ((fileHandle_t)0)
-#define NULL_CLIP ((clip_handle_t)0)
+#define NULL_CLIP ((clipHandle_t)0)
 
 #define PAD(base, alignment)	(((base)+(alignment)-1) & ~((alignment)-1))
 #define PADLEN(base, alignment)	(PAD((base), (alignment)) - (base))
@@ -2999,7 +2999,7 @@ using entityState_t = struct entityState_s
 	vec3_t modelScale; // used to scale models in any axis
 	int radius;
 	// used for culling all the ghoul models attached to this ent NOTE - this is automatically scaled by Ghoul2 if/when you scale the model. This is a 100% size value
-	int bolt_info;
+	int boltInfo;
 	// info used for bolting entities to Ghoul2 models - NOT used for bolting ghoul2 models to themselves, more for stuff like bolting effects to ghoul2 models
 	/*
 	Ghoul2 Insert End
@@ -3132,7 +3132,7 @@ using entityState_t = struct entityState_s
 
 		saved_game.write<float>(modelScale);
 		saved_game.write<int32_t>(radius);
-		saved_game.write<int32_t>(bolt_info);
+		saved_game.write<int32_t>(boltInfo);
 
 #ifndef JK2_MODE
 		saved_game.write<int32_t>(isPortalEnt);
@@ -3251,7 +3251,7 @@ using entityState_t = struct entityState_s
 
 		saved_game.read<float>(modelScale);
 		saved_game.read<int32_t>(radius);
-		saved_game.read<int32_t>(bolt_info);
+		saved_game.read<int32_t>(boltInfo);
 
 #ifndef JK2_MODE
 		saved_game.read<int32_t>(isPortalEnt);
@@ -3397,7 +3397,7 @@ using sharedRagDollUpdateParams_t = struct
 //rww - update parms for ik bone stuff
 using sharedIKMoveParams_t = struct
 {
-	char bone_name[512]; //name of bone
+	char boneName[512]; //name of bone
 	vec3_t desiredOrigin; //world coordinate that this bone should be attempting to reach
 	vec3_t origin; //world coordinate of the entity who owns the g2 instance that owns the bone
 	float movementSpeed; //how fast the bone should move toward the destination
@@ -3413,8 +3413,8 @@ using sharedSetBoneIKStateParams_t = struct
 	float radius; //bone rad
 	int blend_time; //bone blend time
 	int pcjOverrides; //override ik bone flags
-	int start_frame; //base pose start
-	int end_frame; //base pose end
+	int startFrame; //base pose start
+	int endFrame; //base pose end
 };
 
 enum sharedEIKMoveState

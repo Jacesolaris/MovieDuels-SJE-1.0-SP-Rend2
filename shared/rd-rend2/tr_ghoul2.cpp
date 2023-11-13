@@ -1142,13 +1142,13 @@ void G2_CreateMatrixFromQuaterion(mdxaBone_t* mat, vec4_t quat)
 	mat->matrix[0][3] = mat->matrix[1][3] = mat->matrix[2][3] = 0;
 }
 
-static int G2_GetBonePoolIndex(const mdxaHeader_t* p_mdxa_header, const int i_frame, const int i_bone)
+static int G2_GetBonePoolIndex(const mdxaHeader_t* pMDXAHeader, const int i_frame, const int iBone)
 {
-	assert(i_frame >= 0 && i_frame < p_mdxa_header->numFrames);
-	assert(i_bone >= 0 && i_bone < p_mdxa_header->numBones);
+	assert(i_frame >= 0 && i_frame < pMDXAHeader->numFrames);
+	assert(iBone >= 0 && iBone < pMDXAHeader->numBones);
 
-	const int iOffsetToIndex = i_frame * p_mdxa_header->numBones * 3 + i_bone * 3;
-	const mdxaIndex_t* pIndex = reinterpret_cast<mdxaIndex_t*>((byte*)p_mdxa_header + p_mdxa_header->ofsFrames + iOffsetToIndex);
+	const int iOffsetToIndex = i_frame * pMDXAHeader->numBones * 3 + iBone * 3;
+	const mdxaIndex_t* pIndex = reinterpret_cast<mdxaIndex_t*>((byte*)pMDXAHeader + pMDXAHeader->ofsFrames + iOffsetToIndex);
 
 	return (pIndex->iIndex[2] << 16) + (pIndex->iIndex[1] << 8) + pIndex->iIndex[0];
 }
@@ -1156,14 +1156,14 @@ static int G2_GetBonePoolIndex(const mdxaHeader_t* p_mdxa_header, const int i_fr
 /*static inline*/ void UnCompressBone(
 	float mat[3][4],
 	int iBoneIndex,
-	const mdxaHeader_t* p_mdxa_header,
+	const mdxaHeader_t* pMDXAHeader,
 	int i_frame)
 {
 	mdxaCompQuatBone_t* pCompBonePool =
-		(mdxaCompQuatBone_t*)((byte*)p_mdxa_header + p_mdxa_header->ofsCompBonePool);
+		(mdxaCompQuatBone_t*)((byte*)pMDXAHeader + pMDXAHeader->ofsCompBonePool);
 	MC_UnCompressQuat(
 		mat,
-		pCompBonePool[G2_GetBonePoolIndex(p_mdxa_header, i_frame, iBoneIndex)].Comp);
+		pCompBonePool[G2_GetBonePoolIndex(pMDXAHeader, i_frame, iBoneIndex)].Comp);
 }
 
 #define DEBUG_G2_TIMING (0)
@@ -1177,10 +1177,10 @@ void G2_TimingModel(
 	int& newFrame,
 	float& lerp)
 {
-	assert(bone.start_frame >= 0);
-	assert(bone.start_frame <= numFramesInFile);
-	assert(bone.end_frame >= 0);
-	assert(bone.end_frame <= numFramesInFile);
+	assert(bone.startFrame >= 0);
+	assert(bone.startFrame <= numFramesInFile);
+	assert(bone.endFrame >= 0);
+	assert(bone.endFrame <= numFramesInFile);
 
 	// yes - add in animation speed to current frame
 	const float anim_speed = bone.anim_speed;
@@ -1195,17 +1195,17 @@ void G2_TimingModel(
 	}
 
 	time = Q_max(0.0f, time);
-	float newLerpFrame = bone.start_frame + (time * anim_speed);
+	float newLerpFrame = bone.startFrame + (time * anim_speed);
 
-	const int numFramesInAnim = bone.end_frame - bone.start_frame;
-	const float end_frame = (float)bone.end_frame;
+	const int numFramesInAnim = bone.endFrame - bone.startFrame;
+	const float endFrame = (float)bone.endFrame;
 
 	// we are supposed to be animating right?
 	if (numFramesInAnim != 0)
 	{
 		// did we run off the end?
-		if ((anim_speed > 0.0f && newLerpFrame > (end_frame - 1)) ||
-			(anim_speed < 0.0f && newLerpFrame < (end_frame + 1)))
+		if ((anim_speed > 0.0f && newLerpFrame > (endFrame - 1)) ||
+			(anim_speed < 0.0f && newLerpFrame < (endFrame + 1)))
 		{
 			// yep - decide what to do
 			if (bone.flags & BONE_ANIM_OVERRIDE_LOOP)
@@ -1217,23 +1217,23 @@ void G2_TimingModel(
 					// if we do, let me know, I need to insure the mod works
 
 					// should we be creating a virtual frame?
-					if ((newLerpFrame < (end_frame + 1)) && (newLerpFrame >= end_frame))
+					if ((newLerpFrame < (endFrame + 1)) && (newLerpFrame >= endFrame))
 					{
 						// now figure out what we are lerping between delta is
 						// the fraction between this frame and the next, since
 						// the new anim is always at a .0f;
-						lerp = end_frame + 1 - newLerpFrame;
+						lerp = endFrame + 1 - newLerpFrame;
 
 						// frames are easy to calculate
-						current_frame = end_frame;
-						newFrame = bone.start_frame;
+						current_frame = endFrame;
+						newFrame = bone.startFrame;
 					}
 					else
 					{
-						if (newLerpFrame <= (end_frame + 1))
+						if (newLerpFrame <= (endFrame + 1))
 						{
 							newLerpFrame =
-								end_frame + fmod(newLerpFrame - end_frame, numFramesInAnim) -
+								endFrame + fmod(newLerpFrame - endFrame, numFramesInAnim) -
 								numFramesInAnim;
 						}
 
@@ -1246,9 +1246,9 @@ void G2_TimingModel(
 						current_frame = ceil(newLerpFrame);
 
 						// should we be creating a virtual frame?
-						if (current_frame <= (end_frame + 1))
+						if (current_frame <= (endFrame + 1))
 						{
-							newFrame = bone.start_frame;
+							newFrame = bone.startFrame;
 						}
 						else
 						{
@@ -1259,7 +1259,7 @@ void G2_TimingModel(
 				else
 				{
 					// should we be creating a virtual frame?
-					if ((newLerpFrame > (end_frame - 1)) && (newLerpFrame < end_frame))
+					if ((newLerpFrame > (endFrame - 1)) && (newLerpFrame < endFrame))
 					{
 						// now figure out what we are lerping between delta is
 						// the fraction between this frame and the next, since
@@ -1268,14 +1268,14 @@ void G2_TimingModel(
 
 						// frames are easy to calculate
 						current_frame = (int)newLerpFrame;
-						newFrame = bone.start_frame;
+						newFrame = bone.startFrame;
 					}
 					else
 					{
-						if (newLerpFrame >= end_frame)
+						if (newLerpFrame >= endFrame)
 						{
 							newLerpFrame =
-								end_frame + fmod(newLerpFrame - end_frame, numFramesInAnim) -
+								endFrame + fmod(newLerpFrame - endFrame, numFramesInAnim) -
 								numFramesInAnim;
 						}
 
@@ -1288,9 +1288,9 @@ void G2_TimingModel(
 						current_frame = (int)newLerpFrame;
 
 						// should we be creating a virtual frame?
-						if (newLerpFrame >= (end_frame - 1))
+						if (newLerpFrame >= (endFrame - 1))
 						{
-							newFrame = bone.start_frame;
+							newFrame = bone.startFrame;
 						}
 						else
 						{
@@ -1306,11 +1306,11 @@ void G2_TimingModel(
 					// if we are supposed to reset the default anim, then do so
 					if (anim_speed > 0.0f)
 					{
-						current_frame = bone.end_frame - 1;
+						current_frame = bone.endFrame - 1;
 					}
 					else
 					{
-						current_frame = bone.end_frame + 1;
+						current_frame = bone.endFrame + 1;
 					}
 
 					newFrame = current_frame;
@@ -1339,20 +1339,20 @@ void G2_TimingModel(
 				newFrame = current_frame + 1;
 
 				// are we now on the end frame?
-				assert((int)end_frame <= numFramesInFile);
-				if (newFrame >= (int)end_frame)
+				assert((int)endFrame <= numFramesInFile);
+				if (newFrame >= (int)endFrame)
 				{
 					// we only want to lerp with the first frame of the anim if
 					// we are looping
 					if (bone.flags & BONE_ANIM_OVERRIDE_LOOP)
 					{
-						newFrame = bone.start_frame;
+						newFrame = bone.startFrame;
 					}
 					else
 					{
 						// if we intend to end this anim or freeze after this, then
 						// just keep on the last frame
-						newFrame = bone.end_frame - 1;
+						newFrame = bone.endFrame - 1;
 					}
 				}
 			}
@@ -1362,9 +1362,9 @@ void G2_TimingModel(
 
 				// frames are easy to calculate
 				current_frame = ceil(newLerpFrame);
-				if (current_frame > bone.start_frame)
+				if (current_frame > bone.startFrame)
 				{
-					current_frame = bone.start_frame;
+					current_frame = bone.startFrame;
 					newFrame = current_frame;
 					lerp = 0.0f;
 				}
@@ -1373,19 +1373,19 @@ void G2_TimingModel(
 					newFrame = current_frame - 1;
 
 					// are we now on the end frame?
-					if (newFrame < end_frame + 1)
+					if (newFrame < endFrame + 1)
 					{
 						// we only want to lerp with the first frame of the
 						// anim if we are looping
 						if (bone.flags & BONE_ANIM_OVERRIDE_LOOP)
 						{
-							newFrame = bone.start_frame;
+							newFrame = bone.startFrame;
 						}
 						// if we intend to end this anim or freeze after this,
 						// then just keep on the last frame
 						else
 						{
-							newFrame = bone.end_frame + 1;
+							newFrame = bone.endFrame + 1;
 						}
 					}
 				}
@@ -1396,11 +1396,11 @@ void G2_TimingModel(
 	{
 		if (anim_speed < 0.0)
 		{
-			current_frame = bone.end_frame + 1;
+			current_frame = bone.endFrame + 1;
 		}
 		else
 		{
-			current_frame = bone.end_frame - 1;
+			current_frame = bone.endFrame - 1;
 		}
 
 		current_frame = Q_max(0, current_frame);
@@ -1420,8 +1420,8 @@ void G2_RagPrintMatrix(mdxaBone_t* mat);
 // basically construct a seperate skeleton with full hierarchy to store a matrix
 // off which will give us the desired settling position given the frame in the skeleton
 // that should be used -rww
-int G2_Add_Bone(const model_t* mod, boneInfo_v& blist, const char* bone_name);
-int G2_Find_Bone(const model_t* mod, boneInfo_v& blist, const char* bone_name);
+int G2_Add_Bone(const model_t* mod, boneInfo_v& blist, const char* boneName);
+int G2_Find_Bone(const model_t* mod, boneInfo_v& blist, const char* boneName);
 
 void G2_RagGetAnimMatrix(
 	CGhoul2Info& ghoul2,
@@ -1690,8 +1690,8 @@ static void G2_TransformBone(int child, CBoneCache& BC)
 				boneListIndex,
 				BC.incomingTime,
 				bone.startTime,
-				bone.start_frame,
-				bone.end_frame,
+				bone.startFrame,
+				bone.endFrame,
 				bone.anim_speed,
 				bone.flags,
 				bone.blendStart,
@@ -1705,8 +1705,8 @@ static void G2_TransformBone(int child, CBoneCache& BC)
 				boneListIndex,
 				BC.incomingTime,
 				bone.startTime,
-				bone.start_frame,
-				bone.end_frame,
+				bone.startFrame,
+				bone.endFrame,
 				bone.anim_speed,
 				bone.flags);
 		}
@@ -4150,8 +4150,6 @@ qboolean R_LoadMDXM(model_t* mod, void* buffer, const char* mod_name, qboolean& 
 	mod->data.glm = (mdxmData_t*)Hunk_Alloc(sizeof(mdxmData_t), h_low);
 	mod->data.glm->header = mdxm;
 
-	//RE_RegisterModels_Malloc(size, buffer, mod_name, &bAlreadyFound, TAG_MODEL_GLM);
-
 	assert(bAlreadyCached == bAlreadyFound);
 
 	if (!bAlreadyFound)
@@ -4452,6 +4450,8 @@ qboolean R_LoadMDXM(model_t* mod, void* buffer, const char* mod_name, qboolean& 
 				tangentsf + baseVertexes[n],
 				surf_indices
 			);
+
+			Hunk_FreeTempMemory(surf_indices);
 
 			surf = (mdxmSurface_t*)((byte*)surf + surf->ofsEnd);
 		}

@@ -109,7 +109,7 @@ int G2_Add_Bolt_Surf_Num(const CGhoul2Info* ghlInfo, boltInfo_v& bltlist, const 
 	return bltlist.size() - 1;
 }
 
-int G2_Add_Bolt(const CGhoul2Info* ghlInfo, boltInfo_v& bltlist, const surfaceInfo_v& slist, const char* bone_name)
+int G2_Add_Bolt(const CGhoul2Info* ghlInfo, boltInfo_v& bltlist, const surfaceInfo_v& slist, const char* boneName)
 {
 	assert(ghlInfo && ghlInfo->mValid);
 	model_t* mod_m = (model_t*)ghlInfo->currentModel;
@@ -121,7 +121,7 @@ int G2_Add_Bolt(const CGhoul2Info* ghlInfo, boltInfo_v& bltlist, const surfaceIn
 	uint32_t flags;
 
 	// first up, we'll search for that which this bolt names in all the surfaces
-	surf_num = G2_IsSurfaceLegal(mod_m, bone_name, &flags);
+	surf_num = G2_IsSurfaceLegal(mod_m, boneName, &flags);
 
 	// did we find it as a surface?
 	if (surf_num != -1)
@@ -171,7 +171,7 @@ int G2_Add_Bolt(const CGhoul2Info* ghlInfo, boltInfo_v& bltlist, const surfaceIn
 	{
 		skel = (mdxaSkel_t*)((byte*)mdxa + sizeof(mdxaHeader_t) + offsets->offsets[x]);
 		// if name is the same, we found it
-		if (!Q_stricmp(skel->name, bone_name))
+		if (!Q_stricmp(skel->name, boneName))
 		{
 			break;
 		}
@@ -183,7 +183,7 @@ int G2_Add_Bolt(const CGhoul2Info* ghlInfo, boltInfo_v& bltlist, const surfaceIn
 		// didn't find it? Error
 		//assert(0&&x == mod_a->mdxa->numBones);
 #ifdef _DEBUG
-//		Com_Printf("WARNING: %s not found on skeleton\n", bone_name);
+//		Com_Printf("WARNING: %s not found on skeleton\n", boneName);
 #endif
 		return -1;
 	}

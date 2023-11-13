@@ -35,6 +35,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ////////////////////////////////////////////////////////////////////////////////////////
 extern void			SetViewportAndScissor();
 
+extern	cvar_t* g_Weather;
+
 ////////////////////////////////////////////////////////////////////////////////////////
 // Includes
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -1531,7 +1533,7 @@ void RB_RenderWorldEffects()
 
 	SetViewportAndScissor();
 	qglMatrixMode(GL_MODELVIEW);
-	qglLoadMatrixf(backEnd.viewParms.world.modelMatrix);
+	qglLoadMatrixf(backEnd.viewParms.world.model_matrix);
 
 	// Calculate Elapsed Time For Scale Purposes
 	//-------------------------------------------

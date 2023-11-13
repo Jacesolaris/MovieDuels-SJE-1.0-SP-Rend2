@@ -2261,15 +2261,15 @@ void C_LevelLoadEnd(void)
 }
 
 extern void RE_GetModelBounds(const refEntity_t* refEnt, vec3_t bounds1, vec3_t bounds2);
-extern void G2API_AnimateG2ModelsRag(CGhoul2Info_v& ghoul2, int acurrent_time, CRagDollUpdateParams* params);
-extern qboolean G2API_GetRagBonePos(CGhoul2Info_v& ghoul2, const char* bone_name, vec3_t pos, vec3_t ent_angles, vec3_t ent_pos, vec3_t ent_scale);
-extern qboolean G2API_RagEffectorKick(CGhoul2Info_v& ghoul2, const char* bone_name, vec3_t velocity);
+extern void G2API_AnimateG2ModelsRag(CGhoul2Info_v& ghoul2, const int acurrent_time, CRagDollUpdateParams* params);
+extern qboolean G2API_GetRagBonePos(CGhoul2Info_v& ghoul2, const char* boneName, vec3_t pos, vec3_t entAngles, vec3_t ent_pos, vec3_t entScale);
+extern qboolean G2API_RagEffectorKick(CGhoul2Info_v& ghoul2, const char* boneName, vec3_t velocity);
 extern qboolean G2API_RagForceSolve(CGhoul2Info_v& ghoul2, const qboolean force);
-extern qboolean G2API_SetBoneIKState(CGhoul2Info_v& ghoul2, int time, const char* bone_name, int ikState, sharedSetBoneIKStateParams_t* params);
+extern qboolean G2API_SetBoneIKState(CGhoul2Info_v& ghoul2, int time, const char* boneName, int ikState, sharedSetBoneIKStateParams_t* params);
 extern qboolean G2API_IKMove(CGhoul2Info_v& ghoul2, int time, sharedIKMoveParams_t* params);
-extern qboolean G2API_RagEffectorGoal(CGhoul2Info_v& ghoul2, const char* bone_name, vec3_t pos);
-extern qboolean G2API_RagPCJGradientSpeed(CGhoul2Info_v& ghoul2, const char* bone_name, const float speed);
-extern qboolean G2API_RagPCJConstraint(CGhoul2Info_v& ghoul2, const char* bone_name, vec3_t min, vec3_t max);
+extern qboolean G2API_RagEffectorGoal(CGhoul2Info_v& ghoul2, const char* boneName, vec3_t pos);
+extern qboolean G2API_RagPCJGradientSpeed(CGhoul2Info_v& ghoul2, const char* boneName, const float speed);
+extern qboolean G2API_RagPCJConstraint(CGhoul2Info_v& ghoul2, const char* boneName, vec3_t min, vec3_t max);
 extern void G2API_SetRagDoll(CGhoul2Info_v& ghoul2, CRagDollParams* parms);
 #ifdef G2_PERFORMANCE_ANALYSIS
 extern void G2Time_ResetTimers(void);
@@ -2284,11 +2284,11 @@ unsigned int AnyLanguage_ReadCharFromString_JK2(char** text, qboolean* pbIsTrail
 
 /*
 @@@@@@@@@@@@@@@@@@@@@
-get_ref_api
+GetRefAPI
 
 @@@@@@@@@@@@@@@@@@@@@
 */
-extern "C" Q_EXPORT refexport_t * QDECL get_ref_api(const int api_version, const refimport_t * refimp)
+extern "C" Q_EXPORT refexport_t * QDECL GetRefAPI(const int api_version, const refimport_t * refimp)
 {
 	static refexport_t	re;
 

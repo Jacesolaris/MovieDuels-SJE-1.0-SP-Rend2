@@ -261,7 +261,7 @@ void G_VehicleSpawn(gentity_t* self)
 	if (vehEnt->spawnflags & 1)
 	{
 		//die without pilot
-		vehEnt->m_pVehicle->m_iPilotTime = level.time + vehEnt->end_frame;
+		vehEnt->m_pVehicle->m_iPilotTime = level.time + vehEnt->endFrame;
 	}
 #endif
 	//return vehEnt;
@@ -1806,7 +1806,7 @@ static bool Update(Vehicle_t* p_veh, const usercmd_t* pUmcd)
 			if (!player || G_ClearLineOfSight(p_veh->m_pParentEntity->currentOrigin, player->currentOrigin,
 				p_veh->m_pParentEntity->s.number, MASK_OPAQUE))
 			{
-				p_veh->m_iPilotTime = level.time + p_veh->m_pParentEntity->end_frame;
+				p_veh->m_iPilotTime = level.time + p_veh->m_pParentEntity->endFrame;
 			}
 		}
 		if (p_veh->m_iPilotTime && p_veh->m_iPilotTime < level.time)

@@ -982,10 +982,10 @@ void CG_PlayEffectBolted(const char* fx_name, const int model_index, const int b
 {
 	vec3_t axis[3];
 	//FIXME: shouldn't this be initialized to something?  It isn't in the EV_PLAY_EFFECT call... irrelevant?
-	int bolt_info;
+	int boltInfo;
 
-	//pack the data into bolt_info as if we were going to send it over the network
-	gi.G2API_AttachEnt(&bolt_info,
+	//pack the data into boltInfo as if we were going to send it over the network
+	gi.G2API_AttachEnt(&boltInfo,
 		&g_entities[ent_num].ghoul2[model_index],
 		bolt_index,
 		ent_num,
@@ -994,7 +994,7 @@ void CG_PlayEffectBolted(const char* fx_name, const int model_index, const int b
 	theFxScheduler.PlayEffect(fx_name,
 		origin,
 		axis,
-		bolt_info,
+		boltInfo,
 		-1,
 		false,
 		i_loop_time,

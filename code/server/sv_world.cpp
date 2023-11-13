@@ -60,7 +60,7 @@ given entity.  If the entity is a bsp model, the headnode will
 be returned, otherwise a custom box tree will be constructed.
 ================
 */
-clip_handle_t SV_ClipHandleForEntity(const gentity_t* ent)
+clipHandle_t SV_ClipHandleForEntity(const gentity_t* ent)
 {
 	if (ent->bmodel)
 	{
@@ -159,7 +159,7 @@ void SV_ClearWorld()
 	sv_numworldSectors = 0;
 
 	// get world map bounds
-	const clip_handle_t h = CM_InlineModel(0);
+	const clipHandle_t h = CM_InlineModel(0);
 	CM_ModelBounds(h, mins, maxs);
 	SV_CreateworldSector(0, mins, maxs);
 }
@@ -670,7 +670,7 @@ void SV_ClipMoveToEntities(moveclip_t* clip)
 		}
 
 		// might intersect, so do an exact clip
-		clip_handle_t clipHandle = SV_ClipHandleForEntity(touch);
+		clipHandle_t clipHandle = SV_ClipHandleForEntity(touch);
 
 		const float* origin = touch->currentOrigin;
 		const float* angles = touch->currentAngles;
@@ -1011,7 +1011,7 @@ int SV_PointContents(const vec3_t p, const int pass_entity_num)
 			continue;
 		}
 		// might intersect, so do an exact clip
-		const clip_handle_t clipHandle = SV_ClipHandleForEntity(hit);
+		const clipHandle_t clipHandle = SV_ClipHandleForEntity(hit);
 
 		const int c2 = CM_TransformedPointContents(p, clipHandle, hit->s.origin, hit->s.angles);
 

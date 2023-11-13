@@ -141,7 +141,7 @@ sets mins and maxs for inline bmodels
 */
 void SV_SetBrushModel(gentity_t* ent, const char* name)
 {
-	clip_handle_t h;
+	clipHandle_t h;
 	vec3_t mins, maxs;
 
 	if (!name)
@@ -335,7 +335,7 @@ qboolean SV_EntityContact(const vec3_t mins, const vec3_t maxs, const gentity_t*
 	const float* origin = g_ent->currentOrigin;
 	const float* angles = g_ent->currentAngles;
 
-	const clip_handle_t ch = SV_ClipHandleForEntity(g_ent);
+	const clipHandle_t ch = SV_ClipHandleForEntity(g_ent);
 	CM_TransformedBoxTrace(&trace, vec3_origin, vec3_origin, mins, maxs,
 		ch, -1, origin, angles);
 
@@ -414,9 +414,9 @@ static void* G_ZMalloc_Helper(const int iSize, const memtag_t eTag, const qboole
 	return Z_Malloc(iSize, eTag, b_zeroit);
 }
 
-static int SV_G2API_AddBolt(CGhoul2Info* ghlInfo, const char* bone_name)
+static int SV_G2API_AddBolt(CGhoul2Info* ghlInfo, const char* boneName)
 {
-	return re.G2API_AddBolt(ghlInfo, bone_name);
+	return re.G2API_AddBolt(ghlInfo, boneName);
 }
 
 static int SV_G2API_AddBoltSurfNum(CGhoul2Info* ghlInfo, const int surf_index)
@@ -435,14 +435,14 @@ static void SV_G2API_AnimateG2Models(CGhoul2Info_v& ghoul2, const int acurrent_t
 	re.G2API_AnimateG2Models(ghoul2, acurrent_time, params);
 }
 
-static qboolean SV_G2API_AttachEnt(int* bolt_info, CGhoul2Info* ghl_info_to, const int to_bolt_index, const int ent_num, const int to_model_num)
+static qboolean SV_G2API_AttachEnt(int* boltInfo, CGhoul2Info* ghlInfoTo, const int toBoltIndex, const int ent_num, const int to_model_num)
 {
-	return re.G2API_AttachEnt(bolt_info, ghl_info_to, to_bolt_index, ent_num, to_model_num);
+	return re.G2API_AttachEnt(boltInfo, ghlInfoTo, toBoltIndex, ent_num, to_model_num);
 }
 
-static qboolean SV_G2API_AttachG2Model(CGhoul2Info* ghlInfo, CGhoul2Info* ghl_info_to, const int to_bolt_index, const int to_model)
+static qboolean SV_G2API_AttachG2Model(CGhoul2Info* ghlInfo, CGhoul2Info* ghlInfoTo, const int toBoltIndex, const int to_model)
 {
-	return re.G2API_AttachG2Model(ghlInfo, ghl_info_to, to_bolt_index, to_model);
+	return re.G2API_AttachG2Model(ghlInfo, ghlInfoTo, toBoltIndex, to_model);
 }
 
 static void SV_G2API_CleanGhoul2Models(CGhoul2Info_v& ghoul2)
@@ -464,9 +464,9 @@ static void SV_G2API_CopyGhoul2Instance(const CGhoul2Info_v& ghoul2_from, CGhoul
 	re.G2API_CopyGhoul2Instance(ghoul2_from, ghoul2_to, model_index);
 }
 
-static void SV_G2API_DetachEnt(int* bolt_info)
+static void SV_G2API_DetachEnt(int* boltInfo)
 {
-	re.G2API_DetachEnt(bolt_info);
+	re.G2API_DetachEnt(boltInfo);
 }
 
 static qboolean SV_G2API_DetachG2Model(CGhoul2Info* ghlInfo)
@@ -494,35 +494,35 @@ static int SV_G2API_GetAnimIndex(const CGhoul2Info* ghlInfo)
 	return re.G2API_GetAnimIndex(ghlInfo);
 }
 
-static qboolean SV_G2API_GetAnimRange(CGhoul2Info* ghlInfo, const char* bone_name, int* start_frame, int* end_frame)
+static qboolean SV_G2API_GetAnimRange(CGhoul2Info* ghlInfo, const char* boneName, int* startFrame, int* endFrame)
 {
-	return re.G2API_GetAnimRange(ghlInfo, bone_name, start_frame, end_frame);
+	return re.G2API_GetAnimRange(ghlInfo, boneName, startFrame, endFrame);
 }
 
-static qboolean SV_G2API_GetAnimRangeIndex(CGhoul2Info* ghlInfo, const int bone_index, int* start_frame, int* end_frame)
+static qboolean SV_G2API_GetAnimRangeIndex(CGhoul2Info* ghlInfo, const int bone_index, int* startFrame, int* endFrame)
 {
-	return re.G2API_GetAnimRangeIndex(ghlInfo, bone_index, start_frame, end_frame);
+	return re.G2API_GetAnimRangeIndex(ghlInfo, bone_index, startFrame, endFrame);
 }
 
 static qboolean SV_G2API_GetBoneAnim(
-	CGhoul2Info* ghlInfo, const char* bone_name, const int acurrent_time,
-	float* current_frame, int* start_frame, int* end_frame, int* flags, float* anim_speed, int* model_list)
+	CGhoul2Info* ghlInfo, const char* boneName, const int acurrent_time,
+	float* current_frame, int* startFrame, int* endFrame, int* flags, float* anim_speed, int* model_list)
 {
-	return re.G2API_GetBoneAnim(ghlInfo, bone_name, acurrent_time, current_frame,
-		start_frame, end_frame, flags, anim_speed, model_list);
+	return re.G2API_GetBoneAnim(ghlInfo, boneName, acurrent_time, current_frame,
+		startFrame, endFrame, flags, anim_speed, model_list);
 }
 
 static qboolean SV_G2API_GetBoneAnimIndex(CGhoul2Info* ghlInfo, const int i_bone_index, const int acurrent_time,
-	float* current_frame, int* start_frame, int* end_frame, int* flags,
+	float* current_frame, int* startFrame, int* endFrame, int* flags,
 	float* anim_speed, int* model_list)
 {
 	return re.G2API_GetBoneAnimIndex(ghlInfo, i_bone_index, acurrent_time, current_frame,
-		start_frame, end_frame, flags, anim_speed, model_list);
+		startFrame, endFrame, flags, anim_speed, model_list);
 }
 
-static int SV_G2API_GetBoneIndex(CGhoul2Info* ghlInfo, const char* bone_name, const qboolean b_add_if_not_found)
+static int SV_G2API_GetBoneIndex(CGhoul2Info* ghlInfo, const char* boneName, const qboolean b_add_if_not_found)
 {
-	return re.G2API_GetBoneIndex(ghlInfo, bone_name, b_add_if_not_found);
+	return re.G2API_GetBoneIndex(ghlInfo, boneName, b_add_if_not_found);
 }
 
 static qboolean SV_G2API_GetBoltMatrix(
@@ -549,9 +549,9 @@ static int SV_G2API_GetParentSurface(CGhoul2Info* ghlInfo, const int index)
 }
 
 static qboolean SV_G2API_GetRagBonePos(
-	CGhoul2Info_v& ghoul2, const char* bone_name, vec3_t pos, vec3_t ent_angles, vec3_t ent_pos, vec3_t ent_scale)
+	CGhoul2Info_v& ghoul2, const char* boneName, vec3_t pos, vec3_t entAngles, vec3_t ent_pos, vec3_t entScale)
 {
-	return re.G2API_GetRagBonePos(ghoul2, bone_name, pos, ent_angles, ent_pos, ent_scale);
+	return re.G2API_GetRagBonePos(ghoul2, boneName, pos, entAngles, ent_pos, entScale);
 }
 
 static int SV_G2API_GetSurfaceIndex(CGhoul2Info* ghlInfo, const char* surfaceName)
@@ -590,9 +590,9 @@ static int SV_G2API_InitGhoul2Model(CGhoul2Info_v& ghoul2, const char* fileName,
 	return re.G2API_InitGhoul2Model(ghoul2, fileName, model_index, custom_skin, customShader, model_flags, lod_bias);
 }
 
-static qboolean SV_G2API_IsPaused(CGhoul2Info* ghlInfo, const char* bone_name)
+static qboolean SV_G2API_IsPaused(CGhoul2Info* ghlInfo, const char* boneName)
 {
-	return re.G2API_IsPaused(ghlInfo, bone_name);
+	return re.G2API_IsPaused(ghlInfo, boneName);
 }
 
 static void SV_G2API_ListBones(CGhoul2Info* ghlInfo, const int frame)
@@ -615,9 +615,9 @@ static void SV_G2API_LoadSaveCodeDestructGhoul2Info(CGhoul2Info_v& ghoul2)
 	return re.G2API_LoadSaveCodeDestructGhoul2Info(ghoul2);
 }
 
-static qboolean SV_G2API_PauseBoneAnim(CGhoul2Info* ghlInfo, const char* bone_name, const int acurrent_time)
+static qboolean SV_G2API_PauseBoneAnim(CGhoul2Info* ghlInfo, const char* boneName, const int acurrent_time)
 {
-	return re.G2API_PauseBoneAnim(ghlInfo, bone_name, acurrent_time);
+	return re.G2API_PauseBoneAnim(ghlInfo, boneName, acurrent_time);
 }
 
 static qboolean SV_G2API_PauseBoneAnimIndex(CGhoul2Info* ghlInfo, const int bone_index, const int acurrent_time)
@@ -630,14 +630,14 @@ static qhandle_t SV_G2API_PrecacheGhoul2Model(const char* file_name)
 	return re.G2API_PrecacheGhoul2Model(file_name);
 }
 
-static qboolean SV_G2API_RagEffectorGoal(CGhoul2Info_v& ghoul2, const char* bone_name, vec3_t pos)
+static qboolean SV_G2API_RagEffectorGoal(CGhoul2Info_v& ghoul2, const char* boneName, vec3_t pos)
 {
-	return re.G2API_RagEffectorGoal(ghoul2, bone_name, pos);
+	return re.G2API_RagEffectorGoal(ghoul2, boneName, pos);
 }
 
-static qboolean SV_G2API_RagEffectorKick(CGhoul2Info_v& ghoul2, const char* bone_name, vec3_t velocity)
+static qboolean SV_G2API_RagEffectorKick(CGhoul2Info_v& ghoul2, const char* boneName, vec3_t velocity)
 {
-	return re.G2API_RagEffectorKick(ghoul2, bone_name, velocity);
+	return re.G2API_RagEffectorKick(ghoul2, boneName, velocity);
 }
 
 static qboolean SV_G2API_RagForceSolve(CGhoul2Info_v& ghoul2, const qboolean force)
@@ -645,14 +645,14 @@ static qboolean SV_G2API_RagForceSolve(CGhoul2Info_v& ghoul2, const qboolean for
 	return re.G2API_RagForceSolve(ghoul2, force);
 }
 
-static qboolean SV_G2API_RagPCJConstraint(CGhoul2Info_v& ghoul2, const char* bone_name, vec3_t min, vec3_t max)
+static qboolean SV_G2API_RagPCJConstraint(CGhoul2Info_v& ghoul2, const char* boneName, vec3_t min, vec3_t max)
 {
-	return re.G2API_RagPCJConstraint(ghoul2, bone_name, min, max);
+	return re.G2API_RagPCJConstraint(ghoul2, boneName, min, max);
 }
 
-static qboolean SV_G2API_RagPCJGradientSpeed(CGhoul2Info_v& ghoul2, const char* bone_name, const float speed)
+static qboolean SV_G2API_RagPCJGradientSpeed(CGhoul2Info_v& ghoul2, const char* boneName, const float speed)
 {
-	return re.G2API_RagPCJGradientSpeed(ghoul2, bone_name, speed);
+	return re.G2API_RagPCJGradientSpeed(ghoul2, boneName, speed);
 }
 
 static qboolean SV_G2API_RemoveBolt(CGhoul2Info* ghlInfo, const int index)
@@ -660,9 +660,9 @@ static qboolean SV_G2API_RemoveBolt(CGhoul2Info* ghlInfo, const int index)
 	return re.G2API_RemoveBolt(ghlInfo, index);
 }
 
-static qboolean SV_G2API_RemoveBone(CGhoul2Info* ghlInfo, const char* bone_name)
+static qboolean SV_G2API_RemoveBone(CGhoul2Info* ghlInfo, const char* boneName)
 {
-	return re.G2API_RemoveBone(ghlInfo, bone_name);
+	return re.G2API_RemoveBone(ghlInfo, boneName);
 }
 
 static qboolean SV_G2API_RemoveGhoul2Model(CGhoul2Info_v& ghlInfo, const int model_index)
@@ -685,40 +685,40 @@ static qboolean SV_G2API_SetAnimIndex(CGhoul2Info* ghlInfo, const int index)
 	return re.G2API_SetAnimIndex(ghlInfo, index);
 }
 
-static qboolean SV_G2API_SetBoneAnim(CGhoul2Info* ghlInfo, const char* bone_name, const int start_frame,
-	const int end_frame,
+static qboolean SV_G2API_SetBoneAnim(CGhoul2Info* ghlInfo, const char* boneName, const int startFrame,
+	const int endFrame,
 	const int flags, const float anim_speed, const int acurrent_time,
 	const float set_frame, const int blend_time)
 {
-	return re.G2API_SetBoneAnim(ghlInfo, bone_name, start_frame, end_frame, flags,
+	return re.G2API_SetBoneAnim(ghlInfo, boneName, startFrame, endFrame, flags,
 		anim_speed, acurrent_time, set_frame, blend_time);
 }
 
-static qboolean SV_G2API_SetBoneAnimIndex(CGhoul2Info* ghlInfo, const int index, const int start_frame,
-	const int end_frame,
+static qboolean SV_G2API_SetBoneAnimIndex(CGhoul2Info* ghlInfo, const int index, const int startFrame,
+	const int endFrame,
 	const int flags, const float anim_speed, const int acurrent_time,
 	const float setFrame, const int blend_time)
 {
-	return re.G2API_SetBoneAnimIndex(ghlInfo, index, start_frame, end_frame, flags,
+	return re.G2API_SetBoneAnimIndex(ghlInfo, index, startFrame, endFrame, flags,
 		anim_speed, acurrent_time, setFrame, blend_time);
 }
 
-static qboolean SV_G2API_SetBoneAngles(CGhoul2Info* ghlInfo, const char* bone_name, const vec3_t angles, const int flags,
+static qboolean SV_G2API_SetBoneAngles(CGhoul2Info* ghlInfo, const char* boneName, const vec3_t angles, const int flags,
 	const Eorientations up, const Eorientations left, const Eorientations forward,
 	qhandle_t* model_list,
 	const int blend_time, const int acurrent_time)
 {
-	return re.G2API_SetBoneAngles(ghlInfo, bone_name, angles, flags, up, left, forward,
+	return re.G2API_SetBoneAngles(ghlInfo, boneName, angles, flags, up, left, forward,
 		model_list, blend_time, acurrent_time);
 }
 
-static qboolean SV_G2API_SetBoneAnglesOffset(CGhoul2Info* ghlInfo, const char* bone_name, const vec3_t angles,
+static qboolean SV_G2API_SetBoneAnglesOffset(CGhoul2Info* ghlInfo, const char* boneName, const vec3_t angles,
 	const int flags,
 	const Eorientations up, const Eorientations right,
 	const Eorientations forward, qhandle_t* model_list,
 	const int blend_time, const int current_time, const vec3_t offset)
 {
-	return re.G2API_SetBoneAnglesOffset(ghlInfo, bone_name, angles, flags, up, right, forward, model_list, blend_time,
+	return re.G2API_SetBoneAnglesOffset(ghlInfo, boneName, angles, flags, up, right, forward, model_list, blend_time,
 		current_time, offset);
 }
 
@@ -731,10 +731,10 @@ static qboolean SV_G2API_SetBoneAnglesIndex(CGhoul2Info* ghlInfo, const int inde
 		model_list, blend_time, acurrent_time);
 }
 
-static qboolean SV_G2API_SetBoneAnglesMatrix(CGhoul2Info* ghlInfo, const char* bone_name, const mdxaBone_t& matrix,
+static qboolean SV_G2API_SetBoneAnglesMatrix(CGhoul2Info* ghlInfo, const char* boneName, const mdxaBone_t& matrix,
 	const int flags, qhandle_t* model_list, const int blend_time, const int acurrent_time)
 {
-	return re.G2API_SetBoneAnglesMatrix(ghlInfo, bone_name, matrix, flags, model_list, blend_time, acurrent_time);
+	return re.G2API_SetBoneAnglesMatrix(ghlInfo, boneName, matrix, flags, model_list, blend_time, acurrent_time);
 }
 
 static qboolean SV_G2API_SetBoneAnglesMatrixIndex(CGhoul2Info* ghlInfo, const int index, const mdxaBone_t& matrix,
@@ -744,10 +744,10 @@ static qboolean SV_G2API_SetBoneAnglesMatrixIndex(CGhoul2Info* ghlInfo, const in
 	return re.G2API_SetBoneAnglesMatrixIndex(ghlInfo, index, matrix, flags, model_list, blandeTime, acurrent_time);
 }
 
-static qboolean SV_G2API_SetBoneIKState(CGhoul2Info_v& ghoul2, const int time, const char* bone_name, const int ik_state,
+static qboolean SV_G2API_SetBoneIKState(CGhoul2Info_v& ghoul2, const int time, const char* boneName, const int ik_state,
 	sharedSetBoneIKStateParams_t* params)
 {
-	return re.G2API_SetBoneIKState(ghoul2, time, bone_name, ik_state, params);
+	return re.G2API_SetBoneIKState(ghoul2, time, boneName, ik_state, params);
 }
 
 static qboolean SV_G2API_SetGhoul2ModelFlags(CGhoul2Info* ghlInfo, const int flags)
@@ -790,9 +790,9 @@ static qboolean SV_G2API_SetSurfaceOnOff(CGhoul2Info* ghlInfo, const char* surfa
 	return re.G2API_SetSurfaceOnOff(ghlInfo, surfaceName, flags);
 }
 
-static qboolean SV_G2API_StopBoneAnim(CGhoul2Info* ghlInfo, const char* bone_name)
+static qboolean SV_G2API_StopBoneAnim(CGhoul2Info* ghlInfo, const char* boneName)
 {
-	return re.G2API_StopBoneAnim(ghlInfo, bone_name);
+	return re.G2API_StopBoneAnim(ghlInfo, boneName);
 }
 
 static qboolean SV_G2API_StopBoneAnimIndex(CGhoul2Info* ghlInfo, const int index)
@@ -800,9 +800,9 @@ static qboolean SV_G2API_StopBoneAnimIndex(CGhoul2Info* ghlInfo, const int index
 	return re.G2API_StopBoneAnimIndex(ghlInfo, index);
 }
 
-static qboolean SV_G2API_StopBoneAngles(CGhoul2Info* ghlInfo, const char* bone_name)
+static qboolean SV_G2API_StopBoneAngles(CGhoul2Info* ghlInfo, const char* boneName)
 {
-	return re.G2API_StopBoneAngles(ghlInfo, bone_name);
+	return re.G2API_StopBoneAngles(ghlInfo, boneName);
 }
 
 static qboolean SV_G2API_StopBoneAnglesIndex(CGhoul2Info* ghlInfo, const int index)

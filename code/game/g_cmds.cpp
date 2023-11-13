@@ -2685,7 +2685,7 @@ void Cmd_SaberDrop_f(gentity_t* ent, const int saber_num)
 
 void G_RemoveWeather()
 {
-	gi.SendConsoleCommand(va("exec Weather/clear.cfg"));
+	gi.SendConsoleCommand(va("execq Weather/clear.cfg"));
 }
 
 /*

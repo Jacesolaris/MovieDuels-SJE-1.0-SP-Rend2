@@ -33,19 +33,19 @@ void QDECL Com_Printf(const char* msg, ...)
 	char            text[1024];
 
 	va_start(argptr, msg);
-	Q_vsnprintf(text, sizeof(text), msg, argptr);
+	Q_vsnprintf(text, sizeof text, msg, argptr);
 	va_end(argptr);
 
 	ri.Printf(PRINT_ALL, "%s", text);
 }
 
-void QDECL Com_Error(int level, const char* error, ...)
+void QDECL Com_Error(const int level, const char* error, ...)
 {
 	va_list         argptr;
 	char            text[1024];
 
 	va_start(argptr, error);
-	Q_vsnprintf(text, sizeof(text), error, argptr);
+	Q_vsnprintf(text, sizeof text, error, argptr);
 	va_end(argptr);
 
 	ri.Error(level, "%s", text);
@@ -64,11 +64,12 @@ void Com_DPrintf(const char* format, ...)
 	char            text[1024];
 
 	va_start(argptr, format);
-	Q_vsnprintf(text, sizeof(text), format, argptr);
+	Q_vsnprintf(text, sizeof text, format, argptr);
 	va_end(argptr);
 
 	ri.Printf(PRINT_DEVELOPER, "%s", text);
 }
+
 // ZONE
 void* R_Malloc(const int iSize, const memtag_t eTag, const qboolean bZeroit)
 {

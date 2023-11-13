@@ -1142,7 +1142,7 @@ Returns a pointer to the structure with all entry points
 and global variables
 =================
 */
-extern int PM_ValidateAnimRange(int start_frame, int end_frame, float anim_speed);
+extern int PM_ValidateAnimRange(int startFrame, int endFrame, float anim_speed);
 
 extern "C" Q_EXPORT game_export_t * QDECL GetGameAPI(const game_import_t * import)
 {
@@ -1371,7 +1371,7 @@ static void G_Animate(gentity_t* self)
 	{
 		return;
 	}
-	if (self->s.frame == self->end_frame)
+	if (self->s.frame == self->endFrame)
 	{
 		if (self->svFlags & SVF_ANIMATING)
 		{
@@ -1387,7 +1387,7 @@ static void G_Animate(gentity_t* self)
 					nullptr);
 
 				// It NEVER seems to get to what you'd think the last frame would be, so I'm doing this to try and catch when the animation has stopped
-				if (frame + 1 >= self->end_frame)
+				if (frame + 1 >= self->endFrame)
 				{
 					self->svFlags &= ~SVF_ANIMATING;
 					Q3_TaskIDComplete(self, TID_ANIM_BOTH);
@@ -1397,7 +1397,7 @@ static void G_Animate(gentity_t* self)
 			{
 				if (self->loopAnim)
 				{
-					self->s.frame = self->start_frame;
+					self->s.frame = self->startFrame;
 				}
 				else
 				{
@@ -1416,29 +1416,29 @@ static void G_Animate(gentity_t* self)
 	// With ghoul2, we'll just set the desired start and end frame and let it do it's thing.
 	if (self->ghoul2.size())
 	{
-		self->s.frame = self->end_frame;
+		self->s.frame = self->endFrame;
 
 		gi.G2API_SetBoneAnimIndex(&self->ghoul2[self->playerModel], self->rootBone,
-			self->start_frame, self->end_frame, BONE_ANIM_OVERRIDE_FREEZE, 1.0f, cg.time, -1, -1);
+			self->startFrame, self->endFrame, BONE_ANIM_OVERRIDE_FREEZE, 1.0f, cg.time, -1, -1);
 		return;
 	}
 
-	if (self->start_frame < self->end_frame)
+	if (self->startFrame < self->endFrame)
 	{
-		if (self->s.frame < self->start_frame || self->s.frame > self->end_frame)
+		if (self->s.frame < self->startFrame || self->s.frame > self->endFrame)
 		{
-			self->s.frame = self->start_frame;
+			self->s.frame = self->startFrame;
 		}
 		else
 		{
 			self->s.frame++;
 		}
 	}
-	else if (self->start_frame > self->end_frame)
+	else if (self->startFrame > self->endFrame)
 	{
-		if (self->s.frame > self->start_frame || self->s.frame < self->end_frame)
+		if (self->s.frame > self->startFrame || self->s.frame < self->endFrame)
 		{
-			self->s.frame = self->start_frame;
+			self->s.frame = self->startFrame;
 		}
 		else
 		{
@@ -1447,7 +1447,7 @@ static void G_Animate(gentity_t* self)
 	}
 	else
 	{
-		self->s.frame = self->end_frame;
+		self->s.frame = self->endFrame;
 	}
 }
 
@@ -2079,19 +2079,19 @@ qboolean G_RagDoll(gentity_t* ent, vec3_t forcedAngles)
 		*/
 
 		//these will be used as "base" frames for the ragoll settling.
-		tParms.start_frame = level.knownAnimFileSets[ent->client->clientInfo.animFileIndex].animations[ragAnim].
+		tParms.startFrame = level.knownAnimFileSets[ent->client->clientInfo.animFileIndex].animations[ragAnim].
 			firstFrame;
-		tParms.end_frame = level.knownAnimFileSets[ent->client->clientInfo.animFileIndex].animations[ragAnim].firstFrame
+		tParms.endFrame = level.knownAnimFileSets[ent->client->clientInfo.animFileIndex].animations[ragAnim].firstFrame
 			+ level.knownAnimFileSets[ent->client->clientInfo.animFileIndex].animations[ragAnim].numFrames;
 #if 1
 		{
 			float current_frame;
-			int start_frame, end_frame;
+			int startFrame, endFrame;
 			int flags;
 			float anim_speed;
 
 			if (gi.G2API_GetBoneAnim(&ent->ghoul2[0], "model_root", cg.time ? cg.time : level.time, &current_frame,
-				&start_frame, &end_frame, &flags, &anim_speed, nullptr))
+				&startFrame, &endFrame, &flags, &anim_speed, nullptr))
 			{
 				//lock the anim on the current frame.
 				constexpr int blend_time = 500;
@@ -2134,7 +2134,7 @@ qboolean G_RagDoll(gentity_t* ent, vec3_t forcedAngles)
 		VectorCopy(usedOrg, tuParms.position);
 		VectorCopy(ent->s.modelScale, tuParms.scale);
 		tuParms.me = ent->s.number;
-		tuParms.settleFrame = tParms.end_frame - 1;
+		tuParms.settleFrame = tParms.endFrame - 1;
 		tuParms.groundEnt = ent->client->ps.groundEntityNum;
 
 		if (ent->client->ps.groundEntityNum != ENTITYNUM_NONE)

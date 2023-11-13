@@ -1186,7 +1186,7 @@ static void RB_PrepareForEntity(int entityNum, float originalTime)
 
 	// we have to reset the shaderTime as well otherwise image animations on
 	// the world (like water) continue with the wrong frame
-	tess.shaderTime = backEnd.refdef.floatTime - tess.shader->time_offset;
+	tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
 }
 
 static void RB_SubmitDrawSurfsForDepthFill(
@@ -1411,35 +1411,6 @@ RB_RenderDrawSurfList
 */
 static void RB_RenderDrawSurfList(drawSurf_t* drawSurfs, int numDrawSurfs)
 {
-	/*
-	merging surfaces together that share the same shader (e.g. polys, patches)
-	upload per frame data - but this might be the same between render passes?
-
-	how about:
-		tr.refdef.entities[]
-
-		and .... entityCullInfo_t tr.refdef.entityCullInfo[]
-		struct visibleEntity_t
-		{
-			uint32_t frustumMask; // bitfield of frustums which intersect
-			EntityId entityId;
-		};
-
-		foreach ghoul2 model:
-			transform bones
-
-		foreach visibleEntity:
-			upload per frame data
-
-		for polygons:
-			merge them, create new surface and upload data
-
-		for patch meshes:
-			merge them, create new surface and upload data
-
-	each surface corresponds to something which has all of its gpu data uploaded
-	*/
-
 	int estimatedNumShaderStages = (backEnd.viewParms.flags & VPF_DEPTHSHADOW) ? 1 : 4;
 
 	// Prepare memory for the current render pass
@@ -2519,7 +2490,7 @@ void RB_AddShaderToShaderInstanceUBO(shader_t* shader)
 		shaderInstanceBlock.deformParams0,
 		shaderInstanceBlock.deformParams1);
 	shaderInstanceBlock.portalRange = shader->portalRange;
-	shaderInstanceBlock.time = -shader->time_offset;
+	shaderInstanceBlock.time = -shader->timeOffset;
 
 	shader->ShaderInstanceUboOffset = RB_AddShaderInstanceBlock((void*)&shaderInstanceBlock);
 }

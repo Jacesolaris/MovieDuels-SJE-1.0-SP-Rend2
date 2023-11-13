@@ -2182,7 +2182,7 @@ static void CG_ATSTLegsYaw(centity_t* cent, vec3_t trailing_legs_angles)
 }
 
 extern qboolean G_ClassHasBadBones(int npc_class);
-extern void G_BoneOrientationsForClass(int npc_class, const char* bone_name, Eorientations* o_up, Eorientations* o_rt,
+extern void G_BoneOrientationsForClass(int npc_class, const char* boneName, Eorientations* o_up, Eorientations* o_rt,
 	Eorientations* o_fwd);
 extern qboolean PM_FlippingAnim(int anim);
 extern qboolean PM_SpinningSaberAnim(int anim);
@@ -2923,9 +2923,9 @@ static void CG_G2PlayerAngles(centity_t* cent, vec3_t legs[], vec3_t angles)
 			{
 				//override the hips bone with a turn anim when turning
 				//and clear it when we're not... does blend from and to parent actually work?
-				int start_frame, end_frame;
+				int startFrame, endFrame;
 				const qboolean animating_hips = gi.G2API_GetAnimRangeIndex(
-					&cent->gent->ghoul2[cent->gent->playerModel], cent->gent->hipsBone, &start_frame, &end_frame);
+					&cent->gent->ghoul2[cent->gent->playerModel], cent->gent->hipsBone, &startFrame, &endFrame);
 
 				//FIXME: make legs lag behind when turning in place, only play turn anim when legs have to catch up
 				if (angles[YAW] == cent->pe.legs.yawAngle)
@@ -2941,7 +2941,7 @@ static void CG_G2PlayerAngles(centity_t* cent, vec3_t legs[], vec3_t angles)
 						const animation_t* animations = level.knownAnimFileSets[cent->gent->client->clientInfo.
 							animFileIndex].animations;
 
-						if (!animating_hips || animations[turn_anim].firstFrame != start_frame)
+						if (!animating_hips || animations[turn_anim].firstFrame != startFrame)
 							// only set the anim if we aren't going to do the same animation again
 						{
 							const float anim_speed = 50.0f / animations[turn_anim].frameLerp * pm_get_time_scale_mod(
@@ -6480,10 +6480,10 @@ static void CG_G2SetHeadAnim(const centity_t* cent, const int anim)
 	}
 
 	// first decide if we are doing an animation on the head already
-	//	int start_frame, end_frame;
-	//	const qboolean animatingHead =  gi.G2API_GetAnimRangeIndex(&gent->ghoul2[gent->playerModel], cent->gent->faceBone, &start_frame, &end_frame);
+	//	int startFrame, endFrame;
+	//	const qboolean animatingHead =  gi.G2API_GetAnimRangeIndex(&gent->ghoul2[gent->playerModel], cent->gent->faceBone, &startFrame, &endFrame);
 
-	//	if (!animatingHead || ( animations[anim].firstFrame != start_frame ) )// only set the anim if we aren't going to do the same animation again
+	//	if (!animatingHead || ( animations[anim].firstFrame != startFrame ) )// only set the anim if we aren't going to do the same animation again
 	{
 		constexpr int blend_time = 50;
 		gi.G2API_SetBoneAnimIndex(&gent->ghoul2[gent->playerModel], cent->gent->faceBone,

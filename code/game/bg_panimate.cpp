@@ -5248,7 +5248,7 @@ int PM_LegsAnimForFrame(gentity_t* ent, const int legs_frame)
 	return -1;
 }
 
-int PM_ValidateAnimRange(const int start_frame, const int end_frame, const float anim_speed)
+int PM_ValidateAnimRange(const int startFrame, const int endFrame, const float anim_speed)
 {
 	//given a startframe and endframe, see if that lines up with any known animation
 	const animation_t* animations = level.knownAnimFileSets[0].animations;
@@ -5258,9 +5258,9 @@ int PM_ValidateAnimRange(const int start_frame, const int end_frame, const float
 		if (anim_speed < 0)
 		{
 			//playing backwards
-			if (animations[anim].firstFrame == end_frame)
+			if (animations[anim].firstFrame == endFrame)
 			{
-				if (animations[anim].numFrames + animations[anim].firstFrame == start_frame)
+				if (animations[anim].numFrames + animations[anim].firstFrame == startFrame)
 				{
 					//Com_Printf( "valid reverse anim: %s\n", anim_table[anim].name );
 					return anim;
@@ -5270,10 +5270,10 @@ int PM_ValidateAnimRange(const int start_frame, const int end_frame, const float
 		else
 		{
 			//playing forwards
-			if (animations[anim].firstFrame == start_frame)
+			if (animations[anim].firstFrame == startFrame)
 			{
 				//This anim starts on this frame
-				if (animations[anim].firstFrame + animations[anim].numFrames == end_frame)
+				if (animations[anim].firstFrame + animations[anim].numFrames == endFrame)
 				{
 					//This anim ends on this frame
 					//Com_Printf( "valid forward anim: %s\n", anim_table[anim].name );
@@ -5285,7 +5285,7 @@ int PM_ValidateAnimRange(const int start_frame, const int end_frame, const float
 	}
 
 	//Not in ANY anim?  SHOULD NEVER HAPPEN
-	Com_Printf("invalid anim range %d to %d, speed %4.2f\n", start_frame, end_frame, anim_speed);
+	Com_Printf("invalid anim range %d to %d, speed %4.2f\n", startFrame, endFrame, anim_speed);
 	return -1;
 }
 

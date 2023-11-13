@@ -1468,7 +1468,7 @@ void G_NextTestAxes()
 	}
 }
 
-void G_BoneOrientationsForClass(const int npc_class, const char* bone_name, Eorientations* o_up, Eorientations* o_rt,
+void G_BoneOrientationsForClass(const int npc_class, const char* boneName, Eorientations* o_up, Eorientations* o_rt,
 	Eorientations* o_fwd)
 {
 	//defaults
@@ -1492,7 +1492,7 @@ void G_BoneOrientationsForClass(const int npc_class, const char* bone_name, Eori
 		//*oUp = POSITIVE_Z;
 		//*oRt = NEGATIVE_X;
 		//*oFwd = NEGATIVE_Y;
-		if (Q_stricmp("pelvis", bone_name) == 0)
+		if (Q_stricmp("pelvis", boneName) == 0)
 		{
 			//child of root
 			//in ModView:
@@ -1521,8 +1521,8 @@ void G_BoneOrientationsForClass(const int npc_class, const char* bone_name, Eori
 		}
 		break;
 	case CLASS_SABER_DROID:
-		if (Q_stricmp("pelvis", bone_name) == 0
-			|| Q_stricmp("thoracic", bone_name) == 0)
+		if (Q_stricmp("pelvis", boneName) == 0
+			|| Q_stricmp("thoracic", boneName) == 0)
 		{
 			*o_up = NEGATIVE_X;
 			*o_rt = NEGATIVE_Z;
@@ -1536,7 +1536,7 @@ void G_BoneOrientationsForClass(const int npc_class, const char* bone_name, Eori
 		}
 		break;
 	case CLASS_WAMPA:
-		if (Q_stricmp("pelvis", bone_name) == 0)
+		if (Q_stricmp("pelvis", boneName) == 0)
 		{
 			*o_up = NEGATIVE_X;
 			*o_rt = POSITIVE_Y;
@@ -1554,9 +1554,9 @@ void G_BoneOrientationsForClass(const int npc_class, const char* bone_name, Eori
 		}
 		break;
 	case CLASS_ASSASSIN_DROID:
-		if (Q_stricmp("pelvis", bone_name) == 0
-			|| Q_stricmp("lower_lumbar", bone_name) == 0
-			|| Q_stricmp("upper_lumbar", bone_name) == 0)
+		if (Q_stricmp("pelvis", boneName) == 0
+			|| Q_stricmp("lower_lumbar", boneName) == 0
+			|| Q_stricmp("upper_lumbar", boneName) == 0)
 		{
 			//only these 3 bones on them are wrong
 			//*oUp = POSITIVE_X;
@@ -1568,9 +1568,9 @@ void G_BoneOrientationsForClass(const int npc_class, const char* bone_name, Eori
 		}
 		break;
 	case CLASS_DROIDEKA:
-		if (Q_stricmp("pelvis", bone_name) == 0
-			|| Q_stricmp("lower_lumbar", bone_name) == 0
-			|| Q_stricmp("upper_lumbar", bone_name) == 0)
+		if (Q_stricmp("pelvis", boneName) == 0
+			|| Q_stricmp("lower_lumbar", boneName) == 0
+			|| Q_stricmp("upper_lumbar", boneName) == 0)
 		{
 			//only these 3 bones on them are wrong
 			//*oUp = POSITIVE_X;

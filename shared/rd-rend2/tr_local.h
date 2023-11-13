@@ -46,8 +46,8 @@ typedef enum {
 	h_low,
 	h_dontcare
 } ha_pref;
-void* Hunk_Alloc(int size, ha_pref preference);
-void* Hunk_AllocateTempMemory(int size);
+void* Hunk_Alloc(const int size, const ha_pref preference);
+void* Hunk_AllocateTempMemory(const int size);
 void Hunk_FreeTempMemory(void* buf);
 #else
 void* R_Malloc(const int iSize, const memtag_t eTag);
@@ -1009,7 +1009,7 @@ typedef struct shader_s {
 	qboolean	useDistortion;
 
 	float clampTime;                                  // time this shader is clamped to
-	float time_offset;                                 // current time offset for this shader
+	float timeOffset;                                 // current time offset for this shader
 
 	struct shader_s* remappedShader;                  // current shader this one is remapped too
 
@@ -2180,7 +2180,7 @@ constexpr auto MAX_MOD_KNOWN = 1024;
 void		R_ModelInit(void);
 
 model_t* R_GetModelByHandle(qhandle_t hModel);
-int			R_LerpTag(orientation_t* tag, qhandle_t handle, int startFrame, int endFrame, float frac, const char* tagName);
+int			R_LerpTag(orientation_t* tag, const qhandle_t handle, const int startFrame, const int endFrame, const float frac, const char* tagName);
 void		R_ModelBounds(qhandle_t handle, vec3_t mins, vec3_t maxs);
 
 void		R_Modellist_f(void);
@@ -2993,7 +2993,7 @@ shader_t* R_GetShaderByHandle(qhandle_t hShader);
 shader_t* R_FindShaderByName(const char* name);
 void R_InitShaders(const qboolean server);
 void R_ShaderList_f(void);
-void    R_RemapShader(const char* oldShader, const char* newShader, const char* time_offset);
+void    R_RemapShader(const char* oldShader, const char* newShader, const char* timeOffset);
 shader_t* R_CreateShaderFromTextureBundle(
 	const char* name,
 	const textureBundle_t* bundle,
@@ -3089,7 +3089,7 @@ typedef struct shaderCommands_s  shaderCommands_t;
 extern	shaderCommands_t	tess;
 extern	color4ub_t	styleColors[MAX_LIGHT_STYLES];
 
-void RB_BeginSurface(shader_t* shader, int fogNum, int cubemapIndex);
+void RB_BeginSurface(shader_t* shader, const int fogNum, const int cubemapIndex);
 void RB_EndSurface(void);
 void RB_CheckOverflow(const int verts, const int indexes);
 #define RB_CHECKOVERFLOW(v,i) if (tess.numVertexes + (v) >= SHADER_MAX_VERTEXES || tess.numIndexes + (i) >= SHADER_MAX_INDEXES ) {RB_CheckOverflow(v,i);}
@@ -3348,7 +3348,7 @@ qboolean R_LoadIQM(model_t* mod, void* buffer, int filesize, const char* name);
 void R_AddIQMSurfaces(trRefEntity_t* ent, int entityNum);
 void RB_IQMSurfaceAnim(surfaceType_t* surface);
 int R_IQMLerpTag(orientation_t* tag, iqmData_t* data,
-	int start_frame, int end_frame,
+	int startFrame, int endFrame,
 	float frac, const char* tagName);
 
 /*

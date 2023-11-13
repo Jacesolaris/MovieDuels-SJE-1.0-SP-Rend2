@@ -34,23 +34,23 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <map>
 #include "../qcommon/sstring.h"	// #include <string>
 
-typedef std::map<sstring_t, const char*>	ShaderEntryPtrs_t;
-typedef ShaderEntryPtrs_t::size_type	ShaderEntryPtr_size;
+using ShaderEntryPtrs_t = std::map<sstring_t, const char*>;
+using ShaderEntryPtr_size = ShaderEntryPtrs_t::size_type;
 ShaderEntryPtrs_t ShaderEntryPtrs;
 
-void ShaderEntryPtrs_Clear(void)
+void ShaderEntryPtrs_Clear()
 {
 	ShaderEntryPtrs.clear();
 }
 
-int ShaderEntryPtrs_Size(void)
+int ShaderEntryPtrs_Size()
 {
 	return ShaderEntryPtrs.size();
 }
 
 void ShaderEntryPtrs_Insert(const char* token, const char* p)
 {
-	ShaderEntryPtrs_t::iterator it = ShaderEntryPtrs.find(token);
+	const auto it = ShaderEntryPtrs.find(token);
 
 	if (it == ShaderEntryPtrs.end())
 	{
@@ -64,14 +64,14 @@ void ShaderEntryPtrs_Insert(const char* token, const char* p)
 
 // returns NULL if not found...
 //
-const char* ShaderEntryPtrs_Lookup(const char* psShaderName)
+const char* ShaderEntryPtrs_Lookup(const char* ps_shader_name)
 {
-	ShaderEntryPtrs_t::iterator it = ShaderEntryPtrs.find(psShaderName);
+	const auto it = ShaderEntryPtrs.find(ps_shader_name);
 	if (it != ShaderEntryPtrs.end())
 	{
 		const char* p = (*it).second;
 		return p;
 	}
 
-	return NULL;
+	return nullptr;
 }

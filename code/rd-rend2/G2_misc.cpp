@@ -313,21 +313,15 @@ void G2_List_Model_Surfaces(const char* file_name)
 }
 
 // list all bones associated with a model
-void G2_List_Model_Bones(const char* file_name, int frame)
+void G2_List_Model_Bones(const char* file_name)
 {
 	const model_t* mod_m = R_GetModelByHandle(RE_RegisterModel(file_name));
 	const model_t* mod_a = R_GetModelByHandle(mod_m->mdxm->animIndex);
-	// 	mdxaFrame_t		*aframe=0;
-	//	int				frameSize;
 	mdxaHeader_t* header = mod_a->mdxa;
 
 	// figure out where the offset list is
 	const mdxaSkelOffsets_t* offsets = reinterpret_cast<mdxaSkelOffsets_t*>(reinterpret_cast<byte*>(header) + sizeof(mdxaHeader_t));
 
-	//    frameSize = (int)( &((mdxaFrame_t *)0)->boneIndexes[ header->numBones ] );
-
-	//	aframe = (mdxaFrame_t *)((byte *)header + header->ofsFrames + (frame * frameSize));
-		// walk each bone and list it's name
 	for (int x = 0; x < mod_a->mdxa->numBones; x++)
 	{
 		const auto skel = reinterpret_cast<mdxaSkel_t*>(reinterpret_cast<byte*>(header) + sizeof(mdxaHeader_t) + offsets->offsets[x]);
@@ -518,8 +512,7 @@ void R_TransformEachSurface(const mdxmSurface_t* surface, vec3_t scale, CMiniHea
 	}
 }
 
-void G2_TransformSurfaces(int surfaceNum, surfaceInfo_v& rootSList,
-	CBoneCache* boneCache, const model_t* currentModel, int lod, vec3_t scale, CMiniHeap* G2VertSpace, intptr_t* TransformedVertArray, bool secondTimeAround)
+void G2_TransformSurfaces(const int surfaceNum, surfaceInfo_v& rootSList, CBoneCache* boneCache, const model_t* currentModel, const int lod, vec3_t scale, CMiniHeap* G2VertSpace, intptr_t* TransformedVertArray, const bool secondTimeAround)
 {
 	int	i;
 	assert(currentModel);

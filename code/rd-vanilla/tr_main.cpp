@@ -271,16 +271,16 @@ R_TransformModelToClip
 
 ==========================
 */
-void R_TransformModelToClip(const vec3_t src, const float* modelMatrix, const float* projection_matrix,
+void R_TransformModelToClip(const vec3_t src, const float* model_matrix, const float* projection_matrix,
 	vec4_t eye, vec4_t dst) {
 	int i;
 
 	for (i = 0; i < 4; i++) {
 		eye[i] =
-			src[0] * modelMatrix[i + 0 * 4] +
-			src[1] * modelMatrix[i + 1 * 4] +
-			src[2] * modelMatrix[i + 2 * 4] +
-			1 * modelMatrix[i + 3 * 4];
+			src[0] * model_matrix[i + 0 * 4] +
+			src[1] * model_matrix[i + 1 * 4] +
+			src[2] * model_matrix[i + 2 * 4] +
+			1 * model_matrix[i + 3 * 4];
 	}
 
 	for (i = 0; i < 4; i++) {
@@ -375,7 +375,7 @@ void R_RotateForEntity(const trRefEntity_t* ent, const viewParms_t* view_parms,
 	preTransEntMatrix[11] = 0;
 	preTransEntMatrix[15] = 1;
 
-	myGlMultMatrix(preTransEntMatrix, view_parms->world.modelMatrix, ori->modelMatrix);
+	myGlMultMatrix(preTransEntMatrix, view_parms->world.model_matrix, ori->model_matrix);
 
 	// calculate the viewer origin in the model's space
 	// needed for fog, specular, and environment mapping
@@ -443,7 +443,7 @@ void R_RotateForViewer()
 
 	// convert from our coordinate system (looking down X)
 	// to OpenGL's coordinate system (looking down -Z)
-	myGlMultMatrix(viewer_matrix, s_flipMatrix, tr.ori.modelMatrix);
+	myGlMultMatrix(viewer_matrix, s_flipMatrix, tr.ori.model_matrix);
 
 	tr.viewParms.world = tr.ori;
 }
@@ -862,7 +862,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t* draw_surf) {
 	float shortest = 1000000000;
 	int entityNum;
 	shader_t* shader;
-	int		fog_num;
+	int		fogNum;
 	int dlighted;
 	int i;
 	unsigned int point_or = 0;
@@ -870,8 +870,8 @@ static qboolean SurfIsOffscreen(const drawSurf_t* draw_surf) {
 
 	R_RotateForViewer();
 
-	R_DecomposeSort(draw_surf->sort, &entityNum, &shader, &fog_num, &dlighted);
-	RB_BeginSurface(shader, fog_num);
+	R_DecomposeSort(draw_surf->sort, &entityNum, &shader, &fogNum, &dlighted);
+	RB_BeginSurface(shader, fogNum);
 	rb_surfaceTable[*draw_surf->surface](draw_surf->surface);
 
 	assert(tess.numVertexes < 128);
@@ -882,7 +882,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t* draw_surf) {
 		vec4_t clip;
 		unsigned int point_flags = 0;
 
-		R_TransformModelToClip(tess.xyz[i], tr.ori.modelMatrix, tr.viewParms.projectionMatrix, eye, clip);
+		R_TransformModelToClip(tess.xyz[i], tr.ori.model_matrix, tr.viewParms.projectionMatrix, eye, clip);
 
 		for (int j = 0; j < 3; j++)
 		{
@@ -965,7 +965,7 @@ qboolean R_MirrorViewBySurface(drawSurf_t* draw_surf, int entityNum)
 	orientation_t	surface, camera;
 
 	// don't recursively mirror
-	if (tr.viewParms.isPortal)
+	if (tr.viewParms.is_portal)
 	{
 		ri.Printf(PRINT_DEVELOPER, "WARNING: recursive mirror/portal found\n");
 		return qfalse;
@@ -984,7 +984,7 @@ qboolean R_MirrorViewBySurface(drawSurf_t* draw_surf, int entityNum)
 	old_parms = tr.viewParms;
 
 	new_parms = tr.viewParms;
-	new_parms.isPortal = qtrue;
+	new_parms.is_portal = qtrue;
 	if (!R_GetPortalOrientations(draw_surf, entityNum, &surface, &camera,
 		new_parms.pvsOrigin, &new_parms.isMirror)) {
 		return qfalse;		// bad portal, no portalentity
@@ -1151,8 +1151,8 @@ R_DecomposeSort
 =================
 */
 void R_DecomposeSort(const unsigned sort, int* entityNum, shader_t** shader,
-	int* fog_num, int* dlight_map) {
-	*fog_num = sort >> QSORT_FOGNUM_SHIFT & 31;
+	int* fogNum, int* dlight_map) {
+	*fogNum = sort >> QSORT_FOGNUM_SHIFT & 31;
 	*shader = tr.sortedShaders[sort >> QSORT_SHADERNUM_SHIFT & MAX_SHADERS - 1];
 	*entityNum = sort >> QSORT_REFENTITYNUM_SHIFT & REFENTITYNUM_MASK;
 	*dlight_map = sort & 3;
@@ -1165,7 +1165,7 @@ R_SortDrawSurfs
 */
 void R_SortDrawSurfs(drawSurf_t* draw_surfs, int num_draw_surfs) {
 	shader_t* shader;
-	int				fog_num;
+	int				fogNum;
 	int				entityNum;
 	int				dlighted;
 
@@ -1189,7 +1189,7 @@ void R_SortDrawSurfs(drawSurf_t* draw_surfs, int num_draw_surfs) {
 	// check for any pass through drawing, which
 	// may cause another view to be rendered first
 	for (int i = 0; i < num_draw_surfs; i++) {
-		R_DecomposeSort((draw_surfs + i)->sort, &entityNum, &shader, &fog_num, &dlighted);
+		R_DecomposeSort((draw_surfs + i)->sort, &entityNum, &shader, &fogNum, &dlighted);
 
 		if (shader->sort > SS_PORTAL)
 		{
@@ -1249,7 +1249,7 @@ void R_AddEntitySurfaces() {
 		// we don't want the hacked weapon position showing in
 		// mirrors, because the true body position will already be drawn
 		//
-		if (ent->e.renderfx & RF_FIRST_PERSON && tr.viewParms.isPortal) {
+		if (ent->e.renderfx & RF_FIRST_PERSON && tr.viewParms.is_portal) {
 			continue;
 		}
 
@@ -1265,12 +1265,11 @@ void R_AddEntitySurfaces() {
 		case RT_CLOUDS:
 		case RT_LINE:
 		case RT_ELECTRICITY:
-		case RT_LIGHTNING:
 		case RT_SABER_GLOW:
 			// self blood sprites, talk balloons, etc should not be drawn in the primary
 			// view.  We can't just do this check for all entities, because md3
 			// entities may still want to cast shadows from them
-			if (ent->e.renderfx & RF_THIRD_PERSON && !tr.viewParms.isPortal) {
+			if (ent->e.renderfx & RF_THIRD_PERSON && !tr.viewParms.is_portal) {
 				continue;
 			}
 			shader = R_GetShaderByHandle(ent->e.customShader);
@@ -1301,7 +1300,7 @@ void R_AddEntitySurfaces() {
 					R_AddGhoulSurfaces(ent);
 					break;
 				case MOD_BAD:		// null model axis
-					if (ent->e.renderfx & RF_THIRD_PERSON && !tr.viewParms.isPortal)
+					if (ent->e.renderfx & RF_THIRD_PERSON && !tr.viewParms.is_portal)
 					{
 						if (!(ent->e.renderfx & RF_SHADOW_ONLY))
 						{
@@ -1357,7 +1356,7 @@ void R_GenerateDrawSurfs() {
 R_DebugPolygon
 ================
 */
-void R_DebugPolygon(const int color, const int numPoints, const float* points) {
+void R_DebugPolygon(const int color, const int num_points, const float* points) {
 	int		i;
 
 	GL_State(GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
@@ -1366,7 +1365,7 @@ void R_DebugPolygon(const int color, const int numPoints, const float* points) {
 
 	qglColor3f(color & 1, color >> 1 & 1, color >> 2 & 1);
 	qglBegin(GL_POLYGON);
-	for (i = 0; i < numPoints; i++) {
+	for (i = 0; i < num_points; i++) {
 		qglVertex3fv(points + i * 3);
 	}
 	qglEnd();
@@ -1376,7 +1375,7 @@ void R_DebugPolygon(const int color, const int numPoints, const float* points) {
 	qglDepthRange(0, 0);
 	qglColor3f(1, 1, 1);
 	qglBegin(GL_POLYGON);
-	for (i = 0; i < numPoints; i++) {
+	for (i = 0; i < num_points; i++) {
 		qglVertex3fv(points + i * 3);
 	}
 	qglEnd();
@@ -1390,7 +1389,7 @@ R_DebugGraphics
 Visualization aid for movement clipping debugging
 ====================
 */
-void R_DebugGraphics()
+void R_DebugGraphics() 
 {
 	if (!r_debugSurface->integer)
 	{

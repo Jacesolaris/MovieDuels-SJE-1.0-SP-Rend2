@@ -1160,7 +1160,7 @@ void R_ScreenShot_f() {
 /*
 ** GL_SetDefaultState
 */
-void GL_SetDefaultState(void)
+void GL_SetDefaultState()
 {
 	qglClearDepth(1.0f);
 
@@ -1798,7 +1798,7 @@ void R_Init()
 	InitOpenGL();
 
 	R_InitImages();
-	R_InitShaders(qfalse);
+	R_InitShaders();
 	R_InitSkins();
 	R_ModelInit();
 	R_InitWorldEffects();
@@ -1809,7 +1809,6 @@ void R_Init()
 		ri.Printf(PRINT_ALL, "glGetError() = 0x%x\n", err);
 
 	RestoreGhoul2InfoArray();
-
 	// print info
 	GfxInfo_f();
 
@@ -1984,30 +1983,30 @@ void RE_SVModelInit()
 	tr.numSkins = 0;
 	R_InitImages();
 	//inServer = true;
-	R_InitShaders(qfalse);
+	R_InitShaders();
 	//inServer = false;
 	R_ModelInit();
 }
 
 /*
 @@@@@@@@@@@@@@@@@@@@@
-get_ref_api
+GetRefAPI
 
 @@@@@@@@@@@@@@@@@@@@@
 */
 extern void R_LoadImage(const char* shortname, byte** pic, int* width, int* height);
 extern void RE_WorldEffectCommand(const char* command);
 extern qboolean R_inPVS(vec3_t p1, vec3_t p2);
-extern void RE_GetModelBounds(const refEntity_t* refEnt, vec3_t bounds1, vec3_t bounds2);
-extern void G2API_AnimateG2Models(CGhoul2Info_v& ghoul2, int acurrent_time, CRagDollUpdateParams* params);
-extern qboolean G2API_GetRagBonePos(CGhoul2Info_v& ghoul2, const char* bone_name, vec3_t pos, vec3_t ent_angles, vec3_t ent_pos, vec3_t ent_scale);
-extern qboolean G2API_RagEffectorKick(CGhoul2Info_v& ghoul2, const char* bone_name, vec3_t velocity);
+extern void RE_GetModelBounds(const refEntity_t* ref_ent, vec3_t bounds1, vec3_t bounds2);
+extern void G2API_AnimateG2Models(CGhoul2Info_v& ghoul2, const int acurrent_time, CRagDollUpdateParams* params);
+extern qboolean G2API_GetRagBonePos(CGhoul2Info_v& ghoul2, const char* boneName, vec3_t pos, vec3_t entAngles, vec3_t ent_pos, vec3_t entScale);
+extern qboolean G2API_RagEffectorKick(CGhoul2Info_v& ghoul2, const char* boneName, vec3_t velocity);
 extern qboolean G2API_RagForceSolve(CGhoul2Info_v& ghoul2, const qboolean force);
-extern qboolean G2API_SetBoneIKState(CGhoul2Info_v& ghoul2, int time, const char* bone_name, int ik_state, sharedSetBoneIKStateParams_t* params);
+extern qboolean G2API_SetBoneIKState(CGhoul2Info_v& ghoul2, const int time, const char* boneName, const int ik_state, sharedSetBoneIKStateParams_t* params);
 extern qboolean G2API_IKMove(CGhoul2Info_v& ghoul2, int time, sharedIKMoveParams_t* params);
-extern qboolean G2API_RagEffectorGoal(CGhoul2Info_v& ghoul2, const char* bone_name, vec3_t pos);
-extern qboolean G2API_RagPCJGradientSpeed(CGhoul2Info_v& ghoul2, const char* bone_name, float speed);
-extern qboolean G2API_RagPCJConstraint(CGhoul2Info_v& ghoul2, const char* bone_name, vec3_t min, vec3_t max);
+extern qboolean G2API_RagEffectorGoal(CGhoul2Info_v& ghoul2, const char* boneName, vec3_t pos);
+extern qboolean G2API_RagPCJGradientSpeed(CGhoul2Info_v& ghoul2, const char* boneName, const float speed);
+extern qboolean G2API_RagPCJConstraint(CGhoul2Info_v& ghoul2, const char* boneName, vec3_t min, vec3_t max);
 extern void G2API_SetRagDoll(CGhoul2Info_v& ghoul2, CRagDollParams* parms);
 #ifdef G2_PERFORMANCE_ANALYSIS
 extern void G2Time_ResetTimers(void);
@@ -2021,7 +2020,7 @@ unsigned int AnyLanguage_ReadCharFromString_JK2(char** text, qboolean* pbIsTrail
 }
 #endif
 
-extern "C" Q_EXPORT refexport_t * QDECL get_ref_api(const int api_version, const refimport_t * refimp) {
+extern "C" Q_EXPORT refexport_t * QDECL GetRefAPI(const int api_version, const refimport_t * refimp) {
 	static refexport_t	re;
 
 	ri = *refimp;

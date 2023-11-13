@@ -39,7 +39,7 @@ extern refimport_t ri;
 // 13 bits
 // can't be increased without changing bit packing for drawsurfs
 // see QSORT_SHADERNUM_SHIFT
-#define SHADERNUM_BITS	14
+#define SHADERNUM_BITS	13
 #define MAX_SHADERS		(1<<SHADERNUM_BITS)
 
 using dlight_t = struct dlight_s {
@@ -108,7 +108,7 @@ using orientationr_t = struct {
 	vec3_t		origin;			// in world coordinates
 	vec3_t		axis[3];		// orientation in world
 	vec3_t		viewOrigin;		// viewParms->or.origin in local coordinates
-	float		modelMatrix[16];
+	float		model_matrix[16];
 };
 
 using image_t = struct image_s {
@@ -459,7 +459,7 @@ using shader_t = struct shader_s {
 	short		numUnfoggedPasses;
 	shaderStage_t* stages;
 
-	float			time_offset;                                 // current time offset for this shader
+	float			timeOffset;                                 // current time offset for this shader
 
 	// True if this shader has a stage with glow in it (just an optimization).
 	bool hasGlow;
@@ -520,7 +520,7 @@ using viewParms_t = struct {
 	orientationr_t	ori;
 	orientationr_t	world;
 	vec3_t		pvsOrigin;			// may be different than or.origin for portals
-	qboolean	isPortal;			// true if this view is through a portal
+	qboolean	is_portal;			// true if this view is through a portal
 	qboolean	isMirror;			// the portal is a mirror, invert the face culling
 	int			frameSceneNum;		// copied from tr.frameSceneNum
 	int			frameCount;			// copied from tr.frameCount
@@ -580,7 +580,7 @@ using drawSurf_t = struct drawSurf_s {
 // as soon as it is called
 using srfPoly_t = struct srfPoly_s {
 	surfaceType_t	surfaceType;
-	qhandle_t		hShader;
+	qhandle_t		h_shader;
 	int				fogIndex;
 	int				numVerts;
 	polyVert_t* verts;
@@ -803,12 +803,12 @@ using model_t = struct model_s {
 	bool			bspInstance;			// model is a bsp instance
 };
 
-constexpr auto MAX_MOD_KNOWN = 1024;
+#define	MAX_MOD_KNOWN	1024
 
 void		R_ModelInit();
 model_t* R_GetModelByHandle(qhandle_t index);
 
-int R_LerpTag(orientation_t* tag, qhandle_t handle, int startFrame, int endFrame, float frac, const char* tagName);
+int R_LerpTag(orientation_t* tag, const qhandle_t handle, const int startFrame, const int endFrame, const float frac, const char* tagName);
 
 void		R_ModelBounds(qhandle_t handle, vec3_t mins, vec3_t maxs);
 
@@ -851,7 +851,7 @@ the bits are allocated as follows:
 #define	QSORT_SHADERNUM_SHIFT	(QSORT_REFENTITYNUM_SHIFT+REFENTITYNUM_BITS)
 // Note: 32nd bit is reserved for RF_ALPHA_FADE voodoo magic
 // see R_AddEntitySurfaces tr.shiftedEntityNum
-#if (QSORT_SHADERNUM_SHIFT+SHADERNUM_BITS) > 32
+#if (QSORT_SHADERNUM_SHIFT+SHADERNUM_BITS) > 31
 #error "Need to update sorting, too many bits."
 #endif
 
@@ -1209,7 +1209,7 @@ void R_AddLightningBoltSurfaces(trRefEntity_t* e);
 void R_AddPolygonSurfaces();
 
 void R_DecomposeSort(unsigned sort, int* entityNum, shader_t** shader,
-	int* fog_num, int* dlight_map);
+	int* fogNum, int* dlight_map);
 
 void R_AddDrawSurf(const surfaceType_t* surface, const shader_t* shader, int fog_index, int dlight_map);
 
@@ -1298,7 +1298,7 @@ void		RE_RegisterModels_Info_f();
 qboolean	RE_RegisterImages_LevelLoadEnd();
 void		RE_RegisterImages_Info_f();
 
-model_t* R_AllocModel(void);
+model_t* R_AllocModel();
 
 void    	R_Init();
 image_t* R_FindImageFile(const char* name, qboolean mipmap, qboolean allowPicmip, qboolean allowTC, int glWrapClampMode);
@@ -1322,7 +1322,7 @@ void	R_InitImages();
 void	R_DeleteTextures();
 float	R_SumOfUsedImages(qboolean bUseFormat);
 void	R_InitSkins();
-skin_t* R_GetSkinByHandle(const qhandle_t h_skin);
+skin_t* R_GetSkinByHandle(qhandle_t h_skin);
 
 //
 // tr_shader.c
@@ -1336,10 +1336,10 @@ extern	const byte	stylesDefault[MAXLIGHTMAPS];
 qhandle_t		 RE_RegisterShader(const char* name);
 qhandle_t		 RE_RegisterShaderNoMip(const char* name);
 
-shader_t* R_FindShader(const char* name, const int* lightmapIndex, const byte* styles, const qboolean mip_raw_image);
-shader_t* R_GetShaderByHandle(qhandle_t hShader);
-void R_InitShaders(const qboolean server);
-void R_ShaderList_f();
+shader_t* R_FindShader(const char* name, const int* lightmap_index, const byte* styles, qboolean mip_raw_image);
+shader_t* R_GetShaderByHandle(qhandle_t h_shader);
+void		R_InitShaders();
+void		R_ShaderList_f();
 
 //
 // tr_arb.c
@@ -1416,16 +1416,16 @@ extern	shaderCommands_t	tess;
 extern	color4ub_t	styleColors[MAX_LIGHT_STYLES];
 extern	bool		styleUpdated[MAX_LIGHT_STYLES];
 
-void RB_BeginSurface(shader_t* shader, int fog_num);
+void RB_BeginSurface(shader_t* shader, int fogNum);
 void RB_EndSurface();
-void RB_CheckOverflow(const int verts, const int indexes);
+void RB_CheckOverflow(int verts, int indexes);
 #define RB_CHECKOVERFLOW(v,i) if (tess.numVertexes + (v) >= SHADER_MAX_VERTEXES || tess.numIndexes + (i) >= SHADER_MAX_INDEXES ) {RB_CheckOverflow(v,i);}
 
 void RB_StageIteratorGeneric();
 void RB_StageIteratorSky();
 
 void RB_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, byte* color);
-void RB_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, byte* color, const float s1, const float t1, const float s2, const float t2);
+void RB_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, byte* color, float s1, float t1, float s2, float t2);
 
 void RB_ShowImages();
 
@@ -1448,9 +1448,9 @@ LIGHTS
 ============================================================
 */
 
-void R_DlightBmodel(const bmodel_t* bmodel, const qboolean NoLight);
+void R_DlightBmodel(const bmodel_t* bmodel, qboolean NoLight);
 void R_SetupEntityLighting(const trRefdef_t* refdef, trRefEntity_t* ent);
-void R_TransformDlights(const int count, dlight_t* dl, const orientationr_t* ori);
+void R_TransformDlights(int count, dlight_t* dl, const orientationr_t* ori);
 
 /*
 ============================================================
@@ -1504,7 +1504,8 @@ MARKERS, POLYGON PROJECTION ON WORLD POLYGONS
 ============================================================
 */
 
-int R_MarkFragments(int numPoints, const vec3_t* points, const vec3_t projection, const int max_points, vec3_t point_buffer, const int max_fragments, markFragment_t* fragment_buffer);
+int R_MarkFragments(int num_points, const vec3_t* points, const vec3_t projection,
+	int max_points, vec3_t point_buffer, int max_fragments, markFragment_t* fragment_buffer);
 
 /*
 ============================================================
@@ -1518,7 +1519,7 @@ void R_InitNextFrame();
 
 void RE_ClearScene();
 void RE_AddRefEntityToScene(const refEntity_t* ent);
-void RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t* verts, int numPolys);
+void RE_AddPolyToScene(qhandle_t h_shader, int numVerts, const polyVert_t* verts, int numPolys);
 void RE_AddLightToScene(const vec3_t org, float intensity, float r, float g, float b);
 void RE_RenderScene(const refdef_t* fd);
 
@@ -1607,7 +1608,7 @@ Ghoul2 Insert End
 =============================================================
 =============================================================
 */
-void	R_TransformModelToClip(const vec3_t src, const float* modelMatrix, const float* projection_matrix,
+void	R_TransformModelToClip(const vec3_t src, const float* model_matrix, const float* projection_matrix,
 	vec4_t eye, vec4_t dst);
 void	R_TransformClipToWindow(const vec4_t clip, const viewParms_t* view, vec4_t normalized, vec4_t window);
 
@@ -1770,11 +1771,11 @@ void R_AddDrawSurfCmd(drawSurf_t* draw_surfs, int num_draw_surfs);
 
 void RE_SetColor(const float* rgba);
 void RE_StretchPic(float x, float y, float w, float h,
-	float s1, float t1, float s2, float t2, qhandle_t hShader);
+	float s1, float t1, float s2, float t2, qhandle_t h_shader);
 void RE_RotatePic(float x, float y, float w, float h,
-	float s1, float t1, float s2, float t2, float a, qhandle_t hShader);
+	float s1, float t1, float s2, float t2, float a, qhandle_t h_shader);
 void RE_RotatePic2(float x, float y, float w, float h,
-	float s1, float t1, float s2, float t2, float a, qhandle_t hShader);
+	float s1, float t1, float s2, float t2, float a, qhandle_t h_shader);
 void RE_RenderWorldEffects();
 void RE_LAGoggles();
 void RE_Scissor(float x, float y, float w, float h);
@@ -1785,7 +1786,7 @@ qboolean	RE_InitDissolve(qboolean bForceCircularExtroWipe);
 
 long generateHashValue(const char* fname);
 void R_LoadImage(const char* shortname, byte** pic, int* width, int* height);
-void RE_InsertModelIntoHash(const char* name, model_t* mod);
+void		RE_InsertModelIntoHash(const char* name, const model_t* mod);
 qboolean R_FogParmsMatch(int fog1, int fog2);
 
 /*

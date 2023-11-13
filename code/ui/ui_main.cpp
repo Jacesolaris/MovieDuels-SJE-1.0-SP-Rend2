@@ -2622,7 +2622,7 @@ qboolean UI_ParseAnimFileSet(const char* animCFG, int* animFileIndex)
 	return qtrue;
 }
 
-int UI_G2SetAnim(CGhoul2Info* ghlInfo, const char* bone_name, const int animNum, const qboolean freeze)
+int UI_G2SetAnim(CGhoul2Info* ghlInfo, const char* boneName, const int animNum, const qboolean freeze)
 {
 	int animIndex;
 
@@ -2667,7 +2667,7 @@ int UI_G2SetAnim(CGhoul2Info* ghlInfo, const char* bone_name, const int animNum,
 		flags |= BONE_ANIM_BLEND;
 		constexpr int blend_time = 150;
 
-		re.G2API_SetBoneAnim(ghlInfo, bone_name, sFrame, eFrame, flags, anim_speed, time, -1, blend_time);
+		re.G2API_SetBoneAnim(ghlInfo, boneName, sFrame, eFrame, flags, anim_speed, time, -1, blend_time);
 
 		return anim->frameLerp * (anim->numFrames - 2);
 	}
@@ -3323,7 +3323,7 @@ void UI_LoadMenus(const char* menuFile, const qboolean reset)
 	Com_Printf("---------------- MovieDuels-SJE-1.0-SP---------------------------\n");
 	Com_Printf("-----------------------------------------------------------------\n");
 	Com_Printf("------------------------Update 9---------------------------------\n");
-	Com_Printf("------------------Build Date 10/11/2023--------------------------\n");
+	Com_Printf("------------------Build Date 13/11/2023--------------------------\n");
 	Com_Printf("-----------------------------------------------------------------\n");
 	Com_Printf("------------------------LightSaber-------------------------------\n");
 	Com_Printf("-----------An elegant weapon for a more civilized age------------\n");
