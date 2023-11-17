@@ -180,7 +180,7 @@ void G2_DEBUG_RemovePtrFromTracker(CGhoul2Info_v* g2)
 #endif
 
 // RAGDOLL_BEGIN
-void G2API_SetTime(int current_time, int clock)
+void G2API_SetTime(const int current_time, const int clock)
 {
 	assert(clock >= 0 && clock < NUM_G2T_TIME);
 #if G2_DEBUG_TIME
