@@ -52,7 +52,7 @@ const char* CG_DisplayBoxedText(int iBoxX, int iBoxY, int iBoxWidth, int iBoxHei
 	const char* psText, int iFontHandle, float fScale,
 	const vec4_t v4Color);
 extern int fire_deley_time();
-extern qboolean is_holding_reloadable_gun(const gentity_t* ent);
+extern qboolean IsHoldingReloadableGun(const gentity_t* ent);
 extern vmCvar_t cg_com_rend2;
 
 /*
@@ -80,7 +80,7 @@ void CG_GrappleTrail(centity_t* ent)
 	FX_AddLine(from, to, 0.5f, 0.5f, 0.0f, BLUER, BLUER, 15, cgi_R_RegisterShader("gfx/misc/bolt1"), FX_SIZE_LINEAR);
 }
 
-void CG_StunTrail(centity_t* ent, const weaponInfo_t* wi)
+static void CG_StunTrail(centity_t* ent, const weaponInfo_t* wi)
 {
 	vec3_t origin;
 	vec3_t forward, up;
@@ -1082,7 +1082,7 @@ void CG_RegisterWeapon(const int weapon_num)
 		weaponInfo->alt_missileModel = cgi_R_RegisterModel("models/weapons2/golan_arms/projectileMain.md3");
 		if (cg_com_rend2.integer == 0) //rend2 is off
 		{
-			weaponInfo->missileTrailFunc = CG_StunTrail;
+			//weaponInfo->missileTrailFunc = CG_StunTrail;
 		}
 		break;
 
@@ -4437,7 +4437,7 @@ void CG_NextWeapon_f()
 		return;
 	}
 
-	if (g_entities[0].client->ps.BlasterAttackChainCount > BLASTERMISHAPLEVEL_TWELVE && is_holding_reloadable_gun(cg_entities[0].gent))
+	if (g_entities[0].client->ps.BlasterAttackChainCount > BLASTERMISHAPLEVEL_TWELVE && IsHoldingReloadableGun(cg_entities[0].gent))
 	{
 		if (cg_entities[0].gent->s.weapon == WP_BRYAR_PISTOL ||
 			cg_entities[0].gent->s.weapon == WP_BLASTER_PISTOL ||
@@ -4697,7 +4697,7 @@ void CG_PrevWeapon_f()
 		return;
 	}
 
-	if (g_entities[0].client->ps.BlasterAttackChainCount > BLASTERMISHAPLEVEL_TWELVE && is_holding_reloadable_gun(cg_entities[0].gent))
+	if (g_entities[0].client->ps.BlasterAttackChainCount > BLASTERMISHAPLEVEL_TWELVE && IsHoldingReloadableGun(cg_entities[0].gent))
 	{
 		if (cg_entities[0].gent->s.weapon == WP_BRYAR_PISTOL ||
 			cg_entities[0].gent->s.weapon == WP_BLASTER_PISTOL ||
@@ -4859,7 +4859,7 @@ void CG_ChangeWeapon(const int num)
 		return;
 	}
 
-	if (player->client->ps.BlasterAttackChainCount > BLASTERMISHAPLEVEL_TWELVE && is_holding_reloadable_gun(cg_entities[0].gent))
+	if (player->client->ps.BlasterAttackChainCount > BLASTERMISHAPLEVEL_TWELVE && IsHoldingReloadableGun(cg_entities[0].gent))
 	{
 		if (cg_entities[0].gent->s.weapon == WP_BRYAR_PISTOL ||
 			cg_entities[0].gent->s.weapon == WP_BLASTER_PISTOL ||
@@ -4996,7 +4996,7 @@ void CG_Weapon_f()
 		return;
 	}
 
-	if (g_entities[0].client->ps.BlasterAttackChainCount >= BLASTERMISHAPLEVEL_TWELVE && is_holding_reloadable_gun(cg_entities[0].gent))
+	if (g_entities[0].client->ps.BlasterAttackChainCount >= BLASTERMISHAPLEVEL_TWELVE && IsHoldingReloadableGun(cg_entities[0].gent))
 	{
 		if (cg_entities[0].gent->s.weapon == WP_BRYAR_PISTOL ||
 			cg_entities[0].gent->s.weapon == WP_BLASTER_PISTOL ||
