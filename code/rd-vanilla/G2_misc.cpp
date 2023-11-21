@@ -136,7 +136,7 @@ GoreTextureCoordinates* FindGoreRecord(const int tag)
 	return nullptr;
 }
 
-void* G2_GetGoreRecord(const int tag)
+static void* G2_GetGoreRecord(const int tag)
 {
 	return FindGoreRecord(tag);
 }
@@ -209,11 +209,11 @@ public:
 	vec3_t		rayEnd;
 	CCollisionRecord* collRecMap;
 	const int			ent_num;
-	const int			model_index;
+	const int			modelIndex;
 	const skin_t* skin;
 	const shader_t* cust_shader;
 	intptr_t* TransformedVertsArray;
-	const EG2_Collision	e_g2_trace_type;
+	const EG2_Collision	eG2TraceType;
 	bool				hitOne;
 	float				m_fRadius;
 
@@ -262,11 +262,11 @@ public:
 		lod(initlod),
 		collRecMap(initcollRecMap),
 		ent_num(initentNum),
-		model_index(initmodelIndex),
+		modelIndex(initmodelIndex),
 		skin(initskin),
 		cust_shader(initcust_shader),
 		TransformedVertsArray(initTransformedVertsArray),
-		e_g2_trace_type(einitG2TraceType),
+		eG2TraceType(einitG2TraceType),
 		hitOne(false),
 #ifdef _G2_GORE
 		m_fRadius(fRadius),
@@ -313,9 +313,9 @@ void G2_List_Model_Surfaces(const char* fileName)
 }
 
 // list all bones associated with a model
-void G2_List_Model_Bones(const char* file_name)
+void G2_List_Model_Bones(const char* fileName)
 {
-	const model_t* mod_m = R_GetModelByHandle(RE_RegisterModel(file_name));
+	const model_t* mod_m = R_GetModelByHandle(RE_RegisterModel(fileName));
 	const model_t* mod_a = R_GetModelByHandle(mod_m->mdxm->animIndex);
 	mdxaHeader_t* header = mod_a->mdxa;
 
@@ -352,10 +352,10 @@ void G2_List_Model_Bones(const char* file_name)
  *    true if we successfully obtained a filename, false otherwise
  *
  ************************************************************************************************/
-qboolean G2_GetAnimFileName(const char* file_name, char** filename)
+qboolean G2_GetAnimFileName(const char* fileName, char** filename)
 {
 	// find the model we want
-	const model_t* mod = R_GetModelByHandle(RE_RegisterModel(file_name));
+	const model_t* mod = R_GetModelByHandle(RE_RegisterModel(fileName));
 
 	if (mod && mod->mdxm && mod->mdxm->animName[0] != 0)
 	{
@@ -371,9 +371,9 @@ qboolean G2_GetAnimFileName(const char* file_name, char** filename)
 //
 /////////////////////////////////////////////////////////////////////
 
-int G2_DecideTraceLod(const CGhoul2Info& ghoul2, const int use_lod)
+int G2_DecideTraceLod(const CGhoul2Info& ghoul2, const int useLod)
 {
-	int return_lod = use_lod;
+	int return_lod = useLod;
 
 	// if we are overriding the LOD at top level, then we can afford to only check this level of model
 	if (ghoul2.mLodBias > return_lod)
@@ -395,7 +395,7 @@ int G2_DecideTraceLod(const CGhoul2Info& ghoul2, const int use_lod)
 	return return_lod;
 }
 
-void R_TransformEachSurface(const mdxmSurface_t* surface, vec3_t scale, CMiniHeap* G2VertSpace, intptr_t* transformed_verts_array, CBoneCache* boneCache)
+static void R_TransformEachSurface(const mdxmSurface_t* surface, vec3_t scale, CMiniHeap* G2VertSpace, intptr_t* TransformedVertsArray, CBoneCache* boneCache)
 {
 	int				 j, k;
 
@@ -406,7 +406,7 @@ void R_TransformEachSurface(const mdxmSurface_t* surface, vec3_t scale, CMiniHea
 
 	// alloc some space for the transformed verts to get put in
 	auto transformed_verts = reinterpret_cast<float*>(G2VertSpace->MiniHeapAlloc(surface->numVerts * 5 * 4));
-	transformed_verts_array[surface->thisSurfaceIndex] = reinterpret_cast<intptr_t>(transformed_verts);
+	TransformedVertsArray[surface->thisSurfaceIndex] = reinterpret_cast<intptr_t>(transformed_verts);
 	if (!transformed_verts)
 	{
 		assert(transformed_verts);
@@ -505,7 +505,7 @@ void R_TransformEachSurface(const mdxmSurface_t* surface, vec3_t scale, CMiniHea
 	}
 }
 
-void G2_TransformSurfaces(const int surfaceNum, surfaceInfo_v& rootSList, CBoneCache* boneCache, const model_t* currentModel, const int lod, vec3_t scale, CMiniHeap* G2VertSpace, intptr_t* TransformedVertArray, const bool secondTimeAround)
+static void G2_TransformSurfaces(const int surfaceNum, surfaceInfo_v& rootSList, CBoneCache* boneCache, const model_t* currentModel, const int lod, vec3_t scale, CMiniHeap* G2VertSpace, intptr_t* TransformedVertArray, const bool secondTimeAround)
 {
 	assert(currentModel);
 	assert(currentModel->mdxm);
@@ -545,19 +545,19 @@ void G2_TransformSurfaces(const int surfaceNum, surfaceInfo_v& rootSList, CBoneC
 
 // main calling point for the model transform for collision detection. At this point all of the skeleton has been transformed.
 #ifdef _G2_GORE
-void G2_TransformModel(CGhoul2Info_v& ghoul2, const int frame_num, vec3_t scale, CMiniHeap* G2VertSpace, int use_lod, const bool apply_gore, const SSkinGoreData* gore)
+void G2_TransformModel(CGhoul2Info_v& ghoul2, const int frameNum, vec3_t scale, CMiniHeap* G2VertSpace, int useLod, const bool ApplyGore, const SSkinGoreData* gore)
 #else
-void G2_TransformModel(CGhoul2Info_v& ghoul2, const int frame_num, vec3_t scale, CMiniHeap* G2VertSpace, int use_lod)
+void G2_TransformModel(CGhoul2Info_v& ghoul2, const int frameNum, vec3_t scale, CMiniHeap* G2VertSpace, int useLod)
 #endif
 {
 	int lod;
 	vec3_t			correct_scale;
 
 #if !defined(JK2_MODE) || defined(_G2_GORE)
-	qboolean		first_model_only = qfalse;
+	qboolean		firstModelOnly = qfalse;
 #endif // !JK2_MODE || _G2_GORE
 
-#ifndef JK2_MODE
+#ifndef _G2_GORE
 	if (cg_g2MarksAllModels == nullptr)
 	{
 		cg_g2MarksAllModels = ri.Cvar_Get("cg_g2MarksAllModels", "0", 0);
@@ -566,7 +566,7 @@ void G2_TransformModel(CGhoul2Info_v& ghoul2, const int frame_num, vec3_t scale,
 	if (cg_g2MarksAllModels == nullptr
 		|| !cg_g2MarksAllModels->integer)
 	{
-		first_model_only = qtrue;
+		firstModelOnly = qtrue;
 	}
 #endif // !JK2_MODE
 
@@ -574,7 +574,7 @@ void G2_TransformModel(CGhoul2Info_v& ghoul2, const int frame_num, vec3_t scale,
 	if (gore
 		&& gore->firstModel > 0)
 	{
-		first_model_only = qfalse;
+		firstModelOnly = qfalse;
 	}
 #endif
 
@@ -605,18 +605,18 @@ void G2_TransformModel(CGhoul2Info_v& ghoul2, const int frame_num, vec3_t scale,
 		assert(g.mBoneCache);
 		assert(G2_MODEL_OK(&g));
 		// stop us building this model more than once per frame
-		g.mMeshFrameNum = frame_num;
+		g.mMeshFrameNum = frameNum;
 
 		// decide the LOD
 #ifdef _G2_GORE
-		if (apply_gore)
+		if (ApplyGore)
 		{
-			lod = use_lod;
+			lod = useLod;
 			assert(g.currentModel);
 			if (lod >= g.currentModel->numLods)
 			{
 				g.mTransformedVertsArray = nullptr;
-				if (first_model_only)
+				if (firstModelOnly)
 				{
 					// we don't really need to do multiple models for gore.
 					return;
@@ -628,7 +628,7 @@ void G2_TransformModel(CGhoul2Info_v& ghoul2, const int frame_num, vec3_t scale,
 		else
 #endif
 		{
-			lod = G2_DecideTraceLod(g, use_lod);
+			lod = G2_DecideTraceLod(g, useLod);
 		}
 
 		// give us space for the transformed vertex array to be put in
@@ -646,7 +646,7 @@ void G2_TransformModel(CGhoul2Info_v& ghoul2, const int frame_num, vec3_t scale,
 
 #ifdef _G2_GORE
 
-		if (apply_gore && first_model_only)
+		if (ApplyGore && firstModelOnly)
 		{
 			// we don't really need to do multiple models for gore.
 			break;
@@ -656,7 +656,7 @@ void G2_TransformModel(CGhoul2Info_v& ghoul2, const int frame_num, vec3_t scale,
 }
 
 // work out how much space a triangle takes
-static float	G2_AreaOfTri(const vec3_t A, const vec3_t B, const vec3_t C)
+static float G2_AreaOfTri(const vec3_t A, const vec3_t B, const vec3_t C)
 {
 	vec3_t	cross, ab, cb;
 	VectorSubtract(A, B, ab);
@@ -790,7 +790,7 @@ static int GoreTouch = 1;
 static int GoreIndecies[MAX_GORE_INDECIES];
 
 #define GORE_MARGIN (0.0f)
-int	G2API_GetTime(int arg_time);
+int	G2API_GetTime(int argTime);
 
 // now we at poly level, check each model space transformed poly against the model world transfomed ray
 static void G2_GorePolys(const mdxmSurface_t* surface, CTraceSurface& ts)
@@ -1120,7 +1120,7 @@ static bool G2_TracePolys(const mdxmSurface_t* surface, CTraceSurface& ts)
 					new_col.mPolyIndex = j;
 					new_col.mEntityNum = ts.ent_num;
 					new_col.mSurfaceIndex = surface->thisSurfaceIndex;
-					new_col.mModelIndex = ts.model_index;
+					new_col.mModelIndex = ts.modelIndex;
 					if (face > 0)
 					{
 						new_col.mFlags = G2_FRONTFACE;
@@ -1148,57 +1148,8 @@ static bool G2_TracePolys(const mdxmSurface_t* surface, CTraceSurface& ts)
 						point2, point2[3], point2[4],
 						point3, point3[3], point3[4],
 						hit_point, &x_pos, &y_pos, new_col.mBarycentricI, new_col.mBarycentricJ);
-
-					/*
-										const shader_t		*shader = 0;
-										// now, we know what surface this hit belongs to, we need to go get the shader handle so we can get the correct hit location and hit material info
-										if ( cust_shader )
-										{
-											shader = cust_shader;
-										}
-										else if ( skin )
-										{
-											int		j;
-
-											// match the surface name to something in the skin file
-											shader = tr.defaultShader;
-											for ( j = 0 ; j < skin->numSurfaces ; j++ )
-											{
-												// the names have both been lowercased
-												if ( !strcmp( skin->surfaces[j]->name, surfInfo->name ) )
-												{
-													shader = skin->surfaces[j]->shader;
-													break;
-												}
-											}
-										}
-										else
-										{
-											shader = R_GetShaderByHandle( surfInfo->shaderIndex );
-										}
-
-										// do we even care to decide what the hit or location area's are? If we don't have them in the shader there is little point
-										if ((shader->hitLocation) || (shader->hitMaterial))
-										{
-											// ok, we have a floating point position. - determine location in data we need to look at
-											if (shader->hitLocation)
-											{
-												newCol.mLocation = *(hitMatReg[shader->hitLocation].loc +
-																	((int)(y_pos * hitMatReg[shader->hitLocation].height) * hitMatReg[shader->hitLocation].width) +
-																	((int)(x_pos * hitMatReg[shader->hitLocation].width)));
-												Com_Printf("G2_TracePolys hit location: %d\n", newCol.mLocation);
-											}
-
-											if (shader->hitMaterial)
-											{
-												newCol.mMaterial = *(hitMatReg[shader->hitMaterial].loc +
-																	((int)(y_pos * hitMatReg[shader->hitMaterial].height) * hitMatReg[shader->hitMaterial].width) +
-																	((int)(x_pos * hitMatReg[shader->hitMaterial].width)));
-											}
-										}
-					*/
 					// exit now if we should
-					if (ts.e_g2_trace_type == G2_RETURNONHIT)
+					if (ts.eG2TraceType == G2_RETURNONHIT)
 					{
 						ts.hitOne = true;
 						return true;
@@ -1219,10 +1170,7 @@ static bool G2_TracePolys(const mdxmSurface_t* surface, CTraceSurface& ts)
 }
 
 // now we're at poly level, check each model space transformed poly against the model world transfomed ray
-static bool G2_RadiusTracePolys(
-	const mdxmSurface_t* surface,
-	CTraceSurface& TS
-)
+static bool G2_RadiusTracePolys(const mdxmSurface_t* surface,CTraceSurface& TS)
 {
 	int		j;
 	vec3_t basis1;
@@ -1348,7 +1296,7 @@ static bool G2_RadiusTracePolys(
 				newCol.mPolyIndex = j;
 				newCol.mEntityNum = TS.ent_num;
 				newCol.mSurfaceIndex = surface->thisSurfaceIndex;
-				newCol.mModelIndex = TS.model_index;
+				newCol.mModelIndex = TS.modelIndex;
 				//					if (face>0)
 				//					{
 				newCol.mFlags = G2_FRONTFACE;
@@ -1375,7 +1323,7 @@ static bool G2_RadiusTracePolys(
 
 				newCol.mMaterial = newCol.mLocation = 0;
 				// exit now if we should
-				if (TS.e_g2_trace_type == G2_RETURNONHIT)
+				if (TS.eG2TraceType == G2_RETURNONHIT)
 				{
 					TS.hitOne = true;
 					return true;
@@ -1473,7 +1421,7 @@ static void G2_TraceSurfaces(CTraceSurface& TS)
 				if (G2_RadiusTracePolys(surface,		// const mdxmSurface_t *surface,
 					TS
 				)
-					&& TS.e_g2_trace_type == G2_RETURNONHIT
+					&& TS.eG2TraceType == G2_RETURNONHIT
 					)
 				{
 					TS.hitOne = true;
@@ -1484,7 +1432,7 @@ static void G2_TraceSurfaces(CTraceSurface& TS)
 			{
 				// go away and trace the polys in this surface
 				if (G2_TracePolys(surface, TS)
-					&& TS.e_g2_trace_type == G2_RETURNONHIT
+					&& TS.eG2TraceType == G2_RETURNONHIT
 					)
 				{
 					// ok, we hit one, *and* we want to return instantly because the returnOnHit is set
@@ -1517,9 +1465,9 @@ static void G2_TraceSurfaces(CTraceSurface& TS)
 }
 
 #ifdef _G2_GORE
-void G2_TraceModels(CGhoul2Info_v& ghoul2, vec3_t rayStart, vec3_t rayEnd, CCollisionRecord* collRecMap, int ent_num, EG2_Collision e_g2_trace_type, int use_lod, float fRadius, const float ssize, const float tsize, const float theta, const int shader, SSkinGoreData* gore, const qboolean skipIfLODNotMatch)
+void G2_TraceModels(CGhoul2Info_v& ghoul2, vec3_t rayStart, vec3_t rayEnd, CCollisionRecord* collRecMap, int ent_num, EG2_Collision eG2TraceType, int useLod, float fRadius, const float ssize, const float tsize, const float theta, const int shader, SSkinGoreData* gore, const qboolean skipIfLODNotMatch)
 #else
-void G2_TraceModels(CGhoul2Info_v& ghoul2, vec3_t rayStart, vec3_t rayEnd, CCollisionRecord* collRecMap, int ent_num, EG2_Collision e_g2_trace_type, int use_lod, float fRadius)
+void G2_TraceModels(CGhoul2Info_v& ghoul2, vec3_t rayStart, vec3_t rayEnd, CCollisionRecord* collRecMap, int ent_num, EG2_Collision eG2TraceType, int useLod, float fRadius)
 #endif
 {
 	int lod;
@@ -1530,7 +1478,7 @@ void G2_TraceModels(CGhoul2Info_v& ghoul2, vec3_t rayStart, vec3_t rayEnd, CColl
 #endif // !JK2_MODE || _G2_GORE
 	int				firstModel = 0;
 
-#ifndef JK2_MODE
+#ifndef _G2_GORE
 	if (cg_g2MarksAllModels == nullptr)
 	{
 		cg_g2MarksAllModels = ri.Cvar_Get("cg_g2MarksAllModels", "0", 0);
@@ -1595,12 +1543,12 @@ void G2_TraceModels(CGhoul2Info_v& ghoul2, vec3_t rayStart, vec3_t rayEnd, CColl
 			skin = nullptr;
 		}
 
-		lod = G2_DecideTraceLod(g, use_lod);
+		lod = G2_DecideTraceLod(g, useLod);
 
-#ifndef JK2_MODE
+#ifndef _G2_GORE
 		if (skipIfLODNotMatch)
 		{//we only want to hit this SPECIFIC LOD...
-			if (lod != use_lod)
+			if (lod != useLod)
 			{//doesn't match, skip this model
 				continue;
 			}
@@ -1611,9 +1559,9 @@ void G2_TraceModels(CGhoul2Info_v& ghoul2, vec3_t rayStart, vec3_t rayEnd, CColl
 		G2_FindOverrideSurface(-1, g.mSlist);
 
 #ifdef _G2_GORE
-		CTraceSurface TS(g.mSurfaceRoot, g.mSlist, g.currentModel, lod, rayStart, rayEnd, collRecMap, ent_num, i, skin, cust_shader, g.mTransformedVertsArray, e_g2_trace_type, fRadius, ssize, tsize, theta, shader, &g, gore);
+		CTraceSurface TS(g.mSurfaceRoot, g.mSlist, g.currentModel, lod, rayStart, rayEnd, collRecMap, ent_num, i, skin, cust_shader, g.mTransformedVertsArray, eG2TraceType, fRadius, ssize, tsize, theta, shader, &g, gore);
 #else
-		CTraceSurface TS(g.mSurfaceRoot, g.mSlist, g.currentModel, lod, rayStart, rayEnd, collRecMap, ent_num, i, skin, cust_shader, g.mTransformedVertsArray, e_g2_trace_type, fRadius);
+		CTraceSurface TS(g.mSurfaceRoot, g.mSlist, g.currentModel, lod, rayStart, rayEnd, collRecMap, ent_num, i, skin, cust_shader, g.mTransformedVertsArray, eG2TraceType, fRadius);
 #endif
 		// start the surface recursion loop
 		G2_TraceSurfaces(TS);
@@ -1828,9 +1776,7 @@ void G2_SaveGhoul2Models(
 }
 
 // FIXME Remove 'buffer' parameter
-void G2_LoadGhoul2Model(
-	CGhoul2Info_v& ghoul2,
-	const char* buffer)
+void G2_LoadGhoul2Model(CGhoul2Info_v& ghoul2,const char* buffer)
 {
 	static_cast<void>(buffer);
 

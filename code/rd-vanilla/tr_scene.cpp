@@ -123,7 +123,7 @@ void RE_AddPolyToScene(const qhandle_t h_shader, const int numVerts, const polyV
 
 	if (!tr.registered) {
 		return;
-}
+	}
 
 	if (!h_shader) {
 #ifndef FINAL_BUILD

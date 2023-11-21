@@ -116,12 +116,12 @@ void Vehicle_SetAnim(gentity_t* ent, int setAnimParts, int anim, int setAnimFlag
 }
 
 void G_VehicleTrace(trace_t* results, const vec3_t start, const vec3_t tMins, const vec3_t tMaxs, const vec3_t end,
-	int pass_entity_num, int contentmask)
+	int passEntityNum, int contentmask)
 {
 #ifdef _JK2MP
-	trap_Trace(results, start, tMins, tMaxs, end, pass_entity_num, contentmask);
+	trap_Trace(results, start, tMins, tMaxs, end, passEntityNum, contentmask);
 #else
-	gi.trace(results, start, tMins, tMaxs, end, pass_entity_num, contentmask, static_cast<EG2_Collision>(0), 0);
+	gi.trace(results, start, tMins, tMaxs, end, passEntityNum, contentmask, static_cast<EG2_Collision>(0), 0);
 #endif
 }
 
@@ -1600,7 +1600,7 @@ static bool Update(Vehicle_t* p_veh, const usercmd_t* pUmcd)
 	int i;
 	int prevSpeed;
 	int nextSpeed;
-	int cur_time;
+	int curTime;
 	int halfMaxSpeed;
 	playerState_t* parent_ps;
 	constexpr qboolean link_held = qfalse;
@@ -1612,12 +1612,12 @@ static bool Update(Vehicle_t* p_veh, const usercmd_t* pUmcd)
 #endif
 
 #ifndef _JK2MP//SP
-	cur_time = level.time;
+	curTime = level.time;
 #elif QAGAME//MP GAME
-	cur_time = level.time;
+	curTime = level.time;
 #elif CGAME//MP CGAME
 	//FIXME: pass in ucmd?  Not sure if this is reliable...
-	cur_time = pm->cmd.serverTime;
+	curTime = pm->cmd.serverTime;
 #endif
 
 	//increment the ammo for all rechargeable weapons
@@ -2029,8 +2029,8 @@ static bool Update(Vehicle_t* p_veh, const usercmd_t* pUmcd)
 
 	// Shifting Sounds
 	//=====================================================================
-	if (p_veh->m_iTurboTime < cur_time &&
-		p_veh->m_iSoundDebounceTimer < cur_time &&
+	if (p_veh->m_iTurboTime < curTime &&
+		p_veh->m_iSoundDebounceTimer < curTime &&
 		(nextSpeed > prevSpeed && nextSpeed > halfMaxSpeed && prevSpeed < halfMaxSpeed || nextSpeed > halfMaxSpeed &&
 			!Q_irand(0, 1000))
 		)
@@ -2072,7 +2072,7 @@ static bool Update(Vehicle_t* p_veh, const usercmd_t* pUmcd)
 		}
 		if (shift_sound)
 		{
-			p_veh->m_iSoundDebounceTimer = cur_time + Q_irand(1000, 4000);
+			p_veh->m_iSoundDebounceTimer = curTime + Q_irand(1000, 4000);
 			G_SoundIndexOnEnt(p_veh->m_pParentEntity, CHAN_AUTO, shift_sound);
 		}
 	}

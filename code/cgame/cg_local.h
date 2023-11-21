@@ -830,7 +830,7 @@ void CG_PlayerShieldHit(int entitynum, vec3_t angles, int amount);
 //
 // cg_predict.c
 //
-int CG_PointContents(const vec3_t point, int pass_entity_num);
+int CG_PointContents(const vec3_t point, int passEntityNum);
 void CG_Trace(trace_t* result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
 	int skip_number, int mask);
 void CG_PredictPlayerState();
@@ -1313,9 +1313,9 @@ void* cgi_UI_GetMenuByName(const char* menu);
 
 void SetWeaponSelectTime();
 
-void CG_PlayEffectBolted(const char* fx_name, int model_index, int bolt_index, int ent_num, vec3_t origin,
+void CG_PlayEffectBolted(const char* fx_name, int modelIndex, int bolt_index, int ent_num, vec3_t origin,
 	int i_loop_time = 0, bool is_relative = false);
-void CG_PlayEffectIDBolted(int fx_id, int model_index, int bolt_index, int ent_num, vec3_t origin, int i_loop_time = 0,
+void CG_PlayEffectIDBolted(int fx_id, int modelIndex, int bolt_index, int ent_num, vec3_t origin, int i_loop_time = 0,
 	bool is_relative = false);
 void CG_PlayEffectOnEnt(const char* fx_name, int client_num, vec3_t origin, const vec3_t fwd);
 void CG_PlayEffectIDOnEnt(int fx_id, int client_num, vec3_t origin, const vec3_t fwd);

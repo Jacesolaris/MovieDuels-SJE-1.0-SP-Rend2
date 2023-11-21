@@ -1233,9 +1233,9 @@ void	GL_SetDefaultState();
 void	GL_SelectTexture(int unit);
 void	GL_TextureMode(const char* string);
 void	GL_CheckErrors();
-void	GL_State(uint32_t state_bits);
+void	GL_State(uint32_t stateBits);
 void	GL_TexEnv(int env);
-void	GL_Cull(int cull_type);
+void	GL_Cull(int cullType);
 
 #define GLS_SRCBLEND_ZERO						0x00000001
 #define GLS_SRCBLEND_ONE						0x00000002
@@ -1427,7 +1427,7 @@ void RB_StageIteratorSky();
 void RB_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, byte* color);
 void RB_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, byte* color, float s1, float t1, float s2, float t2);
 
-void RB_ShowImages();
+void RB_ShowImages(void);
 
 /*
 ============================================================
@@ -1767,7 +1767,7 @@ void RB_ExecuteRenderCommands(const void* data);
 
 void R_IssuePendingRenderCommands();
 
-void R_AddDrawSurfCmd(drawSurf_t* draw_surfs, int num_draw_surfs);
+void R_AddDrawSurfCmd(drawSurf_t* drawSurfs, int numDrawSurfs);
 
 void RE_SetColor(const float* rgba);
 void RE_StretchPic(float x, float y, float w, float h,

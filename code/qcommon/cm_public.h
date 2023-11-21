@@ -40,7 +40,7 @@ int CM_NumInlineModels();
 char* CM_EntityString();
 char* CM_SubBSPEntityString(int index);
 int CM_LoadSubBSP(const char* name, qboolean clientload);
-int CM_FindSubBSP(int model_index);
+int CM_FindSubBSP(int modelIndex);
 
 // returns an ORed contents mask
 int CM_PointContents(const vec3_t p, clipHandle_t model);

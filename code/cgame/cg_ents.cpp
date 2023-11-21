@@ -32,9 +32,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../game/wp_saber.h"
 #include "../game/g_vehicles.h"
 
-extern void CG_AddSaberBlade(centity_t* cent, centity_t* scent, int renderfx, int model_index,
+extern void CG_AddSaberBlade(centity_t* cent, centity_t* scent, int renderfx, int modelIndex,
 	vec3_t origin, vec3_t angles);
-extern void CG_CheckSaberInWater(const centity_t* cent, const centity_t* scent, int saber_num, int model_index,
+extern void CG_CheckSaberInWater(const centity_t* cent, const centity_t* scent, int saber_num, int modelIndex,
 	vec3_t origin,
 	vec3_t angles);
 extern void CG_ForcePushBlur(const vec3_t org, qboolean dark_side = qfalse);

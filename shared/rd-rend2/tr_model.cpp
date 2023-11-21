@@ -323,7 +323,7 @@ qhandle_t RE_RegisterModel(const char* name)
 		if (strcmp(name, "*default.gla") != 0)
 		{
 			return 0;
-}
+		}
 	}
 #endif
 
@@ -333,7 +333,7 @@ qhandle_t RE_RegisterModel(const char* name)
 	}
 
 	// allocate a new model_t
-	if ((mod = R_AllocModel()) == nullptr) 
+	if ((mod = R_AllocModel()) == nullptr)
 	{
 		ri.Printf(PRINT_WARNING, "RE_RegisterModel: R_AllocModel() failed for '%s'\n", name);
 		return 0;
@@ -752,7 +752,7 @@ qhandle_t RE_RegisterServerModel(const char* name) {
 #else
 		r_noServerGhoul2 = ri.Cvar_Get("r_noghoul2", "0", 0);
 #endif
-}
+	}
 
 	if (!name || !name[0]) {
 		return 0;
@@ -1658,7 +1658,7 @@ void R_Modellist_f(void) {
 #if	0		// not working right with new hunk
 	if (tr.world) {
 		ri.Printf(PRINT_ALL, "\n%8i : %s\n", tr.world->dataSize, tr.world->name);
-}
+	}
 #endif
 }
 

@@ -18,7 +18,7 @@
 // Bolt List handling routines - so entities can attach themselves to any part of the model in question
 
 // Given a bone number, see if that bone is already in our bone list
-int G2_Find_Bolt_Bone_Num(boltInfo_v& bltlist, const int bone_num)
+int G2_Find_Bolt_Bone_Num(const boltInfo_v& bltlist, const int bone_num)
 {
 	if (bone_num == -1)
 	{
@@ -39,7 +39,7 @@ int G2_Find_Bolt_Bone_Num(boltInfo_v& bltlist, const int bone_num)
 }
 
 // Given a bone number, see if that surface is already in our surfacelist list
-int G2_Find_Bolt_Surface_Num(boltInfo_v& bltlist, const int surfaceNum, const int flags)
+int G2_Find_Bolt_Surface_Num(const boltInfo_v& bltlist, const int surfaceNum, const int flags)
 {
 	if (surfaceNum == -1)
 	{
@@ -224,7 +224,7 @@ int G2_Add_Bolt(const CGhoul2Info* ghlInfo, boltInfo_v& bltlist, const surfaceIn
 }
 
 // Given a model handle, and a bone name, we want to remove this bone from the bone override list
-qboolean G2_Remove_Bolt(boltInfo_v& bltlist, int index)
+qboolean G2_Remove_Bolt(boltInfo_v& bltlist, const int index)
 {
 	// did we find it?
 	if (index != -1)
@@ -273,7 +273,7 @@ void G2_Init_Bolt_List(boltInfo_v& bltlist)
 }
 
 // remove any bolts that reference original surfaces, generated surfaces, or bones that aren't active anymore
-void G2_RemoveRedundantBolts(boltInfo_v& bltlist, surfaceInfo_v& slist, int* active_surfaces, int* activeBones)
+static void G2_RemoveRedundantBolts(boltInfo_v& bltlist, surfaceInfo_v& slist, int* active_surfaces, int* activeBones)
 {
 	// walk the bolt list
 	for (size_t i = 0; i < bltlist.size(); i++)

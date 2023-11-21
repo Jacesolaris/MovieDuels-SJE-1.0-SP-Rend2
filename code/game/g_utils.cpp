@@ -208,7 +208,7 @@ void G_PlayEffect(const int fx_id, const vec3_t origin, const vec3_t axis[3])
 
 // Effect playing utilities	- bolt an effect to a ghoul2 models bolton point
 //-----------------------------
-void G_PlayEffect(const int fx_id, const int model_index, const int bolt_index, const int ent_num, const vec3_t origin,
+void G_PlayEffect(const int fx_id, const int modelIndex, const int bolt_index, const int ent_num, const vec3_t origin,
 	const int i_loop_time, const qboolean is_relative)
 	//i_loop_time 0 = not looping, 1 for infinite, else duration
 {
@@ -219,7 +219,7 @@ void G_PlayEffect(const int fx_id, const int model_index, const int bolt_index, 
 	tent->s.weapon = is_relative;
 
 	tent->svFlags |= SVF_BROADCAST;
-	gi.G2API_AttachEnt(&tent->s.boltInfo, &g_entities[ent_num].ghoul2[model_index], bolt_index, ent_num, model_index);
+	gi.G2API_AttachEnt(&tent->s.boltInfo, &g_entities[ent_num].ghoul2[modelIndex], bolt_index, ent_num, modelIndex);
 }
 
 //-----------------------------
@@ -249,17 +249,17 @@ void G_PlayEffect(const char* name, const vec3_t origin, const vec3_t axis[3])
 	G_PlayEffect(G_EffectIndex(name), origin, axis);
 }
 
-void G_StopEffect(const int fx_id, const int model_index, const int bolt_index, const int ent_num)
+void G_StopEffect(const int fx_id, const int modelIndex, const int bolt_index, const int ent_num)
 {
 	gentity_t* tent = G_TempEntity(g_entities[ent_num].currentOrigin, EV_STOP_EFFECT);
 	tent->s.eventParm = fx_id;
 	tent->svFlags |= SVF_BROADCAST;
-	gi.G2API_AttachEnt(&tent->s.boltInfo, &g_entities[ent_num].ghoul2[model_index], bolt_index, ent_num, model_index);
+	gi.G2API_AttachEnt(&tent->s.boltInfo, &g_entities[ent_num].ghoul2[modelIndex], bolt_index, ent_num, modelIndex);
 }
 
-void G_StopEffect(const char* name, const int model_index, const int bolt_index, const int ent_num)
+void G_StopEffect(const char* name, const int modelIndex, const int bolt_index, const int ent_num)
 {
-	G_StopEffect(G_EffectIndex(name), model_index, bolt_index, ent_num);
+	G_StopEffect(G_EffectIndex(name), modelIndex, bolt_index, ent_num);
 }
 
 //===Bypass network for sounds on specific channels====================
@@ -2157,7 +2157,7 @@ void removeBoltSurface(gentity_t* self)
 	G_FreeEntity(self);
 }
 
-void G_SetBoltSurfaceRemoval(const int ent_num, const int model_index, const int bolt_index, const int surface_index,
+void G_SetBoltSurfaceRemoval(const int ent_num, const int modelIndex, const int bolt_index, const int surface_index,
 	const float duration)
 {
 	constexpr vec3_t snapped = { 0, 0, 0 };
@@ -2166,7 +2166,7 @@ void G_SetBoltSurfaceRemoval(const int ent_num, const int model_index, const int
 
 	e->classname = "BoltRemoval";
 	e->cantHitEnemyCounter = ent_num;
-	e->damage = model_index;
+	e->damage = modelIndex;
 	e->attackDebounceTime = bolt_index;
 	e->aimDebounceTime = surface_index;
 

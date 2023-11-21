@@ -90,7 +90,7 @@ extern qboolean BG_FullBodyTauntAnim(int anim);
 extern qboolean FlyingCreature(const gentity_t* ent);
 extern Vehicle_t* G_IsRidingVehicle(const gentity_t* p_ent);
 extern void G_AttachToVehicle(gentity_t* ent, usercmd_t** ucmd);
-extern void G_GetBoltPosition(gentity_t* self, int bolt_index, vec3_t pos, int model_index = 0);
+extern void G_GetBoltPosition(gentity_t* self, int bolt_index, vec3_t pos, int modelIndex = 0);
 extern void G_UpdateEmplacedWeaponData(gentity_t* ent);
 extern void RunEmplacedWeapon(gentity_t* ent, usercmd_t** ucmd);
 extern qboolean G_PointInBounds(const vec3_t point, const vec3_t mins, const vec3_t maxs);

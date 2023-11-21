@@ -72,7 +72,7 @@ extern void G_ChangeModel(const char* new_model);
 extern void WP_SetSaberOrigin(gentity_t* self, vec3_t new_org);
 extern void Rail_LockCenterOfTrack(const char* trackName);
 extern void Rail_UnLockCenterOfTrack(const char* trackName);
-extern void G_GetBoltPosition(gentity_t* self, int bolt_index, vec3_t pos, int model_index = 0);
+extern void G_GetBoltPosition(gentity_t* self, int bolt_index, vec3_t pos, int modelIndex = 0);
 extern qboolean G_DoDismembermentcin(gentity_t* self, vec3_t point, int mod, int hit_loc,
 	qboolean force = qfalse);
 extern void G_ChangeScale(const char* data);

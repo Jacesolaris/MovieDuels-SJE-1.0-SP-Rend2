@@ -91,7 +91,7 @@ public:
 		mOverride[index] = mCurrentTouch;
 		mAt[index] = pos;
 	}
-	int Test(int index)
+	int Test(int index) const
 	{
 		assert(index >= 0 && index < 512);
 		return (mOverride[index] == mCurrentTouch)
@@ -192,7 +192,7 @@ int G2_IsSurfaceLegal(const model_s* mod_m, const char* surfaceName, uint32_t* f
  *    pointer to surface if successful, false otherwise
  *
  ************************************************************************************************/
-const mdxmSurface_t* G2_FindSurface(const CGhoul2Info* ghlInfo, const surfaceInfo_v& slist, const char* surfaceName, int* surf_index)
+static const mdxmSurface_t* G2_FindSurface(const CGhoul2Info* ghlInfo, const surfaceInfo_v& slist, const char* surfaceName, int* surf_index)
 {
 	int						i = 0;
 	// find the model we want
@@ -239,7 +239,7 @@ const mdxmSurface_t* G2_FindSurface(const CGhoul2Info* ghlInfo, const surfaceInf
 	return 0;
 }
 
-qboolean G2_SetSurfaceOnOff(CGhoul2Info* ghlInfo, surfaceInfo_v& slist, const char* surfaceName, const int offFlags)
+static qboolean G2_SetSurfaceOnOff(CGhoul2Info* ghlInfo, surfaceInfo_v& slist, const char* surfaceName, const int offFlags)
 {
 	int					surf_index = -1;
 	surfaceInfo_t		temp_slist_entry;
@@ -372,7 +372,7 @@ int G2_IsSurfaceOff (CGhoul2Info *ghlInfo, surfaceInfo_v &slist, const char *sur
 }
 */
 
-void G2_FindRecursiveSurface(const model_t* currentModel, int surfaceNum, surfaceInfo_v& root_list, int* active_surfaces)
+static void G2_FindRecursiveSurface(const model_t* currentModel, int surfaceNum, surfaceInfo_v& root_list, int* active_surfaces)
 {
 	assert(currentModel);
 	assert(currentModel->data.glm);
@@ -413,7 +413,7 @@ void G2_FindRecursiveSurface(const model_t* currentModel, int surfaceNum, surfac
 	}
 }
 
-void G2_RemoveRedundantGeneratedSurfaces(surfaceInfo_v& slist, int* active_surfaces)
+static void G2_RemoveRedundantGeneratedSurfaces(surfaceInfo_v& slist, int* active_surfaces)
 {
 	// walk the surface list, removing surface overrides or generated surfaces that are pointing at surfaces that aren't active anymore
 	for (size_t i = 0; i < slist.size(); i++)

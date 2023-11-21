@@ -174,15 +174,15 @@ R_AddDrawSurfCmd
 
 =============
 */
-void	R_AddDrawSurfCmd(drawSurf_t* draw_surfs, const int num_draw_surfs) {
+void	R_AddDrawSurfCmd(drawSurf_t* drawSurfs, const int numDrawSurfs) {
 	drawSurfsCommand_t* cmd = static_cast<drawSurfsCommand_t*>(R_GetCommandBuffer(sizeof * cmd));
 	if (!cmd) {
 		return;
 	}
 	cmd->commandId = RC_DRAW_SURFS;
 
-	cmd->drawSurfs = draw_surfs;
-	cmd->numDrawSurfs = num_draw_surfs;
+	cmd->drawSurfs = drawSurfs;
+	cmd->numDrawSurfs = numDrawSurfs;
 
 	cmd->refdef = tr.refdef;
 	cmd->viewParms = tr.viewParms;

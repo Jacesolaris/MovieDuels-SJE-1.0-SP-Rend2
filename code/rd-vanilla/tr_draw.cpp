@@ -118,7 +118,7 @@ void RE_StretchRaw(const int x, const int y, const int w, const int h, int cols,
 		}
 	}
 
-	extern void	RB_SetGL2D();
+	extern void	RB_SetGL2D(void);
 	if (!backEnd.projection2D)
 	{
 		RB_SetGL2D();
@@ -482,7 +482,7 @@ qboolean RE_ProcessDissolve()
 
 		if (i_dissolve_percentage <= 100)
 		{
-			extern void	RB_SetGL2D();
+			extern void	RB_SetGL2D(void);
 			RB_SetGL2D();
 
 			//			GLdouble glD;
