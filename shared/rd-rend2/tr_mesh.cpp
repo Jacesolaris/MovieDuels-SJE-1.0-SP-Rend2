@@ -267,7 +267,7 @@ R_ComputeFogNum
 =================
 */
 int R_ComputeFogNum(mdvModel_t* model, trRefEntity_t* ent) {
-	int				i/*, j*/;
+	int				i, j = 0;
 	float			frameRadius;
 	fog_t* fog;
 	mdvFrame_t* mdvFrame;

@@ -284,11 +284,11 @@ void CFxScheduler::AddLoopedEffects()
 	{
 		if (mLoopedEffectArray[i].mId && mLoopedEffectArray[i].mNextTime < theFxHelper.mTime)
 		{
-			const int ent_num = mLoopedEffectArray[i].mBoltInfo >> ENTITY_SHIFT & ENTITY_AND;
-			if (cg_entities[ent_num].gent->inuse)
+			const int entNum = mLoopedEffectArray[i].mBoltInfo >> ENTITY_SHIFT & ENTITY_AND;
+			if (cg_entities[entNum].gent->inuse)
 			{
 				// only play the looped effect when the ent is still inUse....
-				PlayEffect(mLoopedEffectArray[i].mId, cg_entities[ent_num].lerpOrigin, nullptr,
+				PlayEffect(mLoopedEffectArray[i].mId, cg_entities[entNum].lerpOrigin, nullptr,
 					mLoopedEffectArray[i].mBoltInfo, -1, mLoopedEffectArray[i].mPortalEffect, false,
 					mLoopedEffectArray[i].mIsRelative);
 				//very important to send FALSE looptime to not recursively add me!
@@ -780,7 +780,7 @@ void CFxScheduler::PlayEffect(const int id, vec3_t origin, vec3_t forward, const
 // Return:
 //	none
 //------------------------------------------------------
-void CFxScheduler::PlayEffect(const char* file, vec3_t origin, vec3_t axis[3], const int boltInfo, const int ent_num,
+void CFxScheduler::PlayEffect(const char* file, vec3_t origin, vec3_t axis[3], const int boltInfo, const int entNum,
 	const bool isPortal, const int i_loop_time, const bool is_relative)
 {
 	char sfile[MAX_QPATH];
@@ -791,9 +791,9 @@ void CFxScheduler::PlayEffect(const char* file, vec3_t origin, vec3_t axis[3], c
 	// This is a horribly dumb thing to have to do, but QuakeIII might not have calc'd the lerpOrigin
 	//	for the entity we may be trying to bolt onto.  We like having the correct origin, so we are
 	//	forced to call this function....
-	if (ent_num > -1)
+	if (entNum > -1)
 	{
-		CG_CalcEntityLerpPositions(&cg_entities[ent_num]);
+		CG_CalcEntityLerpPositions(&cg_entities[entNum]);
 	}
 
 #ifndef FINAL_BUILD
@@ -803,7 +803,7 @@ void CFxScheduler::PlayEffect(const char* file, vec3_t origin, vec3_t axis[3], c
 	}
 #endif
 
-	PlayEffect(mEffectIDs[sfile], origin, axis, boltInfo, ent_num, isPortal, i_loop_time, is_relative);
+	PlayEffect(mEffectIDs[sfile], origin, axis, boltInfo, entNum, isPortal, i_loop_time, is_relative);
 }
 
 //------------------------------------------------------
@@ -1101,7 +1101,7 @@ void CFxScheduler::CreateEffect(CPrimitiveTemplate* fx, const int client_id) con
 // Return:
 //	none
 //------------------------------------------------------
-void CFxScheduler::PlayEffect(const int id, vec3_t origin, vec3_t axis[3], const int boltInfo, const int ent_num,
+void CFxScheduler::PlayEffect(const int id, vec3_t origin, vec3_t axis[3], const int boltInfo, const int entNum,
 	const bool isPortal, const int i_loop_time, const bool is_relative)
 {
 	int delay;
@@ -1122,7 +1122,7 @@ void CFxScheduler::PlayEffect(const int id, vec3_t origin, vec3_t axis[3], const
 	}
 
 	int model_num = 0, bolt_num = -1;
-	int entityNum = ent_num;
+	int entityNum = entNum;
 
 	if (boltInfo > 0)
 	{
@@ -1187,10 +1187,10 @@ void CFxScheduler::PlayEffect(const int id, vec3_t origin, vec3_t axis[3], const
 			// if the delay is so small, we may as well just create this bit right now
 			if (delay < 1 && !forceScheduling && !isPortal)
 			{
-				if (boltInfo == -1 && ent_num != -1)
+				if (boltInfo == -1 && entNum != -1)
 				{
 					// Find out where the entity currently is
-					CreateEffect(prim, cg_entities[ent_num].lerpOrigin, axis, -delay);
+					CreateEffect(prim, cg_entities[entNum].lerpOrigin, axis, -delay);
 				}
 				else
 				{
@@ -1216,7 +1216,7 @@ void CFxScheduler::PlayEffect(const int id, vec3_t origin, vec3_t axis[3], const
 
 				if (boltInfo == -1)
 				{
-					if (ent_num == -1)
+					if (entNum == -1)
 					{
 						// we aren't bolting, so make sure the spawn system knows this by putting -1's in these fields
 						sfx->mBoltNum = -1;

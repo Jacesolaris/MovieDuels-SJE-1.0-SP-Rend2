@@ -839,9 +839,9 @@ qboolean G2_Get_Bone_Anim_Index(boneInfo_v& blist, const int index, const int cu
 		// are we an animating bone?
 		if (blist[index].flags & (BONE_ANIM_OVERRIDE_LOOP | BONE_ANIM_OVERRIDE))
 		{
-			int current_frame, new_frame;
+			int current_frame, newFrame;
 			float lerp;
-			G2_TimingModel(blist[index], current_time, numFrames, current_frame, new_frame, lerp);
+			G2_TimingModel(blist[index], current_time, numFrames, current_frame, newFrame, lerp);
 
 			if (retcurrent_frame)
 			{
@@ -1040,11 +1040,11 @@ static void G2_RagDollCurrentPosition(CGhoul2Info_v& ghoul2_v, const int g2_inde
 static bool G2_RagDollSettlePositionNumeroTrois(CGhoul2Info_v& ghoul2_v, CRagDollUpdateParams* params, int curTime);
 static bool G2_RagDollSetup(CGhoul2Info& ghoul2, int frameNum, bool resetOrigin, const vec3_t origin, bool anyRendered);
 
-void G2_GetBoneBasepose(const CGhoul2Info& ghoul2, int bone_num, mdxaBone_t*& ret_basepose, mdxaBone_t*& ret_basepose_inv);
-int G2_GetBoneDependents(CGhoul2Info& ghoul2, int bone_num, int* temp_dependents, int max_dep);
-void G2_GetBoneMatrixLow(const CGhoul2Info& ghoul2, int bone_num, const vec3_t scale, mdxaBone_t& ret_matrix, mdxaBone_t*& ret_basepose, mdxaBone_t*& ret_basepose_inv);
-int G2_GetParentBoneMatrixLow(const CGhoul2Info& ghoul2, int bone_num, const vec3_t scale, mdxaBone_t& ret_matrix, mdxaBone_t*& ret_basepose, mdxaBone_t*& ret_basepose_inv);
-bool G2_WasBoneRendered(const CGhoul2Info& ghoul2, int bone_num);
+void G2_GetBoneBasepose(const CGhoul2Info& ghoul2, const int bone_num, mdxaBone_t*& retBasepose, mdxaBone_t*& retBaseposeInv);
+int G2_GetBoneDependents(CGhoul2Info& ghoul2, const int bone_num, int* tempDependents, int maxDep);
+void G2_GetBoneMatrixLow(const CGhoul2Info& ghoul2, const int bone_num, const vec3_t scale, mdxaBone_t& retMatrix, mdxaBone_t*& retBasepose, mdxaBone_t*& retBaseposeInv);
+int G2_GetParentBoneMatrixLow(const CGhoul2Info& ghoul2, const int bone_num, const vec3_t scale, mdxaBone_t& retMatrix, mdxaBone_t*& retBasepose, mdxaBone_t*& retBaseposeInv);
+bool G2_WasBoneRendered(const CGhoul2Info& ghoul2, const int bone_num);
 
 #define MAX_BONES_RAG (256)
 
@@ -2532,7 +2532,7 @@ static inline char* G2_Get_Bone_Name(CGhoul2Info* ghlInfo, boneInfo_v& blist, in
 }
 #endif
 
-char* G2_GetBoneNameFromSkel(const CGhoul2Info& ghoul2, int bone_num);
+char* G2_GetBoneNameFromSkel(const CGhoul2Info& ghoul2, const int bone_num);
 
 static void G2_RagDollCurrentPosition(CGhoul2Info_v& ghoul2_v, const int g2_index, const int frameNum, const vec3_t angles, const vec3_t position, const vec3_t scale)
 {
@@ -3192,10 +3192,10 @@ static inline int G2_RagIndexForBoneNum(int bone_num)
 #endif
 
 extern mdxaBone_t worldMatrix;
-void G2_RagGetBoneBasePoseMatrixLow(const CGhoul2Info& ghoul2, int bone_num, const mdxaBone_t& bone_matrix, mdxaBone_t& ret_matrix, vec3_t scale);
-void G2_RagGetAnimMatrix(CGhoul2Info& ghoul2, int bone_num, mdxaBone_t& matrix, int frame);
+void G2_RagGetBoneBasePoseMatrixLow(const CGhoul2Info& ghoul2, const int bone_num, const mdxaBone_t& boneMatrix, mdxaBone_t& retMatrix, vec3_t scale);
+void G2_RagGetAnimMatrix(CGhoul2Info& ghoul2, const int bone_num, mdxaBone_t& matrix, const int frame);
 
-static void G2_RagGetWorldAnimMatrix(CGhoul2Info& ghoul2, const boneInfo_t& bone, CRagDollUpdateParams* params, mdxaBone_t& ret_matrix)
+static void G2_RagGetWorldAnimMatrix(CGhoul2Info& ghoul2, const boneInfo_t& bone, CRagDollUpdateParams* params, mdxaBone_t& retMatrix)
 {
 	static mdxaBone_t true_base_matrix, base_bone_matrix;
 
@@ -3208,9 +3208,9 @@ static void G2_RagGetWorldAnimMatrix(CGhoul2Info& ghoul2, const boneInfo_t& bone
 
 	//Use params to multiply world coordinate/dir matrix into the
 	//bone matrix and give us a useable world position
-	Multiply_3x4Matrix(&ret_matrix, &worldMatrix, &base_bone_matrix);
+	Multiply_3x4Matrix(&retMatrix, &worldMatrix, &base_bone_matrix);
 
-	assert(!Q_isnan(ret_matrix.matrix[2][3]));
+	assert(!Q_isnan(retMatrix.matrix[2][3]));
 }
 
 //get the current pelvis Z direction and the base anim matrix Z direction
@@ -3634,7 +3634,7 @@ static bool G2_RagDollSettlePositionNumeroTrois(CGhoul2Info_v& ghoul2_v, CRagDol
 				ragCallbackBoneInSolid_t *callData = (ragCallbackBoneInSolid_t *)cl.mSharedMemory;
 
 				VectorCopy(e.currentOrigin, callData->bonePos);
-				callData->ent_num = params->me;
+				callData->entNum = params->me;
 				callData->solidCount = bone.solidCount;
 
 				VM_Call(cgvm, CG_RAG_CALLBACK, RAG_CALLBACK_BONEINSOLID);
@@ -3772,7 +3772,7 @@ static void G2_BoneSnap(CGhoul2Info_v& ghoul2V, boneInfo_t& bone, CRagDollUpdate
 
 	ragCallbackBoneSnap_t *callData = (ragCallbackBoneSnap_t *)cl.mSharedMemory;
 
-	callData->ent_num = params->me;
+	callData->entNum = params->me;
 	strcpy(callData->boneName, G2_Get_Bone_Name(&ghoul2V[0], ghoul2V[0].mBlist, bone.boneNumber));
 
 	VM_Call(cgvm, CG_RAG_CALLBACK, RAG_CALLBACK_BONESNAP);

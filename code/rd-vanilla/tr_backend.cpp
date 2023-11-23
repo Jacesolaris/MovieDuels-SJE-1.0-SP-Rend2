@@ -618,7 +618,7 @@ RB_RenderDrawSurfList
 using postRender_t = struct
 {
 	int			fogNum;
-	int			ent_num;
+	int			entNum;
 	int			dlighted;
 	int			depthRange;
 	drawSurf_t* draw_surf;
@@ -714,7 +714,7 @@ static void RB_RenderDrawSurfList(drawSurf_t* drawSurfs, const int numDrawSurfs)
 				depth_range = old_depth_range;
 
 				//store off the ent num
-				p_render->ent_num = entityNum;
+				p_render->entNum = entityNum;
 
 				//remember the other values necessary for rendering this surf
 				p_render->draw_surf = draw_surf;
@@ -841,7 +841,7 @@ static void RB_RenderDrawSurfList(drawSurf_t* drawSurfs, const int numDrawSurfs)
 
 			RB_BeginSurface(p_render->shader, p_render->fogNum);
 
-			backEnd.currentEntity = &backEnd.refdef.entities[p_render->ent_num];
+			backEnd.currentEntity = &backEnd.refdef.entities[p_render->entNum];
 
 			backEnd.refdef.floatTime = original_time - backEnd.currentEntity->e.shaderTime;
 
@@ -874,7 +874,7 @@ static void RB_RenderDrawSurfList(drawSurf_t* drawSurfs, const int numDrawSurfs)
 			}
 
 			if (backEnd.currentEntity->e.renderfx & RF_DISTORTION &&
-				last_post_ent != p_render->ent_num)
+				last_post_ent != p_render->entNum)
 			{ //do the capture now, we only need to do it once per ent
 				int x, y;
 				const int rad = backEnd.currentEntity->e.radius;
@@ -908,7 +908,7 @@ static void RB_RenderDrawSurfList(drawSurf_t* drawSurfs, const int numDrawSurfs)
 					//now copy a portion of the screen to this texture
 					qglCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, c_x, c_y, rad, rad, 0);
 
-					last_post_ent = p_render->ent_num;
+					last_post_ent = p_render->entNum;
 				}
 			}
 

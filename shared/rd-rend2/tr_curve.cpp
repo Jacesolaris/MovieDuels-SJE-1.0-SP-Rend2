@@ -66,7 +66,7 @@ static void LerpDrawVert(srfVert_t* a, srfVert_t* b, srfVert_t* out) {
 Transpose
 ============
 */
-static void Transpose(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE]) {
+static void Transpose(const int width, const int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE]) {
 	int		i, j;
 	srfVert_t	temp;
 
@@ -111,7 +111,8 @@ MakeMeshNormals
 Handles all the complicated wrapping and degenerate cases
 =================
 */
-static void MakeMeshNormals(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE]) {
+static void MakeMeshNormals(const int width, const int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE])
+{
 	int		i, j, k, dist;
 	vec3_t	normal;
 	vec3_t	sum;
@@ -120,8 +121,8 @@ static void MakeMeshNormals(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE]
 	vec3_t	delta;
 	int		x, y;
 	srfVert_t* dv;
-	vec3_t		around[8], temp;
-	qboolean	good[8];
+	vec3_t		around[8]{}, temp;
+	qboolean	good[8]{};
 	qboolean	wrapWidth, wrapHeight;
 	float		len;
 	static	int	neighbors[8][2] = {
@@ -216,11 +217,10 @@ static void MakeMeshNormals(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE]
 	}
 }
 
-static void MakeMeshTangentVectors(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], int numIndexes,
-	glIndex_t indexes[(MAX_GRID_SIZE - 1) * (MAX_GRID_SIZE - 1) * 2 * 3])
+static void MakeMeshTangentVectors(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], int numIndexes, glIndex_t indexes[(MAX_GRID_SIZE - 1) * (MAX_GRID_SIZE - 1) * 2 * 3])
 {
 	int             i, j;
-	srfVert_t* dv[3];
+	srfVert_t* dv[3]{};
 	static srfVert_t       ctrl2[MAX_GRID_SIZE * MAX_GRID_SIZE];
 	glIndex_t* tri;
 
@@ -307,7 +307,7 @@ static int MakeMeshIndexes(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][
 InvertCtrl
 ============
 */
-static void InvertCtrl(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE]) {
+static void InvertCtrl(const int width, const int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE]) {
 	int		i, j;
 	srfVert_t	temp;
 
@@ -325,7 +325,7 @@ static void InvertCtrl(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_
 InvertErrorTable
 =================
 */
-static void InvertErrorTable(float errorTable[2][MAX_GRID_SIZE], int width, int height) {
+static void InvertErrorTable(float errorTable[2][MAX_GRID_SIZE], const int width, const int height) {
 	int		i;
 	float	copy[2][MAX_GRID_SIZE];
 
@@ -372,9 +372,8 @@ static void PutPointsOnCurve(srfVert_t	ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE],
 R_CreateSurfaceGridMesh
 =================
 */
-srfBspSurface_t* R_CreateSurfaceGridMesh(int width, int height,
-	srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], float errorTable[2][MAX_GRID_SIZE],
-	int numIndexes, glIndex_t indexes[(MAX_GRID_SIZE - 1) * (MAX_GRID_SIZE - 1) * 2 * 3]) {
+static srfBspSurface_t* R_CreateSurfaceGridMesh(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], float errorTable[2][MAX_GRID_SIZE], int numIndexes, glIndex_t indexes[(MAX_GRID_SIZE - 1) * (MAX_GRID_SIZE - 1) * 2 * 3])
+{
 	int i, j, size;
 	srfVert_t* vert;
 	vec3_t		tmpVec;
@@ -446,7 +445,8 @@ srfBspSurface_t* R_CreateSurfaceGridMesh(int width, int height,
 R_FreeSurfaceGridMesh
 =================
 */
-void R_FreeSurfaceGridMesh(srfBspSurface_t* grid) {
+void R_FreeSurfaceGridMesh(srfBspSurface_t* grid)
+{
 	Z_Free(grid->widthLodError);
 	Z_Free(grid->heightLodError);
 	Z_Free(grid->indexes);
@@ -459,8 +459,8 @@ void R_FreeSurfaceGridMesh(srfBspSurface_t* grid) {
 R_SubdividePatchToGrid
 =================
 */
-srfBspSurface_t* R_SubdividePatchToGrid(int width, int height,
-	srfVert_t points[MAX_PATCH_SIZE * MAX_PATCH_SIZE]) {
+srfBspSurface_t* R_SubdividePatchToGrid(int width, int height, srfVert_t points[MAX_PATCH_SIZE * MAX_PATCH_SIZE])
+{
 	int			i, j, k, l;
 	srfVert_t prev;
 	srfVert_t next;
@@ -468,8 +468,8 @@ srfBspSurface_t* R_SubdividePatchToGrid(int width, int height,
 	float		len, maxLen;
 	int			dir;
 	int			t;
-	srfVert_t	ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE];
-	float		errorTable[2][MAX_GRID_SIZE];
+	srfVert_t	ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE]{};
+	float		errorTable[2][MAX_GRID_SIZE]{};
 	int			numIndexes;
 	static glIndex_t indexes[(MAX_GRID_SIZE - 1) * (MAX_GRID_SIZE - 1) * 2 * 3];
 	int consecutiveComplete;
@@ -500,7 +500,7 @@ srfBspSurface_t* R_SubdividePatchToGrid(int width, int height,
 
 			maxLen = 0;
 			for (i = 0; i < height; i++) {
-				vec3_t		midxyz;
+				vec3_t		midxyz{};
 				vec3_t		midxyz2;
 				vec3_t		dir;
 				vec3_t		projected;
@@ -642,11 +642,12 @@ srfBspSurface_t* R_SubdividePatchToGrid(int width, int height,
 R_GridInsertColumn
 ===============
 */
-srfBspSurface_t* R_GridInsertColumn(srfBspSurface_t* grid, int column, int row, vec3_t point, float loderror) {
+srfBspSurface_t* R_GridInsertColumn(srfBspSurface_t* grid, int column, int row, vec3_t point, float loderror)
+{
 	int i, j;
 	int width, height, oldwidth;
-	srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE];
-	float errorTable[2][MAX_GRID_SIZE];
+	srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE]{};
+	float errorTable[2][MAX_GRID_SIZE]{};
 	float lodRadius;
 	vec3_t lodOrigin;
 	int    numIndexes;
@@ -702,11 +703,12 @@ srfBspSurface_t* R_GridInsertColumn(srfBspSurface_t* grid, int column, int row, 
 R_GridInsertRow
 ===============
 */
-srfBspSurface_t* R_GridInsertRow(srfBspSurface_t* grid, int row, int column, vec3_t point, float loderror) {
+srfBspSurface_t* R_GridInsertRow(srfBspSurface_t* grid, int row, int column, vec3_t point, float loderror)
+{
 	int i, j;
 	int width, height, oldheight;
-	srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE];
-	float errorTable[2][MAX_GRID_SIZE];
+	srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE]{};
+	float errorTable[2][MAX_GRID_SIZE]{};
 	float lodRadius;
 	vec3_t lodOrigin;
 	int             numIndexes;

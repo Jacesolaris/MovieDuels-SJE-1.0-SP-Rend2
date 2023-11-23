@@ -282,10 +282,10 @@ using refexport_t = struct
 	int (*G2API_AddSurface)(CGhoul2Info* ghlInfo, int surface_number, int poly_number,
 		float barycentric_i, float barycentric_j, int lod);
 	void (*G2API_AnimateG2Models)(CGhoul2Info_v& ghoul2, int acurrent_time, CRagDollUpdateParams* params);
-	qboolean(*G2API_AttachEnt)(int* boltInfo, CGhoul2Info* ghlInfoTo, int toBoltIndex, int ent_num, int to_model_num);
+	qboolean(*G2API_AttachEnt)(int* boltInfo, CGhoul2Info* ghlInfoTo, int toBoltIndex, int entNum, int to_model_num);
 	qboolean(*G2API_AttachG2Model)(CGhoul2Info* ghlInfo, CGhoul2Info* ghlInfoTo, int toBoltIndex, int to_model);
 	void (*G2API_CollisionDetect)(CCollisionRecord* collRecMap, CGhoul2Info_v& ghoul2, const vec3_t angles,
-		const vec3_t position, int AframeNumber, int ent_num, vec3_t rayStart, vec3_t rayEnd,
+		const vec3_t position, int AframeNumber, int entNum, vec3_t rayStart, vec3_t rayEnd,
 		vec3_t scale,
 		CMiniHeap*, EG2_Collision eG2TraceType, int useLod, float fRadius);
 	void (*G2API_CleanGhoul2Models)(CGhoul2Info_v& ghoul2);
@@ -301,7 +301,7 @@ using refexport_t = struct
 	qboolean(*G2API_GetBoneAnim)(CGhoul2Info* ghlInfo, const char* boneName, int acurrent_time,
 		float* current_frame, int* startFrame, int* endFrame, int* flags, float* anim_speed,
 		int*);
-	qboolean(*G2API_GetBoneAnimIndex)(CGhoul2Info* ghlInfo, int i_bone_index, int acurrent_time,
+	qboolean(*G2API_GetBoneAnimIndex)(CGhoul2Info* ghlInfo, int iBoneIndex, int acurrent_time,
 		float* current_frame, int* startFrame, int* endFrame, int* flags,
 		float* anim_speed, int*);
 	int (*G2API_GetBoneIndex)(CGhoul2Info* ghlInfo, const char* boneName, qboolean bAddIfNotFound);
@@ -325,7 +325,7 @@ using refexport_t = struct
 	qboolean(*G2API_IsPaused)(CGhoul2Info* ghlInfo, const char* boneName);
 	void (*G2API_ListBones)(CGhoul2Info* ghlInfo, int frame);
 	void (*G2API_ListSurfaces)(CGhoul2Info* ghlInfo);
-	void (*G2API_LoadGhoul2Models)(CGhoul2Info_v& ghoul2, const char* buffer);
+	void (*G2API_LoadGhoul2Models)(CGhoul2Info_v& ghoul2, char* buffer);
 	void (*G2API_LoadSaveCodeDestructGhoul2Info)(CGhoul2Info_v& ghoul2);
 	qboolean(*G2API_PauseBoneAnim)(CGhoul2Info* ghlInfo, const char* boneName, int acurrent_time);
 	qboolean(*G2API_PauseBoneAnimIndex)(CGhoul2Info* ghlInfo, int bone_index, int acurrent_time);

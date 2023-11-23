@@ -290,7 +290,7 @@ cvar_t* g_Weather;
 
 #ifdef REND2_SP
 static qboolean gbAllowScreenDissolve = qtrue;
-extern qboolean RE_InitDissolve(qboolean bForceCircularExtroWipe);
+extern qboolean RE_InitDissolve(const qboolean bForceCircularExtroWipe);
 extern qboolean RE_ProcessDissolve(void);
 #endif // REND2_SP
 

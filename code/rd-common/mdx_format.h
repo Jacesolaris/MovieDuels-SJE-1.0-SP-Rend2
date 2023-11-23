@@ -318,10 +318,10 @@ static int G2_GetVertWeights(const mdxmVertex_t* pVert)
 
 static int G2_GetVertBoneIndex(const mdxmVertex_t* pVert, const int iWeightNum)
 {
-	const int i_bone_index = pVert->uiNmWeightsAndBoneIndexes >> iG2_BITS_PER_BONEREF * iWeightNum & (1 <<
+	const int iBoneIndex = pVert->uiNmWeightsAndBoneIndexes >> iG2_BITS_PER_BONEREF * iWeightNum & (1 <<
 		iG2_BITS_PER_BONEREF) - 1;
 
-	return i_bone_index;
+	return iBoneIndex;
 }
 
 static float G2_GetVertBoneWeight(const mdxmVertex_t* pVert, const int iWeightNum, float& fTotalWeight,

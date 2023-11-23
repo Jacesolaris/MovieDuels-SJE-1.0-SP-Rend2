@@ -6116,17 +6116,17 @@ void CG_DrawBlockPointBars()
 	}
 }
 
-void CG_AddBlockPointBarEnt(const int ent_num)
+void CG_AddBlockPointBarEnt(const int entNum)
 {
 	if (cg_numBlockPointBarEnts >= MAX_BLOCKPOINT_BAR_ENTS)
 	{
 		return;
 	}
 
-	if (DistanceSquared(cg_entities[ent_num].lerpOrigin, g_entities[0].client->renderInfo.eyePoint) <
+	if (DistanceSquared(cg_entities[entNum].lerpOrigin, g_entities[0].client->renderInfo.eyePoint) <
 		BLOCKPOINT_BAR_RANGE * BLOCKPOINT_BAR_RANGE)
 	{
-		cg_BlockPointBarEnts[cg_numBlockPointBarEnts++] = ent_num;
+		cg_BlockPointBarEnts[cg_numBlockPointBarEnts++] = entNum;
 	}
 }
 
@@ -6167,17 +6167,17 @@ void CG_DrawFatiguePointBars()
 	}
 }
 
-void CG_AddFatiguePointBarEnt(const int ent_num)
+void CG_AddFatiguePointBarEnt(const int entNum)
 {
 	if (cg_numFatigueBarEnts >= MAX_FATIGUEPOINT_BAR_ENTS)
 	{
 		return;
 	}
 
-	if (DistanceSquared(cg_entities[ent_num].lerpOrigin, g_entities[0].client->renderInfo.eyePoint) < Fatigue_BAR_RANGE
+	if (DistanceSquared(cg_entities[entNum].lerpOrigin, g_entities[0].client->renderInfo.eyePoint) < Fatigue_BAR_RANGE
 		* Fatigue_BAR_RANGE)
 	{
-		cg_FatiguePointBarEnts[cg_numFatigueBarEnts++] = ent_num;
+		cg_FatiguePointBarEnts[cg_numFatigueBarEnts++] = entNum;
 	}
 }
 
@@ -6266,17 +6266,17 @@ void CG_DrawHealthBars()
 
 constexpr auto HEALTHBARRANGE = 200;
 
-void CG_AddHealthBarEnt(const int ent_num)
+void CG_AddHealthBarEnt(const int entNum)
 {
 	if (cg_numHealthBarEnts >= MAX_HEALTH_BAR_ENTS)
 	{
 		return;
 	}
 
-	if (DistanceSquared(cg_entities[ent_num].lerpOrigin, g_entities[0].client->renderInfo.eyePoint) < HEALTHBARRANGE *
+	if (DistanceSquared(cg_entities[entNum].lerpOrigin, g_entities[0].client->renderInfo.eyePoint) < HEALTHBARRANGE *
 		HEALTHBARRANGE)
 	{
-		cg_healthBarEnts[cg_numHealthBarEnts++] = ent_num;
+		cg_healthBarEnts[cg_numHealthBarEnts++] = entNum;
 	}
 }
 

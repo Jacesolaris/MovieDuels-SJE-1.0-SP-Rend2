@@ -127,7 +127,7 @@ void CG_AddGhoul2Mark(const int type, const float size, vec3_t hitloc, vec3_t hi
 	gore_skin.lifeTime = life_time;
 	gore_skin.firstModel = first_model;
 	gore_skin.current_time = cg.time;
-	gore_skin.ent_num = entnum;
+	gore_skin.entNum = entnum;
 	gore_skin.SSize = size;
 	gore_skin.TSize = size;
 	gore_skin.shader = type;
@@ -180,7 +180,7 @@ qboolean CG_RegisterClientModelname(clientInfo_t* ci, const char* headModelName,
 	const char* legsModelName, const char* legsSkinName);
 
 static void CG_PlayerFootsteps(const centity_t* cent, footstepType_t foot_step_type);
-static void CG_PlayerAnimEvents(int anim_file_index, qboolean torso, int old_frame, int frame, int ent_num);
+static void CG_PlayerAnimEvents(int anim_file_index, qboolean torso, int old_frame, int frame, int entNum);
 extern void BG_G2SetBoneAngles(const centity_t* cent, int bone_index, const vec3_t angles, int flags,
 	Eorientations up, Eorientations left, Eorientations forward, qhandle_t* model_list);
 extern qboolean pm_saber_in_special_attack(int anim);
@@ -761,9 +761,9 @@ Sets cg.snap, cg.oldFrame, and cg.backlerp
 cg.time should be between oldFrameTime and frameTime after exit
 ===============
 */
-static qboolean CG_RunLerpFrame(clientInfo_t* ci, lerpFrame_t* lf, const int new_animation, const int ent_num)
+static qboolean CG_RunLerpFrame(clientInfo_t* ci, lerpFrame_t* lf, const int new_animation, const int entNum)
 {
-	qboolean new_frame = qfalse;
+	qboolean newFrame = qfalse;
 
 	// see if the animation sequence is switching
 	//FIXME: allow multiple-frame overlapped lerping between sequences? - Possibly last 3 of last seq and first 3 of next seq?
@@ -785,7 +785,7 @@ static qboolean CG_RunLerpFrame(clientInfo_t* ci, lerpFrame_t* lf, const int new
 		int anim_frame_time = abs(anim->frameLerp);
 
 		//special hack for player to ensure quick weapon change
-		if (ent_num == 0)
+		if (entNum == 0)
 		{
 			if (lf->animationNumber == TORSO_DROPWEAP1 || lf->animationNumber == TORSO_RAISEWEAP1)
 			{
@@ -847,7 +847,7 @@ static qboolean CG_RunLerpFrame(clientInfo_t* ci, lerpFrame_t* lf, const int new
 			lf->frameTime = cg.time;
 		}
 
-		new_frame = qtrue;
+		newFrame = qtrue;
 	}
 
 	if (lf->frameTime > cg.time + 200)
@@ -869,7 +869,7 @@ static qboolean CG_RunLerpFrame(clientInfo_t* ci, lerpFrame_t* lf, const int new
 		lf->backlerp = 1.0 - static_cast<float>(cg.time - lf->oldFrameTime) / (lf->frameTime - lf->oldFrameTime);
 	}
 
-	return new_frame;
+	return newFrame;
 }
 
 /*
@@ -1200,7 +1200,7 @@ static void CG_PlayerAnimEventDo(centity_t* cent, animevent_t* anim_event)
 }
 
 static void CG_PlayerAnimEvents(const int anim_file_index, const qboolean torso, const int old_frame, const int frame,
-	const int ent_num)
+	const int entNum)
 {
 	int first_frame = 0, lastFrame = 0;
 	qboolean do_event = qfalse;
@@ -1210,9 +1210,9 @@ static void CG_PlayerAnimEvents(const int anim_file_index, const qboolean torso,
 	animevent_t* anim_events;
 	int gla_index = -1;
 
-	if (g_entities[ent_num].ghoul2.size())
+	if (g_entities[entNum].ghoul2.size())
 	{
-		gla_index = gi.G2API_GetAnimIndex(&g_entities[ent_num].ghoul2[0]);
+		gla_index = gi.G2API_GetAnimIndex(&g_entities[entNum].ghoul2[0]);
 	}
 
 	if (torso)
@@ -1230,14 +1230,14 @@ static void CG_PlayerAnimEvents(const int anim_file_index, const qboolean torso,
 		if (torso)
 		{
 			//more precise, slower
-			old_anim = PM_TorsoAnimForFrame(&g_entities[ent_num], old_frame);
-			anim = PM_TorsoAnimForFrame(&g_entities[ent_num], frame);
+			old_anim = PM_TorsoAnimForFrame(&g_entities[entNum], old_frame);
+			anim = PM_TorsoAnimForFrame(&g_entities[entNum], frame);
 		}
 		else
 		{
 			//more precise, slower
-			old_anim = PM_LegsAnimForFrame(&g_entities[ent_num], old_frame);
-			anim = PM_LegsAnimForFrame(&g_entities[ent_num], frame);
+			old_anim = PM_LegsAnimForFrame(&g_entities[entNum], old_frame);
+			anim = PM_LegsAnimForFrame(&g_entities[entNum], frame);
 		}
 
 		if (anim != old_anim)
@@ -1262,7 +1262,7 @@ static void CG_PlayerAnimEvents(const int anim_file_index, const qboolean torso,
 		}
 	}
 
-	const hstring my_model = g_entities[ent_num].NPC_type; //apparently NPC_type is always the same as the model name???
+	const hstring my_model = g_entities[entNum].NPC_type; //apparently NPC_type is always the same as the model name???
 
 	// Check for anim event
 	for (int i = 0; i < MAX_ANIM_EVENTS; ++i)
@@ -1426,7 +1426,7 @@ static void CG_PlayerAnimEvents(const int anim_file_index, const qboolean torso,
 				// do event
 				if (do_event)
 				{
-					CG_PlayerAnimEventDo(&cg_entities[ent_num], &anim_events[i]);
+					CG_PlayerAnimEventDo(&cg_entities[entNum], &anim_events[i]);
 				}
 			} // end if event matches
 		} // end if model matches
@@ -5172,9 +5172,9 @@ CG_AddForceSightShell
 Adds the special effect
 ===============
 */
-extern void CG_AddHealthBarEnt(int ent_num);
-extern void CG_AddBlockPointBarEnt(int ent_num);
-extern void CG_AddFatiguePointBarEnt(int ent_num);
+extern void CG_AddHealthBarEnt(int entNum);
+extern void CG_AddBlockPointBarEnt(int entNum);
+extern void CG_AddFatiguePointBarEnt(int entNum);
 
 void CG_AddForceSightShell(refEntity_t* ent, const centity_t* cent)
 {

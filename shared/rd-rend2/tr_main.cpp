@@ -1652,7 +1652,7 @@ See if a sprite is inside a fog volume
 =================
 */
 int R_SpriteFogNum(trRefEntity_t* ent) {
-	int				i/*, j*/;
+	int				i, j = 0;
 	float			frameRadius;
 	fog_t* fog;
 	vec3_t			localOrigin;

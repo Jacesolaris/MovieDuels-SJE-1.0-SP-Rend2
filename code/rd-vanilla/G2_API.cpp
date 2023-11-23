@@ -1097,21 +1097,21 @@ qboolean G2API_GetBoneAnim(CGhoul2Info* ghlInfo, const char* boneName, const int
 	return ret;
 }
 
-qboolean G2API_GetBoneAnimIndex(CGhoul2Info* ghlInfo, const int i_bone_index, const int acurrent_time, float* current_frame, int* startFrame, int* endFrame, int* flags, float* anim_speed, qhandle_t* model_list)
+qboolean G2API_GetBoneAnimIndex(CGhoul2Info* ghlInfo, const int iBoneIndex, const int acurrent_time, float* current_frame, int* startFrame, int* endFrame, int* flags, float* anim_speed, qhandle_t* model_list)
 {
 	qboolean ret = qfalse;
 	if (G2_SetupModelPointers(ghlInfo))
 	{
 		const int current_time = G2API_GetTime(acurrent_time);
-		G2NOTE(i_bone_index >= 0 && i_bone_index < (int)ghlInfo->mBlist.size(), va("Bad Bone Index (%d:%s)", i_bone_index, ghlInfo->mFileName));
-		if (i_bone_index >= 0 && i_bone_index < static_cast<int>(ghlInfo->mBlist.size()))
+		G2NOTE(iBoneIndex >= 0 && iBoneIndex < (int)ghlInfo->mBlist.size(), va("Bad Bone Index (%d:%s)", iBoneIndex, ghlInfo->mFileName));
+		if (iBoneIndex >= 0 && iBoneIndex < static_cast<int>(ghlInfo->mBlist.size()))
 		{
-			G2NOTE(ghlInfo->mBlist[i_bone_index].flags & (BONE_ANIM_OVERRIDE_LOOP | BONE_ANIM_OVERRIDE), "GetBoneAnim on non-animating bone.");
-			if (ghlInfo->mBlist[i_bone_index].flags & (BONE_ANIM_OVERRIDE_LOOP | BONE_ANIM_OVERRIDE))
+			G2NOTE(ghlInfo->mBlist[iBoneIndex].flags & (BONE_ANIM_OVERRIDE_LOOP | BONE_ANIM_OVERRIDE), "GetBoneAnim on non-animating bone.");
+			if (ghlInfo->mBlist[iBoneIndex].flags & (BONE_ANIM_OVERRIDE_LOOP | BONE_ANIM_OVERRIDE))
 			{
 				int sf, ef;
 				ret = G2_Get_Bone_Anim_Index(ghlInfo->mBlist,// boneInfo_v &blist,
-					i_bone_index,		// const int index,
+					iBoneIndex,		// const int index,
 					current_time,	// const int current_time,
 					current_frame,	// float *current_frame,
 					&sf,		// int *startFrame,
@@ -1663,7 +1663,7 @@ qboolean G2API_DetachG2Model(CGhoul2Info* ghlInfo)
 	return qfalse;
 }
 
-qboolean G2API_AttachEnt(int* boltInfo, CGhoul2Info* ghlInfoTo, int toBoltIndex, int ent_num, int to_model_num)
+qboolean G2API_AttachEnt(int* boltInfo, CGhoul2Info* ghlInfoTo, int toBoltIndex, int entNum, int to_model_num)
 {
 	qboolean ret = qfalse;
 	G2ERROR(boltInfo, "NULL boltInfo");
@@ -1675,8 +1675,8 @@ qboolean G2API_AttachEnt(int* boltInfo, CGhoul2Info* ghlInfoTo, int toBoltIndex,
 			// encode the bolt address into the model bolt link
 			to_model_num &= MODEL_AND;
 			toBoltIndex &= BOLT_AND;
-			ent_num &= ENTITY_AND;
-			*boltInfo = toBoltIndex << BOLT_SHIFT | to_model_num << MODEL_SHIFT | ent_num << ENTITY_SHIFT;
+			entNum &= ENTITY_AND;
+			*boltInfo = toBoltIndex << BOLT_SHIFT | to_model_num << MODEL_SHIFT | entNum << ENTITY_SHIFT;
 			ret = qtrue;
 		}
 	}
@@ -1864,7 +1864,7 @@ static int QDECL QsortDistance(const void* a, const void* b) {
 	return 1;
 }
 
-void G2API_CollisionDetect(CCollisionRecord* coll_rec_map, CGhoul2Info_v& ghoul2, const vec3_t angles, const vec3_t position, const int aframe_number, int ent_num, vec3_t ray_start, vec3_t ray_end, vec3_t scale, CMiniHeap* G2VertSpace, EG2_Collision eG2TraceType, int useLod, float f_radius)
+void G2API_CollisionDetect(CCollisionRecord* coll_rec_map, CGhoul2Info_v& ghoul2, const vec3_t angles, const vec3_t position, const int aframe_number, int entNum, vec3_t ray_start, vec3_t ray_end, vec3_t scale, CMiniHeap* G2VertSpace, EG2_Collision eG2TraceType, int useLod, float f_radius)
 {
 	G2ERROR(ghoul2.IsValid(), "Invalid ghlInfo");
 	G2ERROR(collRecMap, "NULL Collision Rec");
@@ -1896,9 +1896,9 @@ void G2API_CollisionDetect(CCollisionRecord* coll_rec_map, CGhoul2Info_v& ghoul2
 
 		// now walk each model and check the ray against each poly - sigh, this is SO expensive. I wish there was a better way to do this.
 #ifdef _G2_GORE
-		G2_TraceModels(ghoul2, trans_ray_start, trans_ray_end, coll_rec_map, ent_num, eG2TraceType, useLod, f_radius, 0, 0, 0, 0, nullptr, qfalse);
+		G2_TraceModels(ghoul2, trans_ray_start, trans_ray_end, coll_rec_map, entNum, eG2TraceType, useLod, f_radius, 0, 0, 0, 0, nullptr, qfalse);
 #else
-		G2_TraceModels(ghoul2, transRayStart, transRayEnd, collRecMap, ent_num, eG2TraceType, useLod, fRadius);
+		G2_TraceModels(ghoul2, transRayStart, transRayEnd, collRecMap, entNum, eG2TraceType, useLod, fRadius);
 #endif
 
 		ri.GetG2VertSpaceServer()->ResetHeap();
@@ -2088,11 +2088,10 @@ void G2API_SaveGhoul2Models(CGhoul2Info_v& ghoul2)
 	G2_SaveGhoul2Models(ghoul2);
 }
 
-void G2API_LoadGhoul2Models(CGhoul2Info_v& ghoul2, const char* buffer)
+void G2API_LoadGhoul2Models(CGhoul2Info_v& ghoul2, char* buffer)
 {
 	G2_LoadGhoul2Model(ghoul2, buffer);
 	G2ANIM(ghoul2, "G2API_LoadGhoul2Models");
-	//	G2ERROR(ghoul2.IsValid(),"Invalid ghlInfo after load");
 }
 
 // this is kinda sad, but I need to call the destructor in this module (exe), not the game.dll...
@@ -2117,7 +2116,7 @@ void G2API_ClearSkinGore(CGhoul2Info_v& ghoul2)
 	}
 }
 
-extern int G2_DecideTraceLod(const CGhoul2Info& ghoul2, const int useLod);
+extern int G2_DecideTraceLod(CGhoul2Info& ghoul2, int useLod);
 void G2API_AddSkinGore(CGhoul2Info_v& ghoul2, SSkinGoreData& gore)
 {
 	if (VectorLength(gore.rayDirection) < .1f)
@@ -2155,7 +2154,7 @@ void G2API_AddSkinGore(CGhoul2Info_v& ghoul2, SSkinGoreData& gore)
 		G2_TransformModel(ghoul2, gore.current_time, gore.scale, ri.GetG2VertSpaceServer(), lod, true, &gore);
 
 		// now walk each model and compute new texture coordinates
-		G2_TraceModels(ghoul2, trans_hit_location, trans_ray_direction, nullptr, gore.ent_num, G2_NOCOLLIDE, lod, 1.0f, gore.SSize, gore.TSize, gore.theta, gore.shader, &gore, qtrue);
+		G2_TraceModels(ghoul2, trans_hit_location, trans_ray_direction, nullptr, gore.entNum, G2_NOCOLLIDE, lod, 1.0f, gore.SSize, gore.TSize, gore.theta, gore.shader, &gore, qtrue);
 	}
 }
 #else

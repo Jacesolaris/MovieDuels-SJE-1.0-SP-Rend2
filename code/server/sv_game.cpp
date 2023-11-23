@@ -435,9 +435,9 @@ static void SV_G2API_AnimateG2Models(CGhoul2Info_v& ghoul2, const int acurrent_t
 	re.G2API_AnimateG2Models(ghoul2, acurrent_time, params);
 }
 
-static qboolean SV_G2API_AttachEnt(int* boltInfo, CGhoul2Info* ghlInfoTo, const int toBoltIndex, const int ent_num, const int to_model_num)
+static qboolean SV_G2API_AttachEnt(int* boltInfo, CGhoul2Info* ghlInfoTo, const int toBoltIndex, const int entNum, const int to_model_num)
 {
-	return re.G2API_AttachEnt(boltInfo, ghlInfoTo, toBoltIndex, ent_num, to_model_num);
+	return re.G2API_AttachEnt(boltInfo, ghlInfoTo, toBoltIndex, entNum, to_model_num);
 }
 
 static qboolean SV_G2API_AttachG2Model(CGhoul2Info* ghlInfo, CGhoul2Info* ghlInfoTo, const int toBoltIndex, const int to_model)
@@ -452,11 +452,11 @@ static void SV_G2API_CleanGhoul2Models(CGhoul2Info_v& ghoul2)
 
 static void SV_G2API_CollisionDetect(
 	CCollisionRecord* coll_rec_map, CGhoul2Info_v& ghoul2, const vec3_t angles, const vec3_t position,
-	const int aframe_number, const int ent_num, vec3_t ray_start, vec3_t ray_end, vec3_t scale, CMiniHeap* mini_heap,
+	const int aframe_number, const int entNum, vec3_t ray_start, vec3_t ray_end, vec3_t scale, CMiniHeap* mini_heap,
 	const EG2_Collision eG2TraceType, const int useLod, const float f_radius)
 {
 	re.G2API_CollisionDetect(coll_rec_map, ghoul2, angles, position, aframe_number,
-		ent_num, ray_start, ray_end, scale, mini_heap, eG2TraceType, useLod, f_radius);
+		entNum, ray_start, ray_end, scale, mini_heap, eG2TraceType, useLod, f_radius);
 }
 
 static void SV_G2API_CopyGhoul2Instance(const CGhoul2Info_v& ghoul2_from, CGhoul2Info_v& ghoul2_to, const int modelIndex)
@@ -512,11 +512,11 @@ static qboolean SV_G2API_GetBoneAnim(
 		startFrame, endFrame, flags, anim_speed, model_list);
 }
 
-static qboolean SV_G2API_GetBoneAnimIndex(CGhoul2Info* ghlInfo, const int i_bone_index, const int acurrent_time,
+static qboolean SV_G2API_GetBoneAnimIndex(CGhoul2Info* ghlInfo, const int iBoneIndex, const int acurrent_time,
 	float* current_frame, int* startFrame, int* endFrame, int* flags,
 	float* anim_speed, int* model_list)
 {
-	return re.G2API_GetBoneAnimIndex(ghlInfo, i_bone_index, acurrent_time, current_frame,
+	return re.G2API_GetBoneAnimIndex(ghlInfo, iBoneIndex, acurrent_time, current_frame,
 		startFrame, endFrame, flags, anim_speed, model_list);
 }
 
@@ -605,7 +605,7 @@ static void SV_G2API_ListSurfaces(CGhoul2Info* ghlInfo)
 	return re.G2API_ListSurfaces(ghlInfo);
 }
 
-static void SV_G2API_LoadGhoul2Models(CGhoul2Info_v& ghoul2, const char* buffer)
+static void SV_G2API_LoadGhoul2Models(CGhoul2Info_v& ghoul2, char* buffer)
 {
 	return re.G2API_LoadGhoul2Models(ghoul2, buffer);
 }

@@ -30,12 +30,12 @@
 #include "G2_gore_r2.h"
 //#include "G2_gore_r2.h"
 
-#define GOReTag_UPPER (256)
-#define GOReTag_MASK (~255)
+#define GORE_TAG_UPPER (256)
+#define GORE_TAG_MASK (~255)
 #define MAX_GORE_RECORDS (500)
 
-static int CurrentTag = GOReTag_UPPER + 1;
-static int CurrentTagUpper = GOReTag_UPPER;
+static int CurrentTag = GORE_TAG_UPPER + 1;
+static int CurrentTagUpper = GORE_TAG_UPPER;
 
 static std::map<int, R2GoreTextureCoordinates> GoreRecords;
 static std::map<std::pair<int, int>, int> GoreTagsTemp; // this is a surface index to gore tag map used only
@@ -44,7 +44,7 @@ int goreModelIndex;
 
 static cvar_t* cg_g2MarksAllModels = NULL;
 
-static inline void DestroyGoreTexCoordinates(const int tag)
+static inline void DestroyGoreTexCoordinates(int tag)
 {
 	R2GoreTextureCoordinates* gTC = FindR2GoreRecord(tag);
 	if (!gTC)
@@ -60,7 +60,7 @@ int AllocR2GoreRecord()
 {
 	while (GoreRecords.size() > MAX_GORE_RECORDS)
 	{
-		int tagHigh = (*GoreRecords.begin()).first & GOReTag_MASK;
+		int tagHigh = (*GoreRecords.begin()).first & GORE_TAG_MASK;
 		std::map<int, R2GoreTextureCoordinates>::iterator it;
 		R2GoreTextureCoordinates* gTC;
 
@@ -74,7 +74,7 @@ int AllocR2GoreRecord()
 		GoreRecords.erase(GoreRecords.begin());
 		while (GoreRecords.size())
 		{
-			if (((*GoreRecords.begin()).first & GOReTag_MASK) != tagHigh)
+			if (((*GoreRecords.begin()).first & GORE_TAG_MASK) != tagHigh)
 			{
 				break;
 			}
@@ -98,7 +98,7 @@ void ResetGoreTag()
 {
 	GoreTagsTemp.clear();
 	CurrentTag = CurrentTagUpper;
-	CurrentTagUpper += GOReTag_UPPER;
+	CurrentTagUpper += GORE_TAG_UPPER;
 }
 
 R2GoreTextureCoordinates* FindR2GoreRecord(int tag)
@@ -121,7 +121,7 @@ GoreTextureCoordinates* FindGoreRecord(int tag)
 	return 0;
 }
 
-static void* G2_GetGoreRecord(const int tag)
+static void* G2_GetGoreRecord(int tag)
 {
 	return FindGoreRecord(tag);
 }
@@ -140,7 +140,7 @@ void DeleteGoreRecord(int tag)
 static int CurrentGoreSet = 1; // this is a UUID for gore sets
 static std::map<int, CGoreSet*> GoreSets; // map from uuid to goreset
 
-CGoreSet* FindGoreSet(const int goreSetTag)
+CGoreSet* FindGoreSet(int goreSetTag)
 {
 	std::map<int, CGoreSet*>::iterator f = GoreSets.find(goreSetTag);
 	if (f != GoreSets.end())
@@ -158,7 +158,7 @@ CGoreSet* NewGoreSet()
 	return ret;
 }
 
-void DeleteGoreSet(const int goreSetTag)
+void DeleteGoreSet(int goreSetTag)
 {
 	std::map<int, CGoreSet*>::iterator f = GoreSets.find(goreSetTag);
 	if (f != GoreSets.end())
@@ -203,7 +203,7 @@ public:
 	vec3_t				rayStart;
 	vec3_t				rayEnd;
 	CCollisionRecord* collRecMap;
-	const int			ent_num;
+	const int			entNum;
 	const int			modelIndex;
 	const skin_t* skin;
 #ifdef _WIN32
@@ -259,7 +259,7 @@ public:
 		, currentModel(initcurrentModel)
 		, lod(initlod)
 		, collRecMap(initcollRecMap)
-		, ent_num(initentNum)
+		, entNum(initentNum)
 		, modelIndex(initmodelIndex)
 		, skin(initskin)
 		, cust_shader(initcust_shader)
@@ -315,25 +315,34 @@ void G2_List_Model_Surfaces(const char* fileName)
 // list all bones associated with a model
 void G2_List_Model_Bones(const char* fileName)
 {
-	const model_t* mod_m = R_GetModelByHandle(RE_RegisterModel(fileName));
-	const model_t* mod_a = R_GetModelByHandle(mod_m->mdxm->animIndex);
-	mdxaHeader_t* header = mod_a->mdxa;
+	int				x, i;
+	mdxaSkel_t* skel;
+	mdxaSkelOffsets_t* offsets;
+	model_t* mod_m = R_GetModelByHandle(RE_RegisterModel(fileName));
+	model_t* mod_a = R_GetModelByHandle(mod_m->data.glm->header->animIndex);
+	// 	mdxaFrame_t		*aframe=0;
+	//	int				frameSize;
+	mdxaHeader_t* header = mod_a->data.gla;
 
 	// figure out where the offset list is
-	const mdxaSkelOffsets_t* offsets = reinterpret_cast<mdxaSkelOffsets_t*>(reinterpret_cast<byte*>(header) + sizeof(mdxaHeader_t));
+	offsets = (mdxaSkelOffsets_t*)((byte*)header + sizeof(mdxaHeader_t));
 
-	for (int x = 0; x < mod_a->mdxa->numBones; x++)
+	//    frameSize = (size_t)( &((mdxaFrame_t *)0)->boneIndexes[ header->numBones ] );
+
+	//	aframe = (mdxaFrame_t *)((byte *)header + header->ofsFrames + (frame * frameSize));
+		// walk each bone and list it's name
+	for (x = 0; x < header->numBones; x++)
 	{
-		const auto skel = reinterpret_cast<mdxaSkel_t*>(reinterpret_cast<byte*>(header) + sizeof(mdxaHeader_t) + offsets->offsets[x]);
+		skel = (mdxaSkel_t*)((byte*)header + sizeof(mdxaHeader_t) + offsets->offsets[x]);
 		Com_Printf("Bone %i Name %s\n", x, skel->name);
 
 		Com_Printf("X pos %f, Y pos %f, Z pos %f\n", skel->BasePoseMat.matrix[0][3], skel->BasePoseMat.matrix[1][3], skel->BasePoseMat.matrix[2][3]);
 
 		// if we are in verbose mode give us more details
-		if (r_verbose->value)
+		if (r_verbose->integer)
 		{
 			Com_Printf("Num Descendants %i\n", skel->numChildren);
-			for (int i = 0; i < skel->numChildren; i++)
+			for (i = 0; i < skel->numChildren; i++)
 			{
 				Com_Printf("Num Descendants %i\n", skel->numChildren);
 			}
@@ -375,7 +384,7 @@ qboolean G2_GetAnimFileName(const char* fileName, char** filename)
 //
 /////////////////////////////////////////////////////////////////////
 
-int G2_DecideTraceLod(const CGhoul2Info& ghoul2, const int useLod)
+int G2_DecideTraceLod(CGhoul2Info& ghoul2, int useLod)
 {
 	int returnLod = useLod;
 
@@ -512,15 +521,16 @@ static void R_TransformEachSurface(const mdxmSurface_t* surface, vec3_t scale, C
 	}
 }
 
-void G2_TransformSurfaces(const int surfaceNum, surfaceInfo_v& rootSList, CBoneCache* boneCache, const model_t* currentModel, const int lod, vec3_t scale, CMiniHeap* G2VertSpace, intptr_t* TransformedVertArray, const bool secondTimeAround)
+static void G2_TransformSurfaces(int surfaceNum, surfaceInfo_v& rootSList,
+	CBoneCache* boneCache, const model_t* currentModel, int lod, vec3_t scale, CMiniHeap* G2VertSpace, intptr_t* TransformedVertArray, bool secondTimeAround)
 {
 	int	i;
 	assert(currentModel);
 	assert(currentModel->data.glm && currentModel->data.glm->header);
 	// back track and get the surfinfo struct for this surface
 	const mdxmSurface_t* surface = (mdxmSurface_t*)G2_FindSurface(currentModel, surfaceNum, lod);
-	const mdxmHierarchyOffsets_t* surf_indexes = (mdxmHierarchyOffsets_t*)((byte*)currentModel->data.glm->header + sizeof(mdxmHeader_t));
-	const mdxmSurfHierarchy_t* surfInfo = (mdxmSurfHierarchy_t*)((byte*)surf_indexes + surf_indexes->offsets[surface->thisSurfaceIndex]);
+	const mdxmHierarchyOffsets_t* surfIndexes = (mdxmHierarchyOffsets_t*)((byte*)currentModel->data.glm->header + sizeof(mdxmHeader_t));
+	const mdxmSurfHierarchy_t* surfInfo = (mdxmSurfHierarchy_t*)((byte*)surfIndexes + surfIndexes->offsets[surface->thisSurfaceIndex]);
 
 	// see if we have an override surface in the surface list
 	const surfaceInfo_t* surfOverride = G2_FindOverrideSurface(surfaceNum, rootSList);
@@ -553,7 +563,7 @@ void G2_TransformSurfaces(const int surfaceNum, surfaceInfo_v& rootSList, CBoneC
 
 // main calling point for the model transform for collision detection. At this point all of the skeleton has been transformed.
 #ifdef _G2_GORE
-void G2_TransformModel(CGhoul2Info_v& ghoul2, const int frameNum, vec3_t scale, CMiniHeap* G2VertSpace, int useLod, const bool ApplyGore, const SSkinGoreData* gore)
+void G2_TransformModel(CGhoul2Info_v& ghoul2, const int frameNum, vec3_t scale, CMiniHeap* G2VertSpace, int useLod, bool ApplyGore, SSkinGoreData* gore)
 #else
 void G2_TransformModel(CGhoul2Info_v& ghoul2, const int frameNum, vec3_t scale, CMiniHeap* G2VertSpace, int useLod)
 #endif
@@ -565,13 +575,13 @@ void G2_TransformModel(CGhoul2Info_v& ghoul2, const int frameNum, vec3_t scale, 
 	qboolean		firstModelOnly = qfalse;
 #endif // !JK2_MODE || _G2_GORE
 
-#ifdef _G2_GORE
-	if (cg_g2MarksAllModels == nullptr)
+#ifndef JK2_MODE
+	if (cg_g2MarksAllModels == NULL)
 	{
 		cg_g2MarksAllModels = ri.Cvar_Get("cg_g2MarksAllModels", "0", 0);
 	}
 
-	if (cg_g2MarksAllModels == nullptr || !cg_g2MarksAllModels->integer)
+	if (cg_g2MarksAllModels == NULL || !cg_g2MarksAllModels->integer)
 	{
 		firstModelOnly = qtrue;
 	}
@@ -873,7 +883,7 @@ static void G2_GorePolys(const mdxmSurface_t* surface, CTraceSurface& TS, const 
 	for (j = 0; j < numVerts; j++)
 	{
 		int pos = j * 5;
-		vec3_t delta;
+		vec3_t delta{};
 		delta[0] = verts[pos + 0] - TS.rayStart[0];
 		delta[1] = verts[pos + 1] - TS.rayStart[1];
 		delta[2] = verts[pos + 2] - TS.rayStart[2];
@@ -1005,7 +1015,7 @@ static void G2_GorePolys(const mdxmSurface_t* surface, CTraceSurface& TS, const 
 			TS.ghoul2info->mGoreSetTag = goreSet->mMyGoreSetTag;
 		}
 		assert(goreSet);
-		SGoreSurface add;
+		SGoreSurface add{};
 		add.shader = TS.goreShader;
 		add.mDeleteTime = 0;
 		if (TS.gore->lifeTime)
@@ -1149,7 +1159,7 @@ static bool G2_TracePolys(const mdxmSurface_t* surface, const mdxmSurfHierarchy_
 					float x_pos = 0.f, y_pos = 0.f;
 
 					newCol.mPolyIndex = j;
-					newCol.mEntityNum = TS.ent_num;
+					newCol.mEntityNum = TS.entNum;
 					newCol.mSurfaceIndex = surface->thisSurfaceIndex;
 					newCol.mModelIndex = TS.modelIndex;
 					if (face > 0)
@@ -1257,7 +1267,7 @@ static bool G2_RadiusTracePolys(
 {
 	int		j;
 	vec3_t basis1;
-	vec3_t basis2;
+	vec3_t basis2{};
 	vec3_t taxis;
 	vec3_t saxis;
 
@@ -1308,7 +1318,7 @@ static bool G2_RadiusTracePolys(
 	for (j = 0; j < numVerts; j++)
 	{
 		const int pos = j * 5;
-		vec3_t delta;
+		vec3_t delta{};
 		delta[0] = verts[pos + 0] - TS.rayStart[0];
 		delta[1] = verts[pos + 1] - TS.rayStart[1];
 		delta[2] = verts[pos + 2] - TS.rayStart[2];
@@ -1379,7 +1389,7 @@ static bool G2_RadiusTracePolys(
 					CCollisionRecord& newCol = TS.collRecMap[i];
 
 					newCol.mPolyIndex = j;
-					newCol.mEntityNum = TS.ent_num;
+					newCol.mEntityNum = TS.entNum;
 					newCol.mSurfaceIndex = surface->thisSurfaceIndex;
 					newCol.mModelIndex = TS.modelIndex;
 					//					if (face>0)
@@ -1474,8 +1484,8 @@ static void G2_TraceSurfaces(CTraceSurface& TS)
 	assert(TS.currentModel);
 	assert(TS.currentModel->data.glm && TS.currentModel->data.glm->header);
 	const mdxmSurface_t* surface = (mdxmSurface_t*)G2_FindSurface(TS.currentModel, TS.surfaceNum, TS.lod);
-	const mdxmHierarchyOffsets_t* surf_indexes = (mdxmHierarchyOffsets_t*)((byte*)TS.currentModel->data.glm->header + sizeof(mdxmHeader_t));
-	const mdxmSurfHierarchy_t* surfInfo = (mdxmSurfHierarchy_t*)((byte*)surf_indexes + surf_indexes->offsets[surface->thisSurfaceIndex]);
+	const mdxmHierarchyOffsets_t* surfIndexes = (mdxmHierarchyOffsets_t*)((byte*)TS.currentModel->data.glm->header + sizeof(mdxmHeader_t));
+	const mdxmSurfHierarchy_t* surfInfo = (mdxmSurfHierarchy_t*)((byte*)surfIndexes + surfIndexes->offsets[surface->thisSurfaceIndex]);
 
 	// see if we have an override surface in the surface list
 	const surfaceInfo_t* surfOverride = G2_FindOverrideSurface(TS.surfaceNum, TS.rootSList);
@@ -1553,9 +1563,9 @@ static void G2_TraceSurfaces(CTraceSurface& TS)
 }
 
 #ifdef _G2_GORE
-void G2_TraceModels(CGhoul2Info_v& ghoul2, vec3_t rayStart, vec3_t rayEnd, CCollisionRecord* collRecMap, int ent_num, EG2_Collision e_g2_trace_type, int useLod, float fRadius, const float ssize, const float tsize, const float theta, const int shader, SSkinGoreData* gore, const qboolean skipIfLODNotMatch)
+void G2_TraceModels(CGhoul2Info_v& ghoul2, vec3_t rayStart, vec3_t rayEnd, CCollisionRecord* collRecMap, int entNum, EG2_Collision eG2TraceType, int useLod, float fRadius, float ssize, float tsize, float theta, int shader, SSkinGoreData* gore, qboolean skipIfLODNotMatch)
 #else
-void G2_TraceModels(CGhoul2Info_v& ghoul2, vec3_t rayStart, vec3_t rayEnd, CCollisionRecord* collRecMap, int ent_num, EG2_Collision e_g2_trace_type, int useLod, float fRadius)
+void G2_TraceModels(CGhoul2Info_v& ghoul2, vec3_t rayStart, vec3_t rayEnd, CCollisionRecord* collRecMap, int entNum, EG2_Collision eG2TraceType, int useLod, float fRadius)
 #endif
 {
 	int				i, lod;
@@ -1566,13 +1576,13 @@ void G2_TraceModels(CGhoul2Info_v& ghoul2, vec3_t rayStart, vec3_t rayEnd, CColl
 #endif // !JK2_MODE || _G2_GORE
 	int				firstModel = 0;
 
-#ifdef _G2_GORE
-	if (cg_g2MarksAllModels == nullptr)
+#ifndef JK2_MODE
+	if (cg_g2MarksAllModels == NULL)
 	{
 		cg_g2MarksAllModels = ri.Cvar_Get("cg_g2MarksAllModels", "0", 0);
 	}
 
-	if (cg_g2MarksAllModels == nullptr
+	if (cg_g2MarksAllModels == NULL
 		|| !cg_g2MarksAllModels->integer)
 	{
 		firstModelOnly = qtrue;
@@ -1622,7 +1632,7 @@ void G2_TraceModels(CGhoul2Info_v& ghoul2, vec3_t rayStart, vec3_t rayEnd, CColl
 
 		lod = G2_DecideTraceLod(ghoul2[i], useLod);
 
-#ifdef _G2_GORE
+#ifndef JK2_MODE
 		if (skipIfLODNotMatch)
 		{//we only want to hit this SPECIFIC LOD...
 			if (lod != useLod)
@@ -1635,9 +1645,9 @@ void G2_TraceModels(CGhoul2Info_v& ghoul2, vec3_t rayStart, vec3_t rayEnd, CColl
 		G2_FindOverrideSurface(-1, ghoul2[i].mSlist);
 
 #ifdef _G2_GORE
-		CTraceSurface TS(g.mSurfaceRoot, ghoul2[i].mSlist, (model_t*)ghoul2[i].currentModel, lod, rayStart, rayEnd, collRecMap, ent_num, i, skin, cust_shader, ghoul2[i].mTransformedVertsArray, e_g2_trace_type, fRadius, ssize, tsize, theta, shader, &g, gore);
+		CTraceSurface TS(g.mSurfaceRoot, ghoul2[i].mSlist, (model_t*)ghoul2[i].currentModel, lod, rayStart, rayEnd, collRecMap, entNum, i, skin, cust_shader, ghoul2[i].mTransformedVertsArray, eG2TraceType, fRadius, ssize, tsize, theta, shader, &g, gore);
 #else
-		CTraceSurface TS(g.mSurfaceRoot, ghoul2[i].mSlist, (model_t*)ghoul2[i].currentModel, lod, rayStart, rayEnd, collRecMap, ent_num, i, skin, cust_shader, ghoul2[i].mTransformedVertsArray, e_g2_trace_type, fRadius);
+		CTraceSurface TS(g.mSurfaceRoot, ghoul2[i].mSlist, (model_t*)ghoul2[i].currentModel, lod, rayStart, rayEnd, collRecMap, entNum, i, skin, cust_shader, ghoul2[i].mTransformedVertsArray, eG2TraceType, fRadius);
 #endif
 		// start the surface recursion loop
 		G2_TraceSurfaces(TS);
@@ -1657,15 +1667,14 @@ void G2_TraceModels(CGhoul2Info_v& ghoul2, vec3_t rayStart, vec3_t rayEnd, CColl
 	}
 }
 
-void TransformPoint(const vec3_t in, vec3_t out, const mdxaBone_t* mat)
-{
+void TransformPoint(const vec3_t in, vec3_t out, mdxaBone_t* mat) {
 	for (int i = 0; i < 3; i++)
 	{
 		out[i] = in[0] * mat->matrix[i][0] + in[1] * mat->matrix[i][1] + in[2] * mat->matrix[i][2];
 	}
 }
 
-void TransformAndTranslatePoint(const vec3_t in, vec3_t out, const mdxaBone_t* mat) {
+void TransformAndTranslatePoint(const vec3_t in, vec3_t out, mdxaBone_t* mat) {
 	for (int i = 0; i < 3; i++)
 	{
 		out[i] = in[0] * mat->matrix[i][0] + in[1] * mat->matrix[i][1] + in[2] * mat->matrix[i][2] + mat->matrix[i][3];
@@ -1697,7 +1706,7 @@ void Create_Matrix(const float* angle, mdxaBone_t* matrix)
 }
 
 // given a matrix, generate the inverse of that matrix
-void Inverse_Matrix(const mdxaBone_t* src, mdxaBone_t* dest)
+void Inverse_Matrix(mdxaBone_t* src, mdxaBone_t* dest)
 {
 	int i, j;
 
@@ -1730,7 +1739,7 @@ void G2_GenerateWorldMatrix(const vec3_t angles, const vec3_t origin)
 }
 
 // go away and determine what the pointer for a specific surface definition within the model definition is
-void* G2_FindSurface(const model_s* mod, const int index, const int lod)
+void* G2_FindSurface(const model_s* mod, int index, int lod)
 {
 	// damn include file dependancies
 	mdxmHeader_t* mdxm = mod->data.glm->header;
@@ -1842,7 +1851,9 @@ static void G2_FreeSaveBuffer(char* buffer)
 	Z_Free(buffer);
 }
 
-void G2_LoadGhoul2Model(CGhoul2Info_v& ghoul2, const char* buffer)
+void G2_LoadGhoul2Model(
+	CGhoul2Info_v& ghoul2,
+	char* buffer)
 {
 	static_cast<void>(buffer);
 

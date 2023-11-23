@@ -1517,7 +1517,8 @@ Stretches a raw 32 bit power of 2 bitmap image over the given screen rectangle.
 Used for cinematics.
 =============
 */
-void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte* data, int client, qboolean dirty) {
+void RE_StretchRaw(const int x, const int y, const int w, const int h, int cols, int rows, const byte* data, const int client, const qboolean dirty)
+{
 	int			i, j;
 	int			start, end;
 	vec4_t quadVerts[4]{};
@@ -1586,7 +1587,8 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte* d
 	RB_InstantQuad2(quadVerts, texCoords);
 }
 
-void RE_UploadCinematic(int cols, int rows, const byte* data, int client, qboolean dirty) {
+void RE_UploadCinematic(const int cols, const int rows, const byte* data, const int client, const qboolean dirty)
+{
 	GL_Bind(tr.scratchImage[client]);
 
 	// if the scratchImage isn't in the format we want, specify it as a new texture
