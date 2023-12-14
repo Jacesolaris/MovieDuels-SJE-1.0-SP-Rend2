@@ -2937,21 +2937,25 @@ static void UI_BuildPlayerModel_List(const qboolean inGameLoad)
 					}
 				}
 			}
-			if (iSkinParts != 7)
+			if (iSkinParts < 7)
 			{
 				//didn't get a skin for each, then skip this model.
 				UI_FreeSpecies(species);
 				continue;
 			}
 			uiInfo.playerSpeciesCount++;
-			if (!inGameLoad && ui_PrecacheModels.integer)
+			
+			if (ui_com_rend2.integer == 0) //rend2 is off
 			{
-				CGhoul2Info_v ghoul2;
-				Com_sprintf(fpath, sizeof fpath, "models/players/%s/model.glm", dirptr);
-				const int g2Model = DC->g2_InitGhoul2Model(ghoul2, fpath, 0, 0, 0, 0, 0);
-				if (g2Model >= 0)
+				if (!inGameLoad && ui_PrecacheModels.integer)
 				{
-					DC->g2_RemoveGhoul2Model(ghoul2, 0);
+					CGhoul2Info_v ghoul2;
+					Com_sprintf(fpath, sizeof fpath, "models/players/%s/model.glm", dirptr);
+					const int g2Model = DC->g2_InitGhoul2Model(ghoul2, fpath, 0, 0, 0, 0, 0);
+					if (g2Model >= 0)
+					{
+						DC->g2_RemoveGhoul2Model(ghoul2, 0);
+					}
 				}
 			}
 		}
@@ -3323,7 +3327,7 @@ void UI_LoadMenus(const char* menuFile, const qboolean reset)
 	Com_Printf("---------------- MovieDuels-SJE-1.0-SP---------------------------\n");
 	Com_Printf("-----------------------------------------------------------------\n");
 	Com_Printf("------------------------Update 9---------------------------------\n");
-	Com_Printf("------------------Build Date 04/12/2023--------------------------\n");
+	Com_Printf("------------------Build Date 14/12/2023--------------------------\n");
 	Com_Printf("-----------------------------------------------------------------\n");
 	Com_Printf("------------------------LightSaber-------------------------------\n");
 	Com_Printf("-----------An elegant weapon for a more civilized age------------\n");
@@ -5229,6 +5233,36 @@ static void UI_SetPowerTitleText(const qboolean showAllocated)
 	}
 }
 
+static int UI_CountForcePowers(void)
+{
+	const client_t* cl = &svs.clients[0];
+
+	if (cl && cl->gentity)
+	{
+		const playerState_t* ps = cl->gentity->client;
+
+		return ps->forcePowerLevel[FP_HEAL] +
+			ps->forcePowerLevel[FP_TELEPATHY] +
+			ps->forcePowerLevel[FP_PROTECT] +
+			ps->forcePowerLevel[FP_ABSORB] +
+			ps->forcePowerLevel[FP_GRIP] +
+			ps->forcePowerLevel[FP_LIGHTNING] +
+			ps->forcePowerLevel[FP_RAGE] +
+			ps->forcePowerLevel[FP_DRAIN];
+	}
+	else
+	{
+		return uiInfo.forcePowerLevel[FP_HEAL] +
+			uiInfo.forcePowerLevel[FP_TELEPATHY] +
+			uiInfo.forcePowerLevel[FP_PROTECT] +
+			uiInfo.forcePowerLevel[FP_ABSORB] +
+			uiInfo.forcePowerLevel[FP_GRIP] +
+			uiInfo.forcePowerLevel[FP_LIGHTNING] +
+			uiInfo.forcePowerLevel[FP_RAGE] +
+			uiInfo.forcePowerLevel[FP_DRAIN];
+	}
+}
+
 //. Find weapons button and make active/inactive  (Used by Force Power Allocation screen)
 static void UI_ForcePowerWeaponsButton(qboolean activeFlag)
 {
@@ -5240,8 +5274,10 @@ static void UI_ForcePowerWeaponsButton(qboolean activeFlag)
 	}
 
 	// Cheats are on so lets always let us pass
-	if (trap_Cvar_VariableValue("helpUsObi") != 0)
+	if ((trap_Cvar_VariableValue("helpUsObi") != 0) || (UI_CountForcePowers() >= 24))
+	{
 		activeFlag = qtrue;
+	}
 
 	const auto item = Menu_FindItemByName(menu, "weaponbutton");
 	if (item)
@@ -7176,18 +7212,6 @@ static void UI_UpdateSaberHilt(const qboolean secondSaber)
 	}
 }
 
-/*
-static void UI_UpdateSaberColor( qboolean secondSaber )
-{
-	int saber_number;
-	if (secondSaber)
-		saber_number = 2;
-	else
-		saber_number = 1;
-
-	ui.Cmd_ExecuteText( EXEC_APPEND, va("sabercolor %i %s\n",saber_number, Cvar_VariableString("g_saber_color")));
-}
-*/
 char GoToMenu[1024];
 
 /*
@@ -7226,8 +7250,6 @@ void UI_CheckVid1Data(const char* menuTo, const char* warningMenuName)
 
 	if (applyChanges->window.flags & WINDOW_VISIBLE) // Is the APPLY CHANGES button active?
 	{
-		//		Menus_SaveGoToMenu(menuTo);							// Save menu you're going to
-		//		Menus_HideItems(menu->window.name);					// HIDE videMenu in case you have to come back
 		Menus_OpenByName(warningMenuName); // Give warning
 	}
 	else
