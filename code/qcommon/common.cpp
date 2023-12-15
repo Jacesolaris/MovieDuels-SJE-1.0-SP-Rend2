@@ -1044,7 +1044,7 @@ Com_ExecuteCfg
 
 void Com_ExecuteCfg()
 {
-	Cbuf_ExecuteText(EXEC_NOW, "exec MD-default.cfg\n");
+	Cbuf_ExecuteText(EXEC_NOW, "execMD-SP-default.cfg\n");
 	Cbuf_Execute(); // Always execute after exec to prevent text buffer overflowing
 
 	if (!Com_SafeMode())

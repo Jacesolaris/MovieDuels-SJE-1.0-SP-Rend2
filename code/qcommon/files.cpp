@@ -2872,11 +2872,11 @@ void FS_InitFilesystem() {
 	// try to start up normally
 	FS_Startup(BASEGAME);
 
-	// if we can't find MD-default.cfg, assume that the paths are
+	// if we can't findMD-SP-default.cfg, assume that the paths are
 	// busted and error out now, rather than getting an unreadable
 	// graphics screen when the font fails to load
 	if (FS_ReadFile("MD-default.cfg", nullptr) <= 0) {
-		Com_Error(ERR_FATAL, "Couldn't load MD-default.cfg");
+		Com_Error(ERR_FATAL, "Couldn't loadMD-SP-default.cfg");
 		// bk001208 - SafeMode see below, FIXME?
 	}
 
@@ -2898,7 +2898,7 @@ void FS_Restart() {
 	// try to start up normally
 	FS_Startup(BASEGAME);
 
-	// if we can't find MD-default.cfg, assume that the paths are
+	// if we can't findMD-SP-default.cfg, assume that the paths are
 	// busted and error out now, rather than getting an unreadable
 	// graphics screen when the font fails to load
 	if (FS_ReadFile("MD-default.cfg", nullptr) <= 0) {
@@ -2912,7 +2912,7 @@ void FS_Restart() {
 			FS_Restart();
 			Com_Error(ERR_DROP, "Invalid game folder");
 		}
-		Com_Error(ERR_FATAL, "Couldn't load MD-default.cfg");
+		Com_Error(ERR_FATAL, "Couldn't loadMD-SP-default.cfg");
 	}
 
 	if (Q_stricmp(fs_gamedirvar->string, lastValidGame)) {
