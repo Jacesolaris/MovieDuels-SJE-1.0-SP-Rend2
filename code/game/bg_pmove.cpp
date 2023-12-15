@@ -10968,7 +10968,7 @@ static void PM_Footsteps()
 				{
 					if (pm->cmd.buttons & BUTTON_BLOCK && pm->ps->sprintFuel > 15)
 					{
-						PM_SetAnim(pm, SETANIM_LEGS, BOTH_SPRINT, set_anim_flags);
+						PM_SetAnim(pm, SETANIM_LEGS, BOTH_SPRINT_SINGLE_LIGHTSABER, set_anim_flags);
 
 						if (!(pm->ps->PlayerEffectFlags & 1 << PEF_SPRINTING))
 						{

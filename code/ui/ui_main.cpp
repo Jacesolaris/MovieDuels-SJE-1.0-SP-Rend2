@@ -7267,7 +7267,7 @@ void UI_ResetDefaults()
 {
 	ui.Cmd_ExecuteText(EXEC_APPEND, "cvar_restart\n");
 	Controls_SetDefaults();
-	ui.Cmd_ExecuteText(EXEC_APPEND, "execMD-SP-default.cfg\n");
+	ui.Cmd_ExecuteText(EXEC_APPEND, "exec MD-SP-default.cfg\n");
 	ui.Cmd_ExecuteText(EXEC_APPEND, "vid_restart\n");
 }
 
