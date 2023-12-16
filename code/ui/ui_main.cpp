@@ -2944,7 +2944,7 @@ static void UI_BuildPlayerModel_List(const qboolean inGameLoad)
 				continue;
 			}
 			uiInfo.playerSpeciesCount++;
-			
+
 			if (ui_com_rend2.integer == 0) //rend2 is off
 			{
 				if (!inGameLoad && ui_PrecacheModels.integer)
@@ -3327,7 +3327,7 @@ void UI_LoadMenus(const char* menuFile, const qboolean reset)
 	Com_Printf("---------------- MovieDuels-SJE-1.0-SP---------------------------\n");
 	Com_Printf("-----------------------------------------------------------------\n");
 	Com_Printf("------------------------Update 9---------------------------------\n");
-	Com_Printf("------------------Build Date 15/12/2023--------------------------\n");
+	Com_Printf("------------------Build Date 16/12/2023--------------------------\n");
 	Com_Printf("-----------------------------------------------------------------\n");
 	Com_Printf("------------------------LightSaber-------------------------------\n");
 	Com_Printf("-----------An elegant weapon for a more civilized age------------\n");
@@ -4557,7 +4557,7 @@ void _UI_KeyEvent(const int key, const qboolean down)
 		if (menu)
 		{
 			//DemoEnd();
-			if (key == A_ESCAPE && down && !Menus_AnyFullScreenVisible() && !(menu->window.flags &WINDOW_IGNORE_ESCAPE))
+			if (key == A_ESCAPE && down && !Menus_AnyFullScreenVisible() && !(menu->window.flags & WINDOW_IGNORE_ESCAPE))
 			{
 				Menus_CloseAll();
 			}

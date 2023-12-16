@@ -103,7 +103,7 @@ qboolean CheatsOk(const gentity_t* ent)
 ConcatArgs
 ==================
 */
-char* ConcatArgs(const int start)
+static char* ConcatArgs(const int start)
 {
 	static char line[MAX_STRING_CHARS];
 
@@ -138,7 +138,7 @@ SanitizeString
 Remove case and control characters
 ==================
 */
-void SanitizeString(char* in, char* out)
+static void SanitizeString(char* in, char* out)
 {
 	while (*in)
 	{
@@ -166,7 +166,7 @@ Returns a player number for either a number or name string
 Returns -1 if invalid
 ==================
 */
-int client_numberFromString(const gentity_t* to, char* s)
+static int client_numberFromString(const gentity_t* to, char* s)
 {
 	gclient_t* cl;
 	int idnum;
@@ -216,7 +216,7 @@ extern qboolean HeIsJedi(const gentity_t* ent);
 extern void TurnBarrierOff(gentity_t* ent);
 extern void TurnBarrierON(gentity_t* ent);
 
-void G_Give(gentity_t* ent, const char* name, const char* args, const int argc)
+static void G_Give(gentity_t* ent, const char* name, const char* args, const int argc)
 {
 	qboolean give_all = qfalse;
 
@@ -487,7 +487,7 @@ void G_Give(gentity_t* ent, const char* name, const char* args, const int argc)
 	}
 }
 
-void Cmd_Give_f(gentity_t* ent)
+static void Cmd_Give_f(gentity_t* ent)
 {
 	if (!CheatsOk(ent))
 	{
@@ -504,7 +504,7 @@ void Cmd_Give_f(gentity_t* ent)
 }
 
 //------------------
-void Cmd_Fx(const gentity_t* ent)
+static void Cmd_Fx(const gentity_t* ent)
 {
 	gentity_t* fx_ent = nullptr;
 
@@ -633,7 +633,7 @@ void Cmd_Fx(const gentity_t* ent)
 	gi.Printf(S_COLOR_CYAN"fx dir <#><#><#>       fx dir 0 0 -1\n\n");
 }
 
-void Cmd_Fx2(const gentity_t* ent)
+static void Cmd_Fx2(const gentity_t* ent)
 {
 	gentity_t* fx_ent = nullptr;
 
@@ -762,7 +762,7 @@ void Cmd_Fx2(const gentity_t* ent)
 	gi.Printf(S_COLOR_CYAN"fx2 dir <#><#><#>       fx2 dir 0 0 -1\n\n");
 }
 
-void Cmd_Fx3(const gentity_t* ent)
+static void Cmd_Fx3(const gentity_t* ent)
 {
 	gentity_t* fx_ent = nullptr;
 
@@ -900,7 +900,7 @@ Sets client to godmode
 argv(0) god
 ==================
 */
-void Cmd_God_f(gentity_t* ent)
+static void Cmd_God_f(gentity_t* ent)
 {
 	const char* msg;
 
@@ -918,7 +918,7 @@ void Cmd_God_f(gentity_t* ent)
 	gi.SendServerCommand(ent - g_entities, "print \"%s\"", msg);
 }
 
-void Cmd_Force_f(gentity_t* ent)
+static void Cmd_Force_f(gentity_t* ent)
 {
 	const char* msg;
 
@@ -937,7 +937,7 @@ void Cmd_Force_f(gentity_t* ent)
 	gi.SendServerCommand(ent - g_entities, "print \"%s\"", msg);
 }
 
-void Cmd_Blockpoints_f(gentity_t* ent)
+static void Cmd_Blockpoints_f(gentity_t* ent)
 {
 	const char* msg;
 
@@ -965,7 +965,7 @@ Sets client to undead mode
 argv(0) undying
 ==================
 */
-void Cmd_Undying_f(gentity_t* ent)
+static void Cmd_Undying_f(gentity_t* ent)
 {
 	const char* msg;
 
@@ -1015,7 +1015,7 @@ Sets client to notarget
 argv(0) notarget
 ==================
 */
-void Cmd_Notarget_f(gentity_t* ent)
+static void Cmd_Notarget_f(gentity_t* ent)
 {
 	const char* msg;
 
@@ -1040,7 +1040,7 @@ Cmd_Noclip_f
 argv(0) noclip
 ==================
 */
-void Cmd_Noclip_f(const gentity_t* ent)
+static void Cmd_Noclip_f(const gentity_t* ent)
 {
 	const char* msg;
 
@@ -1072,7 +1072,7 @@ and sends over a command to the client to resize the view,
 hide the scoreboard, and take a special screenshot
 ==================
 */
-void Cmd_LevelShot_f(const gentity_t* ent)
+static void Cmd_LevelShot_f(const gentity_t* ent)
 {
 	if (!CheatsOk(ent))
 	{
@@ -1087,7 +1087,7 @@ void Cmd_LevelShot_f(const gentity_t* ent)
 Cmd_Kill_f
 =================
 */
-void Cmd_Kill_f(gentity_t* ent)
+static void Cmd_Kill_f(gentity_t* ent)
 {
 	if (level.time - ent->client->respawnTime < 5000)
 	{
@@ -1104,7 +1104,7 @@ void Cmd_Kill_f(gentity_t* ent)
 Cmd_Where_f
 ==================
 */
-void Cmd_Where_f(const gentity_t* ent)
+static void Cmd_Where_f(const gentity_t* ent)
 {
 	const char* s = gi.argv(1);
 	const int len = strlen(s);
@@ -1118,9 +1118,7 @@ void Cmd_Where_f(const gentity_t* ent)
 	{
 		if (!PInUse(i))
 			continue;
-		//		if(!check || !check->inuse) {
-		//			continue;
-		//		}
+
 		const gentity_t* check = &g_entities[i];
 		if (!Q_stricmpn(s, check->classname, len))
 		{
@@ -1137,7 +1135,7 @@ UserSpawn
 
 extern qboolean G_CallSpawn(gentity_t* ent);
 
-void UserSpawn(const gentity_t* ent, const char* name)
+static void UserSpawn(const gentity_t* ent, const char* name)
 {
 	vec3_t origin;
 	vec3_t vf;
@@ -1175,7 +1173,7 @@ Cmd_Spawn
 -------------------------
 */
 
-void Cmd_Spawn(const gentity_t* ent)
+static void Cmd_Spawn(const gentity_t* ent)
 {
 	char* name = ConcatArgs(1);
 
@@ -1189,7 +1187,7 @@ void Cmd_Spawn(const gentity_t* ent)
 Cmd_SetViewpos_f
 =================
 */
-void Cmd_SetViewpos_f(gentity_t* ent)
+static void Cmd_SetViewpos_f(gentity_t* ent)
 {
 	vec3_t origin{}, angles;
 
@@ -1223,7 +1221,7 @@ Cmd_SetObjective_f
 */
 qboolean G_CheckPlayerDarkSide();
 
-void Cmd_SetObjective_f(const gentity_t* ent)
+static void Cmd_SetObjective_f(const gentity_t* ent)
 {
 	int objectiveI;
 
@@ -1262,7 +1260,7 @@ void Cmd_SetObjective_f(const gentity_t* ent)
 Cmd_ViewObjective_f
 =================
 */
-void Cmd_ViewObjective_f(const gentity_t* ent)
+static void Cmd_ViewObjective_f(const gentity_t* ent)
 {
 	if (gi.argc() != 2)
 	{
@@ -1282,7 +1280,7 @@ void Cmd_ViewObjective_f(const gentity_t* ent)
 Cmd_UseElectrobinoculars_f
 ================
 */
-void Cmd_UseElectrobinoculars_f(gentity_t* ent)
+static void Cmd_UseElectrobinoculars_f(gentity_t* ent)
 {
 	if (ent->health < 1 || in_camera)
 	{
@@ -1308,7 +1306,7 @@ void Cmd_UseElectrobinoculars_f(gentity_t* ent)
 Cmd_UseBacta_f
 ================
 */
-void Cmd_UseBacta_f(gentity_t* ent)
+static void Cmd_UseBacta_f(gentity_t* ent)
 {
 	if (ent->health < 1 || in_camera)
 	{
@@ -1328,7 +1326,7 @@ void Cmd_UseBacta_f(gentity_t* ent)
 Cmd_UseCloak_f
 ================
 */
-void Cmd_UseCloak_f(gentity_t* ent)
+static void Cmd_UseCloak_f(gentity_t* ent)
 {
 	if (ent->health < 1 || in_camera)
 	{
@@ -1352,7 +1350,7 @@ void Cmd_UseCloak_f(gentity_t* ent)
 Cmd_UseJetpack_f
 ================
 */
-void Cmd_UseJetpack_f(const gentity_t* ent)
+static void Cmd_UseJetpack_f(const gentity_t* ent)
 {
 	if (ent->health < 1 || in_camera)
 	{
@@ -1367,7 +1365,7 @@ void Cmd_UseJetpack_f(const gentity_t* ent)
 }
 
 //----------------------------------------------------------------------------------
-qboolean PickSeekerSpawnPoint(vec3_t org, vec3_t fwd, vec3_t right, const int skip, vec3_t spot)
+static qboolean PickSeekerSpawnPoint(vec3_t org, vec3_t fwd, vec3_t right, const int skip, vec3_t spot)
 {
 	vec3_t mins{}, maxs, forward, end;
 	trace_t tr;
@@ -1432,7 +1430,7 @@ qboolean PickSeekerSpawnPoint(vec3_t org, vec3_t fwd, vec3_t right, const int sk
 Cmd_UseSeeker_f
 ================
 */
-void Cmd_UseSeeker_f(gentity_t* ent)
+static void Cmd_UseSeeker_f(gentity_t* ent)
 {
 	if (ent->health < 1 || in_camera)
 	{
@@ -1478,7 +1476,7 @@ void Cmd_UseSeeker_f(gentity_t* ent)
 Cmd_UseGoggles_f
 ================
 */
-void Cmd_UseGoggles_f(gentity_t* ent)
+static void Cmd_UseGoggles_f(gentity_t* ent)
 {
 	if (ent->health < 1 || in_camera)
 	{
@@ -1503,7 +1501,7 @@ Cmd_UseSentry_f
 */
 qboolean place_portable_assault_sentry(gentity_t* self, vec3_t origin, vec3_t dir);
 
-void Cmd_UseSentry_f(gentity_t* ent)
+static void Cmd_UseSentry_f(gentity_t* ent)
 {
 	if (ent->health < 1 || in_camera)
 	{
@@ -1536,7 +1534,7 @@ void Cmd_UseSentry_f(gentity_t* ent)
 extern void CG_ChangeWeapon(int num);
 extern void ItemUse_Barrier_with_saber(gentity_t* ent);
 
-void Cmd_UseBarrier_f(gentity_t* ent)
+static void Cmd_UseBarrier_f(gentity_t* ent)
 {
 	if (ent->health < 1 || in_camera)
 	{
@@ -1574,12 +1572,12 @@ void Cmd_UseBarrier_f(gentity_t* ent)
 	}
 }
 
-void Cmd_StopBarrier_f(gentity_t* ent)
+static void Cmd_StopBarrier_f(gentity_t* ent)
 {
 	RemoveBarrier(ent);
 }
 
-void Cmd_UseGrapple_f(gentity_t* ent)
+static void Cmd_UseGrapple_f(gentity_t* ent)
 {
 	if (ent->health < 1 || in_camera)
 	{
@@ -1628,7 +1626,7 @@ void Cmd_UseGrapple_f(gentity_t* ent)
 Cmd_UseInventory_f
 ================
 */
-void Cmd_UseInventory_f(gentity_t* ent)
+static void Cmd_UseInventory_f(gentity_t* ent)
 {
 	if (G_IsRidingVehicle(ent))
 	{
@@ -1664,12 +1662,12 @@ void Cmd_UseInventory_f(gentity_t* ent)
 	}
 }
 
-void Cmd_FlushCamFile_f()
+static void Cmd_FlushCamFile_f()
 {
 	gi.FlushCamFile();
 }
 
-void G_Taunt(gentity_t* ent)
+static void G_Taunt(gentity_t* ent)
 {
 	if (ent->client)
 	{
@@ -1692,7 +1690,7 @@ void G_Taunt(gentity_t* ent)
 	}
 }
 
-void G_Victory(const gentity_t* ent)
+static void G_Victory(const gentity_t* ent)
 {
 	if (ent->health > 0)
 	{
@@ -1717,7 +1715,7 @@ enum
 	TAUNT_STANCE
 };
 
-void G_TauntSound(const gentity_t* ent, const int taunt)
+static void G_TauntSound(const gentity_t* ent, const int taunt)
 {
 	if (BG_IsAlreadyinTauntAnim(ent->client->ps.legsAnim))
 	{
@@ -1795,7 +1793,7 @@ extern void CancelReload(gentity_t* ent);
 extern qboolean npc_is_mando(const gentity_t* self);
 extern qboolean PM_RestAnim(int anim);
 
-void G_SetTauntAnim(gentity_t* ent, const int taunt)
+static void G_SetTauntAnim(gentity_t* ent, const int taunt)
 {
 	const qboolean is_holding_block_button = ent->client->ps.ManualBlockingFlags & 1 << HOLDINGBLOCK ? qtrue : qfalse;
 	//Normal Blocking
@@ -2554,7 +2552,7 @@ void G_SetTauntAnim(gentity_t* ent, const int taunt)
 	}
 }
 
-void G_SetsaberdownorAnim(gentity_t* ent)
+static void G_SetsaberdownorAnim(gentity_t* ent)
 {
 	if (ent->client->ps.saberLockTime >= level.time)
 	{
@@ -2611,7 +2609,7 @@ extern void WP_RemoveSaber(gentity_t* ent, int saber_num);
 extern void CG_ChangeWeapon(int num);
 extern void ChangeWeapon(const gentity_t* ent, int new_weapon);
 
-void Cmd_SaberDrop_f(gentity_t* ent, const int saber_num)
+static void Cmd_SaberDrop_f(gentity_t* ent, const int saber_num)
 {
 	if (saber_num < 0)
 	{
