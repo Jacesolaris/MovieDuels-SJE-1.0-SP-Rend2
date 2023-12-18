@@ -87,6 +87,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	FL_DINDJARIN			0x10000000	// protected from all damage except lightsabers for 20% of the time
 #define	FL_BOBAFETT 			0x20000000	// protected from all damage
 #define	FL_SABERDAMAGE_RESIST	0x40000000	// Partially resistant to sabers
+#define	FL_STAMINA_MODE     	0x80000000	// uNLIMITED STAMINA
 
 //Pointer safety utilities
 #define VALID( a )		( a != NULL )
@@ -571,7 +572,6 @@ void FireWeapon(gentity_t* ent, qboolean alt_fire);
 // p_hud.c
 //
 void MoveClientToIntermission(gentity_t* client);
-void G_SetStats(gentity_t* ent);
 void DeathmatchScoreboardMessage(gentity_t* client);
 
 //

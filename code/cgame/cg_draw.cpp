@@ -243,7 +243,7 @@ static void CG_DrawForcePower(const centity_t* cent, const float hud_ratio)
 		qfalse);
 }
 
-void CG_DrawJK2ForcePower(const centity_t* cent, const int x, const int y)
+static void CG_DrawJK2ForcePower(const centity_t* cent, const int x, const int y)
 {
 	vec4_t calc_color;
 	float extra = 0;
@@ -1100,7 +1100,7 @@ constexpr auto BPFUELBAR_W = 15.0f;
 #define BPFUELBAR_X			(SCREEN_WIDTH-BPFUELBAR_W-8.0f)
 constexpr auto BPFUELBAR_Y = 250.0f;
 
-void CG_DrawoldblockPoints(const centity_t* cent)
+static void CG_DrawoldblockPoints(const centity_t* cent)
 {
 	vec4_t a_color{};
 	vec4_t b_color{};
@@ -1443,7 +1443,7 @@ static void CG_DrawClassicblockPoints(const centity_t* cent, const float hud_rat
 
 // new df hud
 
-void CG_DrawDF_Pic(const int index)
+static void CG_DrawDF_Pic(const int index)
 {
 	cgi_R_SetColor(otherHUDBits[index].color);
 	CG_DrawPic(
@@ -1455,7 +1455,7 @@ void CG_DrawDF_Pic(const int index)
 	);
 }
 
-void CG_DrawDF_RotatePic(const int index, const int rotate, const int offset_x, const int offset_y, const float scale_w,
+static void CG_DrawDF_RotatePic(const int index, const int rotate, const int offset_x, const int offset_y, const float scale_w,
 	const float scale_h)
 {
 	cgi_R_SetColor(otherHUDBits[index].color);
@@ -1470,7 +1470,7 @@ void CG_DrawDF_RotatePic(const int index, const int rotate, const int offset_x, 
 }
 
 // left hud
-void CG_DrawDF_Health()
+static void CG_DrawDF_Health()
 {
 	vec4_t calc_color;
 	const playerState_t* ps = &cg.snap->ps;
@@ -1561,7 +1561,7 @@ void CG_DrawDF_Health()
 	}
 }
 
-void CG_DrawDF_Armor()
+static void CG_DrawDF_Armor()
 {
 	vec4_t calc_color;
 	const playerState_t* ps = &cg.snap->ps;
@@ -1682,7 +1682,7 @@ void CG_DrawDF_Armor()
 	}
 }
 
-void CG_DrawDF_Stamina_Sprint()
+static void CG_DrawDF_Stamina_Sprint()
 {
 	vec4_t calc_color;
 	int offset_y = 32;
@@ -1743,7 +1743,7 @@ void CG_DrawDF_Stamina_Sprint()
 	}
 }
 
-void CG_DrawDF_JetPackFuel()
+static void CG_DrawDF_JetPackFuel()
 {
 	vec4_t calc_color;
 	int offset_y = 32;
@@ -1804,7 +1804,7 @@ void CG_DrawDF_JetPackFuel()
 	}
 }
 
-void CG_DrawDF_CloakFuel()
+static void CG_DrawDF_CloakFuel()
 {
 	vec4_t calc_color;
 	int offset_y = 32;
@@ -1865,7 +1865,7 @@ void CG_DrawDF_CloakFuel()
 	}
 }
 
-void CG_DrawDF_BarrierFuel()
+static void CG_DrawDF_BarrierFuel()
 {
 	vec4_t calc_color;
 	int offset_y = 32;
@@ -1926,7 +1926,7 @@ void CG_DrawDF_BarrierFuel()
 	}
 }
 
-void CG_DrawDF_GunFatigue(const centity_t* cent)
+static void CG_DrawDF_GunFatigue(const centity_t* cent)
 {
 	if (!cent->currentState.weapon) // We don't have a weapon right now
 	{
@@ -2424,7 +2424,7 @@ static void CG_DrawDF_ForcePowers(const centity_t* cent)
 	}
 }
 
-void CG_DrawDF_SaberStyle_Fatigue(const centity_t* cent)
+static void CG_DrawDF_SaberStyle_Fatigue(const centity_t* cent)
 {
 	int index;
 
@@ -2525,7 +2525,7 @@ constexpr auto SPFUELBAR_W = 5.0f;
 #define SPFUELBAR_X			(SCREEN_WIDTH-SPFUELBAR_W-4.0f)
 constexpr auto SPFUELBAR_Y = 240.0f;
 
-void CG_DrawSprintFuel()
+static void CG_DrawSprintFuel()
 {
 	vec4_t a_color{};
 	vec4_t b_color{};
@@ -2580,7 +2580,7 @@ constexpr auto JPFUELBAR_W = 5.0f;
 #define JPFUELBAR_X			(SCREEN_WIDTH-JPFUELBAR_W-4.0f)
 constexpr auto JPFUELBAR_Y = 240.0f;
 
-void CG_DrawJetpackFuel()
+static void CG_DrawJetpackFuel()
 {
 	vec4_t a_color{};
 	vec4_t b_color{};
@@ -2639,7 +2639,7 @@ constexpr auto CLFUELBAR_W = 5.0f;
 #define CLFUELBAR_X			(SCREEN_WIDTH-CLFUELBAR_W-4.0f)
 constexpr auto CLFUELBAR_Y = 240.0f;
 
-void CG_DrawCloakFuel()
+static void CG_DrawCloakFuel()
 {
 	vec4_t a_color{};
 	vec4_t b_color{};
@@ -2703,7 +2703,7 @@ constexpr auto BFFUELBAR_W = 5.0f;
 #define BFFUELBAR_X			(SCREEN_WIDTH-BFFUELBAR_W-4.0f)
 constexpr auto BFFUELBAR_Y = 240.0f;
 
-void CG_DrawBarrierFuel()
+static void CG_DrawBarrierFuel()
 {
 	vec4_t a_color{};
 	vec4_t b_color{};
@@ -2873,7 +2873,7 @@ static void CG_DrawAmmo(const centity_t* cent, const float hud_ratio)
 	}
 }
 
-void CG_DrawJK2Ammo(const centity_t* cent, const int x, const int y)
+static void CG_DrawJK2Ammo(const centity_t* cent, const int x, const int y)
 {
 	int num_color_i;
 	vec4_t calc_color;
@@ -4276,7 +4276,7 @@ CG_DrawHUD
 */
 extern void workshop_draw_clientside_information();
 
-bool draw_jetpack_fuel_rocket_trooper_player(const centity_t* cent)
+static bool draw_jetpack_fuel_rocket_trooper_player(const centity_t* cent)
 {
 	if (cent->gent->s.number == 0 || G_ControlledByPlayer(cent->gent))
 	{
@@ -4288,13 +4288,13 @@ bool draw_jetpack_fuel_rocket_trooper_player(const centity_t* cent)
 	return qfalse;
 };
 
-void CG_DrawSJEHUDRightFrame(const int x, const int y)
+static void CG_DrawSJEHUDRightFrame(const int x, const int y)
 {
 	cgi_R_SetColor(colorTable[CT_WHITE]);
 	CG_DrawPic(x - 72, y - 75, 152, 160, cgs.media.SJEHUDRightFrame); // Metal frame
 }
 
-void CG_DrawSJEHUDLeftFrame(const int x, const int y)
+static void CG_DrawSJEHUDLeftFrame(const int x, const int y)
 {
 	cgi_R_SetColor(colorTable[CT_WHITE]);
 	CG_DrawPic(x, y - 75, 152, 160, cgs.media.SJEHUDLeftFrame); // Metal frame
@@ -4968,7 +4968,7 @@ static void CG_DrawHUD(const centity_t* cent)
 CG_ClearDataPadCvars
 ================
 */
-void CG_ClearDataPadCvars()
+static void CG_ClearDataPadCvars()
 {
 	cgi_Cvar_Set("cg_updatedDataPadForcePower1", "0");
 	cgi_Cvar_Update(&cg_updatedDataPadForcePower1);
@@ -4986,7 +4986,7 @@ void CG_ClearDataPadCvars()
 CG_DrawHUDRightFrame1
 ================
 */
-void CG_DrawHUDRightFrame1(const int x, const int y)
+static void CG_DrawHUDRightFrame1(const int x, const int y)
 {
 	cgi_R_SetColor(colorTable[CT_WHITE]);
 	// Inner gray wire frame
@@ -5791,7 +5791,7 @@ void CMD_CGCam_Disable();
 CG_DrawPickupItem
 ===================
 */
-void CG_DrawCredits()
+static void CG_DrawCredits()
 {
 	if (!cg.creditsStart)
 	{
@@ -5818,7 +5818,7 @@ void CG_DrawCredits()
 }
 
 //draw the health bar based on current "health" and maxhealth
-void CG_DrawHealthBar(const centity_t* cent, const float ch_x, const float ch_y, const float ch_w, const float ch_h)
+static void CG_DrawHealthBar(const centity_t* cent, const float ch_x, const float ch_y, const float ch_w, const float ch_h)
 {
 	vec4_t a_color{};
 	vec4_t c_color{};
@@ -5882,7 +5882,7 @@ void CG_DrawHealthBar(const centity_t* cent, const float ch_x, const float ch_y,
 	CG_FillRect(x + 1.0f, y + 1.0f, percent * ch_w - 2.0f, ch_h - 2.0f, a_color);
 }
 
-void CG_DrawBlockPointBar(const centity_t* cent, const float ch_x, const float ch_y, const float ch_w, const float ch_h)
+static void CG_DrawBlockPointBar(const centity_t* cent, const float ch_x, const float ch_y, const float ch_w, const float ch_h)
 {
 	vec4_t a_color{};
 	vec4_t c_color{};
@@ -5947,7 +5947,7 @@ void CG_DrawBlockPointBar(const centity_t* cent, const float ch_x, const float c
 	CG_FillRect(x + 1.0f, y + 1.0f, block_percent * ch_w - 2.0f, ch_h - 2.0f, a_color);
 }
 
-void CG_DrawFatiguePointBar(const centity_t* cent, const float ch_x, const float ch_y, const float ch_w,
+static void CG_DrawFatiguePointBar(const centity_t* cent, const float ch_x, const float ch_y, const float ch_w,
 	const float ch_h)
 {
 	vec4_t a_color{};
@@ -6016,7 +6016,7 @@ void CG_DrawFatiguePointBar(const centity_t* cent, const float ch_x, const float
 	CG_FillRect(x, y + 1.0f, fatigue_percent * ch_w, ch_h - 2.0f, c_color);
 }
 
-void CG_DrawForcePointBar(const centity_t* cent, const float ch_x, const float ch_y, const float ch_w, const float ch_h)
+static void CG_DrawForcePointBar(const centity_t* cent, const float ch_x, const float ch_y, const float ch_w, const float ch_h)
 {
 	vec4_t a_color{};
 	vec4_t c_color{};
@@ -6088,7 +6088,7 @@ constexpr auto BLOCKPOINT_BAR_WIDTH = 50;
 constexpr auto BLOCKPOINT_BAR_HEIGHT = 4;
 constexpr auto BLOCKPOINT_BAR_RANGE = 200;
 
-void CG_DrawBlockPointBars()
+static void CG_DrawBlockPointBars()
 {
 	float ch_x = 0, ch_y = 0;
 	vec3_t pos;
@@ -6139,7 +6139,7 @@ constexpr auto FATIGUE_BAR_WIDTH = 50;
 constexpr auto Fatigue_BAR_HEIGHT = 4;
 constexpr auto Fatigue_BAR_RANGE = 200;
 
-void CG_DrawFatiguePointBars()
+static void CG_DrawFatiguePointBars()
 {
 	float ch_x = 0, ch_y = 0;
 	vec3_t pos;
@@ -6192,7 +6192,7 @@ void CG_ClearFatiguePointBarEnts()
 
 // saber fatigue bar end
 
-void CG_DrawForcePointBars()
+static void CG_DrawForcePointBars()
 {
 	float ch_x = 0, ch_y = 0;
 	vec3_t pos;
@@ -6235,7 +6235,7 @@ int cg_healthBarEnts[MAX_HEALTH_BAR_ENTS];
 constexpr auto HEALTH_BAR_WIDTH = 50;
 constexpr auto HEALTH_BAR_HEIGHT = 4;
 
-void CG_DrawHealthBars()
+static void CG_DrawHealthBars()
 {
 	float ch_x = 0, ch_y = 0;
 	vec3_t pos;
@@ -6757,7 +6757,7 @@ qboolean CG_InFighter()
 	return qfalse;
 }
 
-qboolean CG_InATST()
+static qboolean CG_InATST()
 {
 	if (cg.predicted_player_state.m_iVehicleNum)
 	{
@@ -7500,7 +7500,7 @@ constexpr auto RADAR_MISSILE_RANGE = 3000.0f;
 constexpr auto RADAR_ASTEROID_RANGE = 10000.0f;
 constexpr auto RADAR_MIN_ASTEROID_SURF_WARN_DIST = 1200.0f;
 
-float cg_draw_radar(const float y)
+static float cg_draw_radar(const float y)
 {
 	vec4_t color{};
 	float arrow_w;

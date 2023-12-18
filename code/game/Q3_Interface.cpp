@@ -694,6 +694,8 @@ stringID_table_t setTable[] =
 
 	ENUM2STRING(SET_FFAMODE),
 
+	ENUM2STRING(SET_ENDLESS_ST),
+
 	{"", SET_}
 };
 
@@ -5805,18 +5807,18 @@ static void Q3_SetInvincible(const int entID, const qboolean invincible)
 
 /*
 ============
-Q3_SetEnlessBP
+Q3_SetEndlessBP
 
 ?
 ============
 */
-static void Q3_SetEnlessBP(const int entID, const qboolean endlessbp)
+static void Q3_SetEndlessBP(const int entID, const qboolean endlessbp)
 {
 	gentity_t* ent = &g_entities[entID];
 
 	if (!ent)
 	{
-		Quake3Game()->DebugPrint(IGameInterface::WL_WARNING, "Q3_SetEnlessBP: invalid entID %d\n", entID);
+		Quake3Game()->DebugPrint(IGameInterface::WL_WARNING, "Q3_SetEndlessBP: invalid entID %d\n", entID);
 		return;
 	}
 
@@ -5827,6 +5829,33 @@ static void Q3_SetEnlessBP(const int entID, const qboolean endlessbp)
 	else
 	{
 		ent->flags &= ~FL_BLOCKPOINTMODE;
+	}
+}
+
+/*
+============
+Q3_SetEndlessST
+
+?
+============
+*/
+static void Q3_SetEndlessST(const int entID, const qboolean endlessst)
+{
+	gentity_t* ent = &g_entities[entID];
+
+	if (!ent)
+	{
+		Quake3Game()->DebugPrint(IGameInterface::WL_WARNING, "Q3_SetEndlessST: invalid entID %d\n", entID);
+		return;
+	}
+
+	if (endlessst)
+	{
+		ent->flags |= FL_STAMINA_MODE;
+	}
+	else
+	{
+		ent->flags &= ~FL_STAMINA_MODE;
 	}
 }
 
@@ -10203,9 +10232,9 @@ void CQuake3GameInterface::Set(int taskID, int entID, const char* type_name, con
 
 	case SET_ENDLESS_BP:
 		if (!Q_stricmp("true", data))
-			Q3_SetEnlessBP(entID, qtrue);
+			Q3_SetEndlessBP(entID, qtrue);
 		else
-			Q3_SetEnlessBP(entID, qfalse);
+			Q3_SetEndlessBP(entID, qfalse);
 		break;
 
 	case SET_MORELIGHT_PLAYER:
@@ -10224,6 +10253,13 @@ void CQuake3GameInterface::Set(int taskID, int entID, const char* type_name, con
 		{
 			Q3_setFFAMode(entID, qfalse);
 		}
+		break;
+
+	case SET_ENDLESS_ST:
+		if (!Q_stricmp("true", data))
+			Q3_SetEndlessST(entID, qtrue);
+		else
+			Q3_SetEndlessST(entID, qfalse);
 		break;
 
 	default:
@@ -11176,6 +11212,10 @@ int CQuake3GameInterface::GetFloat(const int entID, const char* name, float* val
 	}
 	case SET_MORELIGHT_PLAYER:
 		*value = ent->flags & FL_MORELIGHPLAYER;
+		break;
+
+	case SET_ENDLESS_ST: //## %t="BOOL_TYPES" # ENLESS STAMINA POINTS
+		*value = ent->flags & FL_STAMINA_MODE;
 		break;
 
 	default:

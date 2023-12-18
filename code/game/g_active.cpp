@@ -196,7 +196,7 @@ extern cvar_t* com_kotor;
 
 void ClientEndPowerUps(const gentity_t* ent);
 
-int G_FindLookItem(gentity_t* self)
+static int G_FindLookItem(gentity_t* self)
 {
 	int best_ent_num = ENTITYNUM_NONE;
 	gentity_t* entity_list[MAX_GENTITIES];
@@ -377,7 +377,7 @@ qboolean G_ControlledByNPC(const gentity_t* self)
 	return qfalse;
 }
 
-qboolean G_ValidateLookEnemy(gentity_t* self, gentity_t* enemy)
+static qboolean G_ValidateLookEnemy(gentity_t* self, gentity_t* enemy)
 {
 	if (!enemy)
 	{
@@ -554,12 +554,6 @@ void G_ChooseLookEnemy(gentity_t* self, const usercmd_t* ucmd)
 					20000.0f;
 			}
 		}
-		/*
-		if ( g_crosshairEntNum == ent && !self->enemy )
-		{//we don't have an enemy and we are aiming at this guy
-			rading *= 2.0f;
-		}
-		*/
 		if (rating > best_rating)
 		{
 			best_ent = ent;
@@ -582,7 +576,7 @@ damage values to that client for pain blends and kicks, and
 global pain sound events for all clients.
 ===============
 */
-void P_DamageFeedback(const gentity_t* player)
+static void P_DamageFeedback(const gentity_t* player)
 {
 	gclient_t* client = player->client;
 	if (client->ps.pm_type == PM_DEAD)
@@ -641,7 +635,7 @@ extern qboolean PM_InAmputateMove(int anim);
 extern qboolean PM_InDrainPainMove(int anim);
 extern void WP_ForcePowerStart(gentity_t* self, forcePowers_t force_power, int override_amt);
 
-void P_WorldEffects(gentity_t* ent)
+static void P_WorldEffects(gentity_t* ent)
 {
 	int mouth_contents = 0;
 
@@ -1448,11 +1442,10 @@ void DoImpact(gentity_t* self, gentity_t* other, const qboolean damage_self, con
 			}
 			else
 			{
-				if (magnitude >= 100 + self->health
+				if (magnitude >= 100 + self->health || magnitude >= 700
 					&& self->s.number >= MAX_CLIENTS
 					&& self->s.weapon != WP_SABER
-					|| self->client->NPC_class == CLASS_VEHICLE
-					|| magnitude >= 700) //health here is used to simulate structural integrity
+					|| self->client->NPC_class == CLASS_VEHICLE) //health here is used to simulate structural integrity
 				{
 					if ((self->s.weapon == WP_SABER || self->s.number < MAX_CLIENTS || self->client && (self->client->
 						NPC_class == CLASS_BOBAFETT || self->client->NPC_class == CLASS_MANDALORIAN || self->client
@@ -1529,7 +1522,7 @@ void DoImpact(gentity_t* self, gentity_t* other, const qboolean damage_self, con
 ClientImpacts
 ==============
 */
-void ClientImpacts(gentity_t* ent, const pmove_t* pm)
+static void ClientImpacts(gentity_t* ent, const pmove_t* pm)
 {
 	int j;
 	trace_t trace;
@@ -1575,7 +1568,7 @@ Spectators will only interact with teleporters.
 This version checks at 6 unit steps between last and current origins
 ============
 */
-void G_TouchTriggersLerped(gentity_t* ent)
+static void G_TouchTriggersLerped(gentity_t* ent)
 {
 	int num;
 	float dist;
@@ -1670,17 +1663,10 @@ void G_TouchTriggersLerped(gentity_t* ent)
 			}
 			// use seperate code for determining if an item is picked up
 			// so you don't have to actually contact its bounding box
-			/*
-			if ( hit->s.eType == ET_ITEM ) {
-				if ( !BG_PlayerTouchesItem( &ent->client->ps, &hit->s, level.time ) ) {
-					continue;
-				}
-			} else */
+
+			if (!gi.EntityContact(mins, maxs, hit))
 			{
-				if (!gi.EntityContact(mins, maxs, hit))
-				{
-					continue;
-				}
+				continue;
 			}
 
 			touched[i] = qtrue;
@@ -1691,13 +1677,6 @@ void G_TouchTriggersLerped(gentity_t* ent)
 			{
 				GEntity_TouchFunc(hit, ent, &trace);
 			}
-
-			//WTF?  Why would a trigger ever fire off the NPC's touch func??!!!
-			/*
-			if ( ( ent->NPC != NULL ) && ( ent->e_TouchFunc != touchF_NULL ) ) {
-				GEntity_TouchFunc( ent, hit, &trace );
-			}
-			*/
 		}
 	}
 }
@@ -1752,17 +1731,10 @@ void G_TouchTriggers(gentity_t* ent)
 
 		// use seperate code for determining if an item is picked up
 		// so you don't have to actually contact its bounding box
-		/*
-		if ( hit->s.eType == ET_ITEM ) {
-			if ( !BG_PlayerTouchesItem( &ent->client->ps, &hit->s, level.time ) ) {
-				continue;
-			}
-		} else */
+
+		if (!gi.EntityContact(mins, maxs, hit))
 		{
-			if (!gi.EntityContact(mins, maxs, hit))
-			{
-				continue;
-			}
+			continue;
 		}
 
 		memset(&trace, 0, sizeof trace);
@@ -1956,7 +1928,7 @@ extern void BG_ReduceBlasterMishapLevelAdvanced(playerState_t* ps);
 extern void WP_SaberFatigueRegenerate(int override_amt);
 extern void WP_BlasterFatigueRegenerate(int override_amt);
 
-void ClientTimerActions(gentity_t* ent, const int msec)
+static void ClientTimerActions(gentity_t* ent, const int msec)
 {
 	gclient_t* client = ent->client;
 	client->timeResidual += msec;
@@ -2043,15 +2015,22 @@ void ClientTimerActions(gentity_t* ent, const int msec)
 				&& ent->client->ps.saberBlockingTime < level.time
 				&& ent->client->ps.groundEntityNum != ENTITYNUM_NONE)
 			{
-				if (!(ent->client->ps.ManualBlockingFlags & 1 << HOLDINGBLOCK))
+				if (ent->flags & FL_STAMINA_MODE)
 				{
-					if (ent->client->ps.saberFatigueChainCount > MISHAPLEVEL_HEAVY)
+					ent->client->ps.saberFatigueChainCount = MISHAPLEVEL_MIN;
+				}
+				else
+				{
+					if (!(ent->client->ps.ManualBlockingFlags & 1 << HOLDINGBLOCK))
 					{
-						WP_SaberFatigueRegenerate(2);
-					}
-					else
-					{
-						WP_SaberFatigueRegenerate(4);
+						if (ent->client->ps.saberFatigueChainCount > MISHAPLEVEL_HEAVY)
+						{
+							WP_SaberFatigueRegenerate(2);
+						}
+						else
+						{
+							WP_SaberFatigueRegenerate(4);
+						}
 					}
 				}
 			}
@@ -2067,7 +2046,14 @@ void ClientTimerActions(gentity_t* ent, const int msec)
 				&& ent->client->ps.saberBlockingTime < level.time
 				&& ent->client->ps.groundEntityNum != ENTITYNUM_NONE)
 			{
-				WP_SaberFatigueRegenerate(1);
+				if (ent->flags & FL_STAMINA_MODE)
+				{
+					ent->client->ps.saberFatigueChainCount = MISHAPLEVEL_MIN;
+				}
+				else
+				{
+					WP_SaberFatigueRegenerate(1);
+				}
 			}
 
 			if (g_SerenityJediEngineMode->integer == 2
@@ -2138,7 +2124,7 @@ void ClientTimerActions(gentity_t* ent, const int msec)
 	}
 }
 
-void ClientTimerProjectionLifeDrain(gentity_t* ent, const int msec)
+static void ClientTimerProjectionLifeDrain(gentity_t* ent, const int msec)
 {
 	const qboolean doing_projection = ent->client->ps.communicatingflags & 1 << PROJECTING ? qtrue : qfalse;
 
@@ -2205,7 +2191,7 @@ extern qboolean PM_ReloadAnim(int anim);
 extern qboolean PM_WeponRestAnim(int anim);
 void cancel_firing(gentity_t* ent);
 
-void ClientEvents(gentity_t* ent, const int old_event_sequence)
+static void ClientEvents(gentity_t* ent, const int old_event_sequence)
 {
 	int event;
 	gclient_t* client;
@@ -2291,7 +2277,7 @@ void ClientEvents(gentity_t* ent, const int old_event_sequence)
 	}
 }
 
-void G_ThrownDeathAnimForDeathAnim(gentity_t* hit_ent, vec3_t impact_point)
+static void G_ThrownDeathAnimForDeathAnim(gentity_t* hit_ent, vec3_t impact_point)
 {
 	int anim = -1;
 	if (!hit_ent || !hit_ent->client)
@@ -2405,7 +2391,7 @@ void G_ThrownDeathAnimForDeathAnim(gentity_t* hit_ent, vec3_t impact_point)
 }
 
 //general check for performing certain attacks against others
-qboolean G_CanBeEnemy(const gentity_t* self, const gentity_t* enemy)
+static qboolean G_CanBeEnemy(const gentity_t* self, const gentity_t* enemy)
 {
 	if (!self->inuse || !enemy->inuse || !self->client || !enemy->client)
 	{
@@ -2892,7 +2878,7 @@ qboolean WP_AbsorbKick(gentity_t* hit_ent, const gentity_t* pusher, const vec3_t
 
 extern void G_Kick_Throw(gentity_t* targ, const vec3_t new_dir, float push);
 
-gentity_t* G_KickTrace(gentity_t* ent, vec3_t kick_dir, const float kick_dist, vec3_t kick_end, const int kick_damage,
+static gentity_t* G_KickTrace(gentity_t* ent, vec3_t kick_dir, const float kick_dist, vec3_t kick_end, const int kick_damage,
 	const float kick_push, const qboolean do_sound_on_walls)
 {
 	vec3_t traceOrg, trace_end;
@@ -3245,7 +3231,7 @@ qboolean G_CheckRollSafety(const gentity_t* self, const int anim, const float te
 	return qtrue;
 }
 
-void G_CamPullBackForLegsAnim(const gentity_t* ent, const qboolean use_torso = qfalse)
+static void G_CamPullBackForLegsAnim(const gentity_t* ent, const qboolean use_torso = qfalse)
 {
 	if (ent->s.number < MAX_CLIENTS || G_ControlledByPlayer(ent))
 	{
@@ -3272,7 +3258,7 @@ void G_CamPullBackForLegsAnim(const gentity_t* ent, const qboolean use_torso = q
 	}
 }
 
-void G_CamCircleForLegsAnim(const gentity_t* ent)
+static void G_CamCircleForLegsAnim(const gentity_t* ent)
 {
 	if (ent->s.number < MAX_CLIENTS || G_ControlledByPlayer(ent))
 	{
@@ -3285,7 +3271,7 @@ void G_CamCircleForLegsAnim(const gentity_t* ent)
 	}
 }
 
-qboolean G_GrabClient(gentity_t* ent, const usercmd_t* ucmd)
+static qboolean G_GrabClient(gentity_t* ent, const usercmd_t* ucmd)
 {
 	gentity_t* best_ent = nullptr, * radius_ents[128];
 	constexpr float radius = 100.0f;
@@ -3383,7 +3369,7 @@ qboolean G_GrabClient(gentity_t* ent, const usercmd_t* ucmd)
 	return qfalse;
 }
 
-qboolean G_PullAttack(gentity_t* ent, usercmd_t* ucmd)
+static qboolean G_PullAttack(gentity_t* ent, usercmd_t* ucmd)
 {
 	qboolean overrid_angles = qfalse;
 	if (ent->client->ps.torsoAnim == BOTH_PULL_IMPALE_STAB
@@ -3410,11 +3396,6 @@ qboolean G_PullAttack(gentity_t* ent, usercmd_t* ucmd)
 		{
 			vec3_t pull_dir;
 			vec3_t pull_pos;
-			//calc where to pull me to
-			/*
-			VectorCopy( puller->client->ps.saber[0].blade[0].muzzlePoint, pullPos );
-			VectorMA( pullPos, puller->client->ps.saber[0].blade[0].length*0.5f, puller->client->ps.saber[0].blade[0].muzzleDir, pullPos );
-			*/
 			vec3_t puller_fwd;
 			AngleVectors(puller->client->ps.viewangles, puller_fwd, nullptr, nullptr);
 			VectorMA(puller->currentOrigin, puller->maxs[0] * 1.5f + 16.0f, puller_fwd, pull_pos);
@@ -3429,9 +3410,6 @@ qboolean G_PullAttack(gentity_t* ent, usercmd_t* ucmd)
 			{
 				pull_length = 0.25f;
 			}
-			//float pullTimeRemaining = ent->client->ps.pullAttackTime - level.time;
-
-			//float pullSpeed = pullDist * (pullTimeRemaining/pullLength);
 			const float pull_speed = pull_dist * 1000.0f / pull_length;
 
 			VectorScale(pull_dir, pull_speed, ent->client->ps.velocity);
@@ -3456,7 +3434,7 @@ qboolean G_PullAttack(gentity_t* ent, usercmd_t* ucmd)
 	return overrid_angles;
 }
 
-void G_FixMins(gentity_t* ent)
+static void G_FixMins(gentity_t* ent)
 {
 	//do a trace to make sure it's okay
 	const float downdist = DEFAULT_MINS_2 - ent->mins[2];
@@ -6074,7 +6052,7 @@ qboolean G_CheckClampUcmd(gentity_t* ent, usercmd_t* ucmd)
 	return overrid_angles;
 }
 
-void BG_AddPushVecToUcmd(const gentity_t* self, usercmd_t* ucmd)
+static void BG_AddPushVecToUcmd(const gentity_t* self, usercmd_t* ucmd)
 {
 	vec3_t forward, right, move_dir;
 
@@ -6109,7 +6087,7 @@ void BG_AddPushVecToUcmd(const gentity_t* self, usercmd_t* ucmd)
 	}
 }
 
-void NPC_Accelerate(const gentity_t* ent, const qboolean full_walk_acc, const qboolean full_run_acc)
+static void NPC_Accelerate(const gentity_t* ent, const qboolean full_walk_acc, const qboolean full_run_acc)
 {
 	if (!ent->client || !ent->NPC)
 	{
@@ -6234,7 +6212,7 @@ static int NPC_GetRunSpeed(const gentity_t* ent)
 	return run_speed;
 }
 
-void G_HeldByMonster(gentity_t* ent, usercmd_t** ucmd)
+static void G_HeldByMonster(gentity_t* ent, usercmd_t** ucmd)
 {
 	if (ent && ent->activator && ent->activator->inuse && ent->activator->health > 0)
 	{
@@ -6308,7 +6286,7 @@ void G_StartCinematicSkip()
 	}
 }
 
-void G_CheckClientIdleSabers(gentity_t* ent, const usercmd_t* ucmd)
+static void G_CheckClientIdleSabers(gentity_t* ent, const usercmd_t* ucmd)
 {
 	if (!ent || !ent->client || ent->health <= 0)
 	{
@@ -6535,7 +6513,7 @@ void G_CheckClientIdleSabers(gentity_t* ent, const usercmd_t* ucmd)
 	}
 }
 
-qboolean GunisMelee(const gentity_t* ent)
+static qboolean GunisMelee(const gentity_t* ent)
 {
 	switch (ent->s.weapon)
 	{
@@ -6547,7 +6525,7 @@ qboolean GunisMelee(const gentity_t* ent)
 	return qfalse;
 }
 
-qboolean GunisSbd(const gentity_t* ent)
+static qboolean GunisSbd(const gentity_t* ent)
 {
 	switch (ent->s.weapon)
 	{
@@ -6558,7 +6536,7 @@ qboolean GunisSbd(const gentity_t* ent)
 	return qfalse;
 }
 
-qboolean GunisShort(const gentity_t* ent)
+static qboolean GunisShort(const gentity_t* ent)
 {
 	switch (ent->s.weapon)
 	{
@@ -6577,7 +6555,7 @@ qboolean GunisShort(const gentity_t* ent)
 	return qfalse;
 }
 
-qboolean GunisLong(const gentity_t* ent)
+static qboolean GunisLong(const gentity_t* ent)
 {
 	switch (ent->s.weapon)
 	{
@@ -6597,7 +6575,7 @@ qboolean GunisLong(const gentity_t* ent)
 	return qfalse;
 }
 
-qboolean GunisMassive(const gentity_t* ent)
+static qboolean GunisMassive(const gentity_t* ent)
 {
 	switch (ent->s.weapon)
 	{
@@ -6615,7 +6593,7 @@ qboolean GunisMassive(const gentity_t* ent)
 	return qfalse;
 }
 
-qboolean GunisBomb(const gentity_t* ent)
+static qboolean GunisBomb(const gentity_t* ent)
 {
 	switch (ent->s.weapon)
 	{
@@ -6628,7 +6606,7 @@ qboolean GunisBomb(const gentity_t* ent)
 	return qfalse;
 }
 
-void G_CheckClientIdleGuns(gentity_t* ent, const usercmd_t* ucmd)
+static void G_CheckClientIdleGuns(gentity_t* ent, const usercmd_t* ucmd)
 {
 	if (!ent || !ent->client || ent->health <= 0)
 	{
@@ -6797,7 +6775,7 @@ void G_CheckClientIdleGuns(gentity_t* ent, const usercmd_t* ucmd)
 	}
 }
 
-void G_CheckMovingLoopingSounds(gentity_t* ent, const usercmd_t* ucmd)
+static void G_CheckMovingLoopingSounds(gentity_t* ent, const usercmd_t* ucmd)
 {
 	if (ent->client)
 	{
@@ -6849,7 +6827,7 @@ This will mark an enemy. If our friend is an NPC, order them to attack.
 ==============
 */
 
-void DoCallout(gentity_t* caller, gentity_t* our_friend)
+static void DoCallout(gentity_t* caller, gentity_t* our_friend)
 {
 	trace_t tr;
 	vec3_t end_trace, forward;
@@ -6942,7 +6920,7 @@ This function is called ONLY from ClientThinkReal, and is responsible for settin
 */
 extern qboolean g_standard_humanoid(gentity_t* self);
 
-void ClientAlterSpeed(gentity_t* ent, usercmd_t* ucmd, const qboolean controlled_by_player)
+static void ClientAlterSpeed(gentity_t* ent, usercmd_t* ucmd, const qboolean controlled_by_player)
 {
 	gclient_t* client = ent->client;
 	const Vehicle_t* p_veh = nullptr;
@@ -7464,7 +7442,7 @@ usually be a couple times for each server frame on fast clients.
 ==============
 */
 
-void CG_BreathPuffsVader(const gentity_t* ent)
+static void CG_BreathPuffsVader(const gentity_t* ent)
 {
 	gclient_t* client = ent->client;
 
@@ -7615,7 +7593,7 @@ void CG_BreathPuffsVader(const gentity_t* ent)
 extern vmCvar_t cg_setVaderBreath;
 extern vmCvar_t cg_setVaderBreathdamaged;
 
-void CG_SetVaderBreath(const gentity_t* ent)
+static void CG_SetVaderBreath(const gentity_t* ent)
 {
 	gclient_t* client = ent->client;
 
@@ -7718,7 +7696,7 @@ void CG_SetVaderBreath(const gentity_t* ent)
 	}
 }
 
-void CG_SetVaderBreathDamaged(const gentity_t* ent)
+static void CG_SetVaderBreathDamaged(const gentity_t* ent)
 {
 	gclient_t* client = ent->client;
 
@@ -7804,7 +7782,7 @@ void CG_SetVaderBreathDamaged(const gentity_t* ent)
 
 //// reload ////
 
-int ReloadTime(const gentity_t* ent)
+static int ReloadTime(const gentity_t* ent)
 {
 	if (ent->client->ps.weapon == WP_FLECHETTE)
 	{
@@ -7817,7 +7795,7 @@ int ReloadTime(const gentity_t* ent)
 	return 300;
 }
 
-int pain_time(const gentity_t* ent)
+static int pain_time(const gentity_t* ent)
 {
 	if (ent->client->ps.weapon == WP_FLECHETTE)
 	{
@@ -7870,7 +7848,7 @@ qboolean IsHoldingReloadableGun(const gentity_t* ent)
 	return qfalse;
 }
 
-int clip_size(const int ammo)
+static int clip_size(const int ammo)
 {
 	switch (ammo)
 	{
@@ -7887,7 +7865,7 @@ int clip_size(const int ammo)
 	return -1;
 }
 
-int magazine_size(const gentity_t* ent, const int ammo)
+static int magazine_size(const gentity_t* ent, const int ammo)
 {
 	switch (ammo)
 	{
@@ -8178,7 +8156,7 @@ extern void Ent_CheckBarrierIsAllowed(gentity_t* ent);
 extern void Ent_CheckBarrierIsAllowed_WithSaber(gentity_t* ent);
 extern qboolean droideka_npc(const gentity_t* ent);
 
-void ClientThink_real(gentity_t* ent, usercmd_t* ucmd)
+static void ClientThink_real(gentity_t* ent, usercmd_t* ucmd)
 {
 	gclient_t* client;
 	pmove_t pm;

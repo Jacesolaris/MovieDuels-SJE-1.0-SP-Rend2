@@ -963,7 +963,7 @@ static void R_TakeScreenshotJPEG(const int x, const int y, const int width, cons
 R_ScreenshotFilename
 ==================
 */
-void R_ScreenshotFilename(char* buf, const int buf_size, const char* ext) {
+static void R_ScreenshotFilename(char* buf, const int buf_size, const char* ext) {
 	time_t rawtime;
 	char time_str[32] = { 0 }; // should really only reach ~19 chars
 
@@ -1211,7 +1211,7 @@ R_PrintLongString
 Workaround for Com_Printf's 1024 characters buffer limit.
 ================
 */
-void R_PrintLongString(const char* string)
+static void R_PrintLongString(const char* string)
 {
 	const char* p = string;
 	int remaining_length = strlen(string);
@@ -1376,7 +1376,7 @@ void GfxInfo_f()
 	}
 }
 
-void R_AtiHackToggle_f()
+static void R_AtiHackToggle_f()
 {
 	g_bTextureRectangleHack = !g_bTextureRectangleHack;
 }
@@ -1395,7 +1395,7 @@ void R_AtiHackToggle_f()
  *    none                                                                                      *
  *                                                                                              *
  ************************************************************************************************/
-void R_FogDistance_f()
+static void R_FogDistance_f()
 {
 	float	distance;
 
@@ -1455,7 +1455,7 @@ void R_FogDistance_f()
  *    none                                                                                      *
  *                                                                                              *
  ************************************************************************************************/
-void R_FogColor_f()
+static void R_FogColor_f()
 {
 	if (!tr.world)
 	{
@@ -1534,7 +1534,7 @@ constexpr auto MAX_PRIMITIVES = 3;
 R_Register
 ===============
 */
-void R_Register()
+static void R_Register()
 {
 	//
 	// latched and archived variables
@@ -1723,7 +1723,7 @@ void R_Register()
 
 // need to do this hackery so ghoul2 doesn't crash the game because of ITS hackery...
 //
-void R_ClearStuffToStopGhoul2CrashingThings()
+static void R_ClearStuffToStopGhoul2CrashingThings()
 {
 	memset(&tr, 0, sizeof tr);
 }
@@ -1898,11 +1898,11 @@ RE_EndRegistration
 Touch all images to make sure they are resident
 =============
 */
-void	RE_EndRegistration() {
+static void	RE_EndRegistration() {
 	R_IssuePendingRenderCommands();
 }
 
-void RE_GetLightStyle(const int style, color4ub_t color)
+static void RE_GetLightStyle(const int style, color4ub_t color)
 {
 	if (style >= MAX_LIGHT_STYLES)
 	{
@@ -1941,22 +1941,22 @@ extern float tr_distortionStretch;
 extern qboolean tr_distortionPrePost;
 extern qboolean tr_distortionNegate;
 
-float* get_tr_distortionAlpha()
+static float* get_tr_distortionAlpha()
 {
 	return &tr_distortionAlpha;
 }
 
-float* get_tr_distortionStretch()
+static float* get_tr_distortionStretch()
 {
 	return &tr_distortionStretch;
 }
 
-qboolean* get_tr_distortionPrePost()
+static qboolean* get_tr_distortionPrePost()
 {
 	return &tr_distortionPrePost;
 }
 
-qboolean* get_tr_distortionNegate()
+static qboolean* get_tr_distortionNegate()
 {
 	return &tr_distortionNegate;
 }
@@ -1976,7 +1976,7 @@ void RE_SetRangedFog(const float dist)
 }
 
 //bool inServer = false;
-void RE_SVModelInit()
+static void RE_SVModelInit()
 {
 	tr.numModels = 0;
 	tr.numShaders = 0;

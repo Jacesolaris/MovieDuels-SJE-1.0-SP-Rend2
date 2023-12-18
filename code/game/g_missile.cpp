@@ -1324,11 +1324,11 @@ void G_StasisMissile(gentity_t* ent, gentity_t* missile)
 		}
 	}
 	VectorNormalize(bounce_dir);
+	missile->s.loopSound = stasisLoopSound;
 
 	if (missile_in_stasis)
 	{
 		VectorScale(bounce_dir, stasisspeed, missile->s.pos.trDelta);
-		missile->s.loopSound = stasisLoopSound;
 
 #ifdef _DEBUG
 		assert(!Q_isnan(missile->s.pos.trDelta[0]) && !Q_isnan(missile->s.pos.trDelta[1]) && !Q_isnan(missile->s.pos.trDelta[2]));

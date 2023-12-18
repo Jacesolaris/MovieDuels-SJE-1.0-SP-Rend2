@@ -820,12 +820,12 @@ Draw all the status / pacifier stuff during level loading
 
 int SCREENTIP_NEXT_UPDATE_TIME = 0;
 
-static void LoadTips()
+static void LoadTips(void)
 {
 	const int index = Q_irand(1, 20);
 	const int time = cgi_Milliseconds();
 
-	if (SCREENTIP_NEXT_UPDATE_TIME < time)
+	if ((SCREENTIP_NEXT_UPDATE_TIME < time || SCREENTIP_NEXT_UPDATE_TIME == 0))
 	{
 		cgi_Cvar_Set("ui_tipsbriefing", va("@LOADTIPS_TIP%d", index));
 		SCREENTIP_NEXT_UPDATE_TIME = time + 3500;
@@ -837,7 +837,7 @@ int SCREENSHOT_CHOICE = 0;
 int SCREENSHOT_NEXT_UPDATE_TIME = 0;
 char SCREENSHOT_CURRENT[64] = { 0 };
 
-char* cg_GetCurrentLevelshot1(const char* s)
+static char* cg_GetCurrentLevelshot1(const char* s)
 {
 	const qhandle_t levelshot1 = cgi_R_RegisterShaderNoMip(va("levelshots/%s", s));
 	const int time = cgi_Milliseconds();

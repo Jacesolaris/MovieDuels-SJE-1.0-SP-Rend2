@@ -104,6 +104,12 @@ static void WorkshopDrawEntityInformation(const gentity_t* ent, const int x, con
 		add += OL_H;
 	}
 
+	if (ent->flags & FL_STAMINA_MODE)
+	{
+		cgi_R_Font_DrawString(x, OL_Y + add, "cheat: STAMINAMODE", textcolor, cgs.media.qhFontSmall, -1, OL_S);
+		add += OL_H;
+	}
+
 	if (ent->flags & FL_NOTARGET)
 	{
 		cgi_R_Font_DrawString(x, OL_Y + add, "cheat: NOTARGET", textcolor, cgs.media.qhFontSmall, -1, OL_S);
@@ -1230,7 +1236,7 @@ void Workshop_Force_f(gentity_t* ent)
 	}
 }
 
-void Workshop_Block_f(gentity_t* ent)
+static void Workshop_Block_f(gentity_t* ent)
 {
 	gentity_t* selected = &g_entities[selectedAI];
 	if (selected->flags & FL_BLOCKPOINTMODE)
@@ -1242,6 +1248,21 @@ void Workshop_Block_f(gentity_t* ent)
 	{
 		gi.Printf("thisweaponisyourlife ON\n");
 		selected->flags |= FL_BLOCKPOINTMODE;
+	}
+}
+
+static void Workshop_Stamina_f(gentity_t* ent)
+{
+	gentity_t* selected = &g_entities[selectedAI];
+	if (selected->flags & FL_STAMINA_MODE)
+	{
+		gi.Printf("unlimitedstamina OFF\n");
+		selected->flags ^= FL_STAMINA_MODE;
+	}
+	else
+	{
+		gi.Printf("unlimitedstamina ON\n");
+		selected->flags |= FL_STAMINA_MODE;
 	}
 }
 
@@ -1891,44 +1912,37 @@ workshopCmd_t workshopCommands[] =
 	{"workshop_freeze", "Freezes an NPC", WSFLAG_ONLYINWS | WSFLAG_NEEDSELECTED, Workshop_Freeze_f},
 	{"workshop_kill", "Kills the NPC", WSFLAG_ONLYINWS | WSFLAG_NEEDSELECTED, Workshop_Kill_f},
 	{
-		"workshop_god", "Uses the god cheat (invincibility) on an NPC.", WSFLAG_ONLYINWS | WSFLAG_NEEDSELECTED,
-		Workshop_God_f
+		"workshop_god", "Uses the god cheat (invincibility) on an NPC.", WSFLAG_ONLYINWS | WSFLAG_NEEDSELECTED,	Workshop_God_f
 	},
 	{
-		"workshop_notarget",
-		"Uses the notarget cheat (can't be seen by enemies) on an NPC. Some NPCs have notarget on by default.",
-		WSFLAG_ONLYINWS | WSFLAG_NEEDSELECTED, Workshop_Notarget_f
+		"workshop_notarget","Uses the notarget cheat (can't be seen by enemies) on an NPC. Some NPCs have notarget on by default.",	WSFLAG_ONLYINWS | WSFLAG_NEEDSELECTED, Workshop_Notarget_f
 	},
 	{
-		"workshop_undying", "Uses the undead mode cheat (cannot die) on an NPC.", WSFLAG_ONLYINWS | WSFLAG_NEEDSELECTED,
-		Workshop_Undying_f
+		"workshop_undying", "Uses the undead mode cheat (cannot die) on an NPC.", WSFLAG_ONLYINWS | WSFLAG_NEEDSELECTED,Workshop_Undying_f
 	},
 	{
-		"workshop_shielding", "Toggles a blaster-protecting shield on an NPC.", WSFLAG_ONLYINWS | WSFLAG_NEEDSELECTED,
-		Workshop_Shielding_f
+		"workshop_shielding", "Toggles a blaster-protecting shield on an NPC.", WSFLAG_ONLYINWS | WSFLAG_NEEDSELECTED,Workshop_Shielding_f
 	},
 	//
 	{
-		"workshop_force", "Uses the force cheat (unlimitedpower) on an NPC.", WSFLAG_ONLYINWS | WSFLAG_NEEDSELECTED,
-		Workshop_Force_f
+		"workshop_force", "Uses the force cheat (unlimitedpower) on an NPC.", WSFLAG_ONLYINWS | WSFLAG_NEEDSELECTED,Workshop_Force_f
 	},
 	{
-		"workshop_block", "Uses the block cheat (thisweaponisyourlife) on an NPC.",
-		WSFLAG_ONLYINWS | WSFLAG_NEEDSELECTED, Workshop_Block_f
+		"workshop_block", "Uses the block cheat (thisweaponisyourlife) on an NPC.",WSFLAG_ONLYINWS | WSFLAG_NEEDSELECTED, Workshop_Block_f
+	},
+	{
+		"workshop_stamina", "Uses the stamina cheat (unlimitedstamina) on an NPC.",WSFLAG_ONLYINWS | WSFLAG_NEEDSELECTED, Workshop_Stamina_f
 	},
 	//
 	{"Workshop_Set_Saber", "Sets the NPC's saber.", WSFLAG_ONLYINWS | WSFLAG_NEEDSELECTED, Workshop_Set_Saber_f},
 	{
-		"Workshop_Set_SaberSingle", "Sets the NPC's Single saber.", WSFLAG_ONLYINWS | WSFLAG_NEEDSELECTED,
-		Workshop_Set_SaberSingle_f
+		"Workshop_Set_SaberSingle", "Sets the NPC's Single saber.", WSFLAG_ONLYINWS | WSFLAG_NEEDSELECTED,	Workshop_Set_SaberSingle_f
 	},
 	{
-		"Workshop_Set_SaberSecond", "Sets the NPC's Second saber.", WSFLAG_ONLYINWS | WSFLAG_NEEDSELECTED,
-		Workshop_Set_SaberSecond_f
+		"Workshop_Set_SaberSecond", "Sets the NPC's Second saber.", WSFLAG_ONLYINWS | WSFLAG_NEEDSELECTED,Workshop_Set_SaberSecond_f
 	},
 	{
-		"Workshop_Set_SaberColor", "Sets the NPC's sabercolor.", WSFLAG_ONLYINWS | WSFLAG_NEEDSELECTED,
-		Workshop_Set_SaberColor_f
+		"Workshop_Set_SaberColor", "Sets the NPC's sabercolor.", WSFLAG_ONLYINWS | WSFLAG_NEEDSELECTED,	Workshop_Set_SaberColor_f
 	},
 	//
 	{"", "", 0, nullptr},

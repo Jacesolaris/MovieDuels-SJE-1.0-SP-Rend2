@@ -659,6 +659,8 @@ using setType_t = enum //# setType_e
 
 	SET_FFAMODE,
 
+	SET_ENDLESS_ST,
+
 	SET_
 };
 

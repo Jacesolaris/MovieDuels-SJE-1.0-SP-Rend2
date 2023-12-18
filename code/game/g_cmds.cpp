@@ -956,6 +956,25 @@ static void Cmd_Blockpoints_f(gentity_t* ent)
 	gi.SendServerCommand(ent - g_entities, "print \"%s\"", msg);
 }
 
+static void Cmd_Staminapoints_f(gentity_t* ent)
+{
+	const char* msg;
+
+	if (!CheatsOk(ent))
+	{
+		return;
+	}
+
+	ent->flags ^= FL_STAMINA_MODE;
+
+	if (!(ent->flags & FL_STAMINA_MODE))
+		msg = "unlimitedstamina OFF\n";
+	else
+		msg = "unlimitedstamina ON\n";
+
+	gi.SendServerCommand(ent - g_entities, "print \"%s\"", msg);
+}
+
 /*
 ==================
 Cmd_Undying_f
@@ -2726,6 +2745,8 @@ void ClientCommand(const int client_num)
 		Cmd_Force_f(ent);
 	else if (Q_stricmp(cmd, "thisweaponisyourlife") == 0)
 		Cmd_Blockpoints_f(ent);
+	else if (Q_stricmp(cmd, "unlimitedstamina") == 0)
+		Cmd_Staminapoints_f(ent);
 
 	else if (Q_stricmp(cmd, "undying") == 0)
 		Cmd_Undying_f(ent);

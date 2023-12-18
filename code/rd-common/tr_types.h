@@ -115,6 +115,7 @@ using refEntityType_t = enum
 	RT_SPRITE,
 	RT_ORIENTED_QUAD,
 	RT_LINE,
+	RT_ORIENTEDLINE,
 	RT_ELECTRICITY,
 	RT_CYLINDER,
 	RT_LATHE,
@@ -124,7 +125,6 @@ using refEntityType_t = enum
 	// doesn't draw anything, just info for portals
 	RT_CLOUDS,
 	RT_LIGHTNING,
-	RT_ENT_CHAIN,
 
 	RT_MAX_REF_ENTITY_TYPE
 };
@@ -163,6 +163,63 @@ using refEntity_t = struct
 
 	// extra sprite information
 	float radius;
+
+	// texturing
+	union
+	{
+		//		int			skinNum;		// inline skin index
+		//		ivec3_t		terxelCoords;	// coords of patch for RT_TERXELS
+		struct
+		{
+			int miniStart;
+			int miniCount;
+		} uMini;
+	} uRefEnt;
+
+	// extra sprite information
+	union
+	{
+		struct
+		{
+			float rotation;
+			float radius;
+			byte vertRGBA[4][4];
+		} sprite;
+
+		struct
+		{
+			float width;
+			float width2;
+			float stscale;
+		} line;
+
+		struct
+			// that whole put-the-opening-brace-on-the-same-line-as-the-beginning-of-the-definition coding style is fecal
+		{
+			float width;
+			vec3_t control1;
+			vec3_t control2;
+		} bezier;
+
+		struct
+		{
+			float width;
+			float width2;
+			float stscale;
+			float height;
+			float bias;
+			qboolean wrap;
+		} cylinder;
+
+		struct
+		{
+			float width;
+			float deviation;
+			float stscale;
+			qboolean wrap;
+			qboolean taper;
+		} electricity;
+	} data;
 
 	// This doesn't have to be unioned, but it does make for more meaningful variable names :)
 	union
