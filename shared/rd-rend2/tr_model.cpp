@@ -36,9 +36,9 @@ static qboolean R_LoadMDR(model_t* mod, void* buffer, int filesize, const char* 
 R_RegisterMD3
 ====================
 */
-qhandle_t R_RegisterMD3(const char* name, model_t* mod)
+static qhandle_t R_RegisterMD3(const char* name, model_t* mod)
 {
-	unsigned* buf;
+	unsigned* buf = nullptr;
 	int			lod;
 	int			ident;
 	qboolean	loaded = qfalse;
@@ -125,12 +125,12 @@ qhandle_t R_RegisterMD3(const char* name, model_t* mod)
 R_RegisterMDR
 ====================
 */
-qhandle_t R_RegisterMDR(const char* name, model_t* mod)
+static qhandle_t R_RegisterMDR(const char* name, model_t* mod)
 {
 	union {
 		unsigned* u;
 		void* v;
-	} buf;
+	} buf{};
 	int	ident;
 	qboolean loaded = qfalse;
 	int filesize;
@@ -163,12 +163,12 @@ qhandle_t R_RegisterMDR(const char* name, model_t* mod)
 R_RegisterIQM
 ====================
 */
-qhandle_t R_RegisterIQM(const char* name, model_t* mod)
+static qhandle_t R_RegisterIQM(const char* name, model_t* mod)
 {
 	union {
 		unsigned* u;
 		void* v;
-	} buf;
+	} buf{};
 	qboolean loaded = qfalse;
 	int filesize;
 
@@ -303,13 +303,13 @@ qhandle_t RE_RegisterModel(const char* name)
 
 	if (!name || !name[0])
 	{
-		ri.Printf(PRINT_ALL, "RE_RegisterModel: NULL name\n");
+		ri.Printf(PRINT_WARNING, "RE_RegisterModel: NULL name\n");
 		return 0;
 	}
 
 	if (strlen(name) >= MAX_QPATH)
 	{
-		ri.Printf(PRINT_ALL, "Rend2 Model name exceeds MAX_QPATH\n");
+		ri.Printf(PRINT_DEVELOPER, "Rend2 Model name exceeds MAX_QPATH\n");
 		return 0;
 	}
 
@@ -426,7 +426,7 @@ qhandle_t RE_RegisterModel(const char* name)
 R_LoadMDXA_Server - load a Ghoul 2 animation file
 =================
 */
-qboolean R_LoadMDXA_Server(model_t* mod, void* buffer, const char* mod_name, qboolean& bAlreadyCached) {
+static qboolean R_LoadMDXA_Server(model_t* mod, void* buffer, const char* mod_name, qboolean& bAlreadyCached) {
 	mdxaHeader_t* pinmodel, * mdxa;
 	int					version;
 	int					size;
@@ -494,7 +494,7 @@ qboolean R_LoadMDXA_Server(model_t* mod, void* buffer, const char* mod_name, qbo
 R_LoadMDXM_Server - load a Ghoul 2 Mesh file
 =================
 */
-qboolean R_LoadMDXM_Server(model_t* mod, void* buffer, const char* mod_name, qboolean& bAlreadyCached) {
+static qboolean R_LoadMDXM_Server(model_t* mod, void* buffer, const char* mod_name, qboolean& bAlreadyCached) {
 	int					i, l, j;
 	mdxmHeader_t* pinmodel, * mdxm;
 	mdxmLOD_t* lod;
@@ -641,9 +641,9 @@ qboolean R_LoadMDXM_Server(model_t* mod, void* buffer, const char* mod_name, qbo
 R_RegisterMDX_Server
 ====================
 */
-qhandle_t R_RegisterMDX_Server(const char* name, model_t* mod)
+static qhandle_t R_RegisterMDX_Server(const char* name, model_t* mod)
 {
-	unsigned* buf;
+	unsigned* buf = nullptr;
 	int			lod;
 	int			ident;
 	qboolean	loaded = qfalse;
@@ -1692,7 +1692,7 @@ static mdvTag_t* R_GetTag(mdvModel_t* mod, int frame, const char* _tagName) {
 	return NULL;
 }
 
-void R_GetAnimTag(mdrHeader_t* mod, int framenum, const char* tagName, mdvTag_t* dest)
+static void R_GetAnimTag(mdrHeader_t* mod, int framenum, const char* tagName, mdvTag_t* dest)
 {
 	int				i, j, k;
 	int				frameSize;
@@ -1741,7 +1741,7 @@ R_LerpTag
 int R_LerpTag(orientation_t* tag, const qhandle_t handle, const int startFrame, const int endFrame, const float frac, const char* tagName)
 {
 	mdvTag_t* start, * end;
-	mdvTag_t	start_space, end_space;
+	mdvTag_t	start_space{}, end_space{};
 	int		i;
 	float		frontLerp, backLerp;
 	model_t* model;

@@ -21,7 +21,7 @@ This file is part of Jedi Academy.
 ///													SERENITY JEDI ENGINE														///
 ///										          LIGHTSABER COMBAT SYSTEM													    ///
 ///																																///
-///						      System designed by Serenity and modded by JaceSolaris. (c) 2023 SJE   		                    ///
+///						      System designed by Serenity and modded by JaceSolaris. (c) 2024 SJE   		                    ///
 ///								    https://www.moddb.com/mods/serenityjediengine-20											///
 ///																																///
 /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// ///
@@ -29,11 +29,11 @@ This file is part of Jedi Academy.
 #ifndef __AUTO_VERSION_HEADER
 #define __AUTO_VERSION_HEADER
 
-#define VERSION_MAJOR_RELEASE		23
-#define VERSION_MINOR_RELEASE		11
-#define VERSION_INTERNAL_BUILD		22
+#define VERSION_MAJOR_RELEASE		24
+#define VERSION_MINOR_RELEASE		01
+#define VERSION_INTERNAL_BUILD		02
 
-#define VERSION_STRING				"Year-23,Month-12,Day-22,BuildNum-07"
-#define VERSION_STRING_DOTTED		"Year-23,Month-12,Day-22,BuildNum-07" // build date
+#define VERSION_STRING				"Year-24,Month-01,Day-02,BuildNum-02"
+#define VERSION_STRING_DOTTED		"Year-24,Month-01,Day-02,BuildNum-02" // build date
 
 #endif // __AUTO_VERSION_HEADER

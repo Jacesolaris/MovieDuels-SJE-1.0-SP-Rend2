@@ -217,7 +217,22 @@ static void CG_EntityEffects(const centity_t* cent)
 	}
 
 	// constant light glow
-	if (cent->currentState.constantLight)
+	if (cent->currentState.constantLight
+		&& cent->currentState.eType != ET_PLAYER
+		//&& cent->currentState.eType != ET_BODY
+		//&& cent->currentState.eType != ET_NPC
+		&& cent->currentState.eType != ET_INVISIBLE
+		//&& cent->currentState.eType != ET_GENERAL
+		//&& cent->currentState.eType != ET_ITEM
+		//&& cent->currentState.eType != ET_MISSILE
+		////&& cent->currentState.eType != ET_SPECIAL
+		////&& cent->currentState.eType != ET_HOLOCRON
+		//&& cent->currentState.eType != ET_MOVER
+		//&& cent->currentState.eType != ET_BEAM
+		////&& cent->currentState.eType != ET_TEAM
+		//&& cent->currentState.eType != ET_TERRAIN
+		////&& cent->currentState.eType != ET_FX
+		)
 	{
 		const int cl = cent->currentState.constantLight;
 		const float r = static_cast<float>(cl & 0xFF) / 255.0;
@@ -228,7 +243,7 @@ static void CG_EntityEffects(const centity_t* cent)
 	}
 }
 
-void CG_AddRefEntWithTransportEffect(const centity_t* cent, refEntity_t* ent)
+static void CG_AddRefEntWithTransportEffect(const centity_t* cent, refEntity_t* ent)
 {
 	// We are a normal thing....
 	cgi_R_AddRefEntityToScene(ent);
@@ -277,7 +292,7 @@ void CG_SetGhoul2Info(refEntity_t* ent, const centity_t* cent)
 }
 
 // write in the axis and stuff
-void G2_BoltToGhoul2Model(const centity_t* cent, refEntity_t* ent)
+static void G2_BoltToGhoul2Model(const centity_t* cent, refEntity_t* ent)
 {
 	// extract the wraith ID from the bolt info
 	int model_num = cent->currentState.boltInfo >> MODEL_SHIFT;
@@ -3186,7 +3201,7 @@ void CG_AddPacketEntities(const qboolean isPortal)
 
 //rww - This function is not currently called. Use it as the client-side ROFF
 //callback once that's implemented fully.
-void CG_ROFF_NotetrackCallback(const centity_t* cent, const char* notetrack)
+static void CG_ROFF_NotetrackCallback(const centity_t* cent, const char* notetrack)
 {
 	int i = 0;
 	int r = 0;
