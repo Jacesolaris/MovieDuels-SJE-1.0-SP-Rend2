@@ -354,7 +354,7 @@ void R_AddBrushModelSurfaces(trRefEntity_t* ent) {
 	}
 }
 
-float GetQuadArea(vec3_t v1, vec3_t v2, vec3_t v3, vec3_t v4)
+static float GetQuadArea(vec3_t v1, vec3_t v2, vec3_t v3, vec3_t v4)
 {
 	vec3_t	vec1, vec2, dis1, dis2;
 
@@ -713,7 +713,8 @@ static void R_MarkLeaves() {
 
 	const byte* vis = R_ClusterPVS(tr.viewCluster);
 
-	for (i = 0, leaf = tr.world->nodes; i < tr.world->numnodes; i++, leaf++) {
+	for (i = 0, leaf = tr.world->nodes; i < tr.world->numnodes; i++, leaf++)
+	{
 		cluster = leaf->cluster;
 		if (cluster < 0 || cluster >= tr.world->numClusters) {
 			continue;
