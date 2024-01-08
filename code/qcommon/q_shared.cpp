@@ -751,9 +751,9 @@ int Q_parseSaberColor(const char* p, float* color)
 ============================================================================
 */
 
-int QDECL Com_sprintf(char* dest, const int size, const char* fmt, ...)
+int QDECL Com_sprintf(char* dest, int size, const char* fmt, ...)
 {
-	va_list argptr;
+	va_list		argptr;
 
 	va_start(argptr, fmt);
 	const int len = Q_vsnprintf(dest, size, fmt, argptr);
@@ -779,14 +779,16 @@ FIXME: make this buffer size safe someday
 
 char* QDECL va(const char* format, ...)
 {
-	va_list argptr;
-	static char string[MAX_VA_BUFFERS][MAX_VA_STRING]; // in case va is called by nested functions
-	static int index = 0;
+	va_list		argptr;
+	static char	string[MAX_VA_BUFFERS][MAX_VA_STRING];	// in case va is called by nested functions
+	static int	index = 0;
+	char* buf;
 
 	va_start(argptr, format);
-	const auto buf = reinterpret_cast<char*>(&string[index++ & 3]);
-	Q_vsnprintf(buf, sizeof * string, format, argptr);
+	buf = (char*)&string[index++ & 3];
+	Q_vsnprintf(buf, sizeof(*string), format, argptr);
 	va_end(argptr);
+
 	return buf;
 }
 

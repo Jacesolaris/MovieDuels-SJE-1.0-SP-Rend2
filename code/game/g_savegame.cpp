@@ -1126,7 +1126,7 @@ static void ReadGEntities(const qboolean qbAutosave)
 			// Calling this function fixes the vehicle crashing issue
 			BG_VehicleGetIndex(pEnt->NPC_type);
 
-			EvaluateFields(savefields_gVHIC, &tempVehicle, reinterpret_cast<byte*>(pEntOriginal->m_pVehicle),INT_ID('V', 'H', 'I', 'C'));
+			EvaluateFields(savefields_gVHIC, &tempVehicle, reinterpret_cast<byte*>(pEntOriginal->m_pVehicle), INT_ID('V', 'H', 'I', 'C'));
 
 			// so can we pinch the original's one or do we have to alloc a new one?...
 			//

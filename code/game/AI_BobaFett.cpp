@@ -607,7 +607,7 @@ void Boba_FireFlameThrower(gentity_t* self)
 	}
 }
 
-void Mando_FireFlameThrower(gentity_t* self)
+static void Mando_FireFlameThrower(gentity_t* self)
 {
 	trace_t tr;
 	vec3_t start, end, dir;

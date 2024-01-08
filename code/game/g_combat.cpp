@@ -158,7 +158,7 @@ Toss the weapon and powerups for the killed player
 */
 extern cvar_t* g_WeaponRemovalTime;
 
-int WeaponRemovalTime()
+static int WeaponRemovalTime()
 {
 	int time;
 
@@ -437,7 +437,7 @@ gentity_t* TossClientItems(gentity_t* self)
 	return dropped; //NOTE: presumes only drop one thing
 }
 
-void G_DropKey(gentity_t* self)
+static void G_DropKey(gentity_t* self)
 {
 	//drop whatever security key I was holding
 	gitem_t* item;
@@ -533,7 +533,7 @@ void GoExplodeDeath(gentity_t* self, gentity_t* other, gentity_t* activator)
 
 qboolean G_ActivateBehavior(gentity_t* self, int bset);
 
-void G_CheckVictoryScript(gentity_t* self)
+static void G_CheckVictoryScript(gentity_t* self)
 {
 	if (!G_ActivateBehavior(self, BSET_VICTORY))
 	{
@@ -743,7 +743,7 @@ G_DeathAlert
 constexpr auto DEATH_ALERT_RADIUS = 512;
 constexpr auto DEATH_ALERT_SOUND_RADIUS = 512;
 
-void G_DeathAlert(const gentity_t* victim, gentity_t* attacker)
+static void G_DeathAlert(const gentity_t* victim, gentity_t* attacker)
 {
 	//FIXME: with all the other alert stuff, do we really need this?
 	G_AlertTeam(victim, attacker, DEATH_ALERT_RADIUS, DEATH_ALERT_SOUND_RADIUS);
@@ -929,7 +929,7 @@ void DeathFX(const gentity_t* ent)
 	}
 }
 
-void G_SetMissionStatusText(const gentity_t* attacker, const int mod)
+static void G_SetMissionStatusText(const gentity_t* attacker, const int mod)
 {
 	if (statusTextIndex >= 0)
 	{
@@ -1631,7 +1631,7 @@ qboolean G_GetHitLocFromSurfName(gentity_t* ent, const char* surf_name, int* hit
 	return dismember;
 }
 
-int G_GetHitLocation(const gentity_t* target, const vec3_t ppoint)
+static int G_GetHitLocation(const gentity_t* target, const vec3_t ppoint)
 {
 	vec3_t point, point_dir;
 	vec3_t forward, right, up;
@@ -2060,7 +2060,7 @@ const char* hitLocName[HL_MAX] =
 	"generic6" //HL_GENERIC6
 };
 
-qboolean G_LimbLost(const gentity_t* ent, const int hit_loc)
+static qboolean G_LimbLost(const gentity_t* ent, const int hit_loc)
 {
 	switch (hit_loc)
 	{
@@ -2151,7 +2151,7 @@ qboolean G_LimbLost(const gentity_t* ent, const int hit_loc)
 extern qboolean G_GetRootSurfNameWithVariant(gentity_t* ent, const char* root_surf_name, char* return_surf_name,
 	int return_size);
 
-void G_RemoveWeaponsWithLimbs(gentity_t* ent, gentity_t* limb, const int limb_anim)
+static void G_RemoveWeaponsWithLimbs(gentity_t* ent, gentity_t* limb, const int limb_anim)
 {
 	int check_anim;
 
@@ -2916,7 +2916,7 @@ qboolean G_DoDismembermentcin(gentity_t* self, vec3_t point, const int mod, cons
 	return qfalse;
 }
 
-qboolean G_DoGunDismemberment(gentity_t* self, vec3_t point, const int mod, const int hit_loc)
+static qboolean G_DoGunDismemberment(gentity_t* self, vec3_t point, const int mod, const int hit_loc)
 {
 	if (mod == MOD_BLASTER
 		|| mod == MOD_BLASTER_ALT
@@ -4283,7 +4283,7 @@ int G_CheckLedgeDive(gentity_t* self, const float check_dist, const vec3_t check
 GibEntity
 ==================
 */
-void GibEntity(gentity_t* self)
+static void GibEntity(gentity_t* self)
 {
 	G_AddEvent(self, EV_GIB_PLAYER, 0);
 	self->takedamage = qfalse;
@@ -4291,7 +4291,7 @@ void GibEntity(gentity_t* self)
 	self->contents = 0;
 }
 
-void GibEntity_Headshot(gentity_t* self)
+static void GibEntity_Headshot(gentity_t* self)
 {
 	G_AddEvent(self, EV_GIB_PLAYER_HEADSHOT, 0);
 	self->client->noHead = qtrue;
@@ -4573,7 +4573,7 @@ void player_die(gentity_t* self, gentity_t* inflictor, gentity_t* attacker, cons
 #endif//FINAL_BUILD
 
 	// Remove The Bubble Shield
-	if (self->client->ps.powerups[PW_GALAK_SHIELD] || self->flags & FL_SHIELDED)
+	if (self->client && (self->flags & FL_SHIELDED || self->client->ps.powerups[PW_GALAK_SHIELD]))
 	{
 		TurnBarrierOff(self);
 	}
@@ -5850,7 +5850,7 @@ void PlayerPain(gentity_t* self, gentity_t* inflictor, gentity_t* attacker, cons
 CheckArmor
 ================
 */
-int CheckArmor(const gentity_t* ent, const int damage, const int dflags, const int mod)
+static int CheckArmor(const gentity_t* ent, const int damage, const int dflags, const int mod)
 {
 	int save;
 
@@ -5949,6 +5949,15 @@ int CheckArmor(const gentity_t* ent, const int damage, const int dflags, const i
 		}
 		return damage;
 	}
+
+	//if (client->NPC_class == CLASS_VADER) // Vader takes half fire damage
+	//{
+	//	if (mod == MOD_LAVA)
+	//	{
+	//		return damage / 2;
+	//	}
+	//}
+
 	if (G_ControlledByPlayer(ent) && ent->client->ps.powerups[PW_GALAK_SHIELD])
 	{
 		//special case
@@ -6847,7 +6856,7 @@ void G_BlastDown(gentity_t* self, gentity_t* attacker, const vec3_t push_dir, fl
 G_LocationDamage
 ============
 */
-int G_LocationDamage(const vec3_t point, const gentity_t* targ, int take)
+static int G_LocationDamage(const vec3_t point, const gentity_t* targ, int take)
 {
 	vec3_t bullet_path;
 	vec3_t bullet_angle;
@@ -6989,7 +6998,7 @@ int G_LocationDamage(const vec3_t point, const gentity_t* targ, int take)
 	return take;
 }
 
-void G_CheckKnockdown(gentity_t* targ, gentity_t* attacker, vec3_t new_dir, const int dflags, const int mod)
+static void G_CheckKnockdown(gentity_t* targ, gentity_t* attacker, vec3_t new_dir, const int dflags, const int mod)
 {
 	if (!targ || !attacker)
 	{
@@ -7067,7 +7076,7 @@ void G_CheckKnockdown(gentity_t* targ, gentity_t* attacker, vec3_t new_dir, cons
 	}
 }
 
-void G_CheckLightningKnockdown(gentity_t* targ, gentity_t* attacker, vec3_t new_dir, const int dflags, const int mod)
+static void G_CheckLightningKnockdown(gentity_t* targ, gentity_t* attacker, vec3_t new_dir, const int dflags, const int mod)
 {
 	if (!targ || !attacker)
 	{
@@ -7220,7 +7229,7 @@ void G_ApplyKnockback(gentity_t* targ, vec3_t new_dir, float knockback)
 	}
 }
 
-void G_ApplyLightningKnockback(gentity_t* targ, vec3_t new_dir, float knockback)
+static void G_ApplyLightningKnockback(gentity_t* targ, vec3_t new_dir, float knockback)
 {
 	if (g_lightningdamage->integer)
 	{
@@ -7514,7 +7523,7 @@ void G_TrackWeaponUsage(const gentity_t* self, const gentity_t* inflictor, const
 	}
 }
 
-qboolean G_NonLocationSpecificDamage(const int means_of_death)
+static qboolean G_NonLocationSpecificDamage(const int means_of_death)
 {
 	if (means_of_death == MOD_EXPLOSIVE
 		|| means_of_death == MOD_REPEATER_ALT
@@ -7539,7 +7548,7 @@ qboolean G_NonLocationSpecificDamage(const int means_of_death)
 	return qfalse;
 }
 
-qboolean G_ImmuneToGas(const gentity_t* ent)
+static qboolean G_ImmuneToGas(const gentity_t* ent)
 {
 	if (!ent || !ent->client)
 	{
@@ -7581,7 +7590,7 @@ qboolean G_ImmuneToGas(const gentity_t* ent)
 	return qfalse;
 }
 
-qboolean G_IsJediClass(const gclient_t* client)
+static qboolean G_IsJediClass(const gclient_t* client)
 {
 	if (!client)
 	{
@@ -7906,6 +7915,14 @@ void G_Damage(gentity_t* targ, gentity_t* inflictor, gentity_t* attacker, const 
 			}
 		}
 	}
+
+	//if (targ && targ->client && targ->client->NPC_class == CLASS_VADER) // Vader takes half fire damage
+	//{
+	//	if (mod == MOD_LAVA)
+	//	{
+	//		damage = ceil(damage * 0.50f);
+	//	}
+	//}
 
 	if (!inflictor)
 	{

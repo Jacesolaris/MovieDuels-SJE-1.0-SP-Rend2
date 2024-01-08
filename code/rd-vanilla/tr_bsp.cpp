@@ -1119,7 +1119,7 @@ R_LoadLightGridArray
 
 ================
 */
-static void R_LoadLightGridArray(const lump_t* l, world_t& worldData) 
+static void R_LoadLightGridArray(const lump_t* l, world_t& worldData)
 {
 	world_t* w;
 #ifdef Q3_BIG_ENDIAN

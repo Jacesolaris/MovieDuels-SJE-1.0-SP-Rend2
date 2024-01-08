@@ -753,7 +753,7 @@ void RE_SetWorldVisData(const byte* vis) {
 R_LoadVisibility
 =================
 */
-static void R_LoadVisibility(world_t* worldData, lump_t* l) 
+static void R_LoadVisibility(world_t* worldData, lump_t* l)
 {
 	int		len;
 	byte* buf;
@@ -984,7 +984,7 @@ static void ParseFace(const world_t* worldData, dsurface_t* ds, drawVert_t* vert
 ParseMesh
 ===============
 */
-static void ParseMesh(const world_t* worldData, dsurface_t* ds, drawVert_t* verts, packedTangentSpace_t* tangentSpace, float* hdrVertColors, msurface_t* surf) 
+static void ParseMesh(const world_t* worldData, dsurface_t* ds, drawVert_t* verts, packedTangentSpace_t* tangentSpace, float* hdrVertColors, msurface_t* surf)
 {
 	srfBspSurface_t* grid;
 	int				i, j;
@@ -1110,7 +1110,7 @@ static void ParseMesh(const world_t* worldData, dsurface_t* ds, drawVert_t* vert
 ParseTriSurf
 ===============
 */
-static void ParseTriSurf(const world_t* worldData, dsurface_t* ds, drawVert_t* verts, packedTangentSpace_t* tangentSpace, float* hdrVertColors, msurface_t* surf, int* indexes) 
+static void ParseTriSurf(const world_t* worldData, dsurface_t* ds, drawVert_t* verts, packedTangentSpace_t* tangentSpace, float* hdrVertColors, msurface_t* surf, int* indexes)
 {
 	srfBspSurface_t* cv;
 	glIndex_t* tri;
@@ -1299,7 +1299,7 @@ R_MergedWidthPoints
 returns true if there are grid points merged on a width edge
 =================
 */
-static int R_MergedWidthPoints(srfBspSurface_t* grid, int offset) 
+static int R_MergedWidthPoints(srfBspSurface_t* grid, int offset)
 {
 	int i, j;
 
@@ -1951,7 +1951,7 @@ static void R_StitchAllPatches(world_t* worldData)
 R_MovePatchSurfacesToHunk
 ===============
 */
-static void R_MovePatchSurfacesToHunk(world_t* worldData) 
+static void R_MovePatchSurfacesToHunk(world_t* worldData)
 {
 	int i, size;
 	srfBspSurface_t* grid, * hunkgrid;

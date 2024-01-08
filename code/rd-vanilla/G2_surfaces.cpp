@@ -165,7 +165,7 @@ int G2_IsSurfaceLegal(const model_s* mod_m, const char* surfaceName, uint32_t* f
  *    pointer to surface if successful, false otherwise
  *
  ************************************************************************************************/
-static const mdxmSurface_t* G2_FindSurface(const CGhoul2Info* ghlInfo, const surfaceInfo_v& slist, const char* surfaceName,int* surf_index)
+static const mdxmSurface_t* G2_FindSurface(const CGhoul2Info* ghlInfo, const surfaceInfo_v& slist, const char* surfaceName, int* surf_index)
 {
 	// find the model we want
 	assert(G2_MODEL_OK(ghlInfo));
@@ -308,7 +308,7 @@ qboolean G2_SetRootSurface(CGhoul2Info_v& ghoul2, const int modelIndex, const ch
 
 extern int G2_DecideTraceLod(CGhoul2Info& ghoul2, int useLod);
 
-int G2_AddSurface(CGhoul2Info* ghoul2, const int surface_number, const int poly_number, const float barycentric_i, const float barycentric_j,int lod)
+int G2_AddSurface(CGhoul2Info* ghoul2, const int surface_number, const int poly_number, const float barycentric_i, const float barycentric_j, int lod)
 {
 	lod = G2_DecideTraceLod(*ghoul2, lod);
 
